@@ -1,13 +1,17 @@
 from django.shortcuts import render, redirect
-from .forms import RegistrarUsuarioForm
+from .forms import CustomUserCreationForm
 
-def registrar_usuario(request):
+def registrarse(request):
     if request.method == 'POST':
-        form = RegistrarUsuarioForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('login')  # Podés cambiar esto por la página que quieras mostrar luego de registrarse
+            return redirect('registrarse')  
     else:
-        form = RegistrarUsuarioForm()
+        form = CustomUserCreationForm()
 
     return render(request, 'usuarios/registrar_usuario.html', {'form': form})
+
+
+def home_redirect(request):
+    return redirect('registrarse')
