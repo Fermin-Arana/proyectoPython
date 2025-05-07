@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio - Maria Alquileres{% endblock %}
+ 
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center text-danger">Bienvenido a Maria Alquileres</h2>
+    <p class="text-center">Explore todos los autos disponibles en nuestras sucursales</p>
+
+    <!-- Formulario de búsqueda y filtros -->
+    <form method="GET" class="row g-3 my-4">
+        <div class="col-md-3">
+            <input type="text" name="buscar" class="form-control" placeholder="Buscar por marca o modelo..." value="{{ request.GET.buscar }}">
+        </div>
+        <div class="col-md-2">
+            <input type="date" name="fecha" class="form-control" value="{{ request.GET.fecha }}">
+        </div>
+        <div class="col-md-2">
+            <select name="orden" class="form-select">
+                <option value="">Ordenar por precio</option>
+                <option value="menor" {% if request.GET.orden == "menor" %}selected{% endif %}>Menor a mayor</option>
+                <option value="mayor" {% if request.GET.orden == "mayor" %}selected{% endif %}>Mayor a menor</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select name="sucursal" class="form-select">
+                <option value="">Todas las sucursales</option>
+                {% for suc in sucursal %}
+                    <option value="{{ suc.id }}" {% if request.GET.sucursal == suc.id|stringformat:"s" %}selected{% endif %}>
+                        {{ suc.nombre }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-danger w-100">Filtrar</button>
+        </div>
+    </form>
+
+    <!-- Listado de autos -->
+    <div class="row">
+        {% for auto in auto %}
+            <div class="col-md-4">
+                <div class="card shadow-lg mb-4">
+                    <img src="{{ auto.imagen.url }}" class="card-img-top" alt="{{ auto.marca }} {{ auto.modelo }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ auto.marca }} {{ auto.modelo }}</h5>
+                        <p class="card-text">
+                            Sucursal: <strong>{{ auto.sucursal.nombre }}</strong><br>
+                            Precio por día: <span class="fw-bold text-success">${{ auto.precio_por_dia }}</span>
+                        </p>
+                        <a href="{% url 'detalle_auto' auto.id %}" class="btn btn-outline-danger w-100">Más detalles</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-center">No hay autos disponibles con los criterios seleccionados.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Sección institucional -->
+<div class="container my-5 py-4 px-3 bg-light rounded shadow">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h3 class="text-danger mb-3">30 años de experiencia en alquileres de confianza</h3>
+            <p class="fs-5">
+                En <strong>Maria Alquileres</strong>, llevamos más de tres décadas ofreciendo un servicio de calidad, seguro y confiable. 
+                Contamos con múltiples sucursales a lo largo de la provincia de Buenos Aires, ofreciendo una amplia flota de vehículos 
+                modernos y bien mantenidos.
+            </p>
+            <p class="fs-5">
+                Nuestro compromiso con los clientes es brindar atención personalizada, transparencia en cada operación y una experiencia de alquiler 
+                simple y sin complicaciones. ¡Conocenos y descubrí por qué cada vez más personas nos eligen para sus viajes!
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

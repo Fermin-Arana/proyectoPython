@@ -1,0 +1,88 @@
+/* Ajustar las imágenes de los autos */
+.card-img-top {
+    height: 200px;
+    object-fit: contain; /* para que no recorte la imagen si tiene espacio transparente */
+    background-color: white !important; /* aseguramos el blanco */
+    display: block;
+    width: 100%;
+    border-bottom: 1px solid #ccc;
+    padding: 10px; /* opcional, para evitar que quede "pegada" si la imagen es más chica */
+}
+
+
+
+/* Mejorar el botón de reservar */
+.btn-outline-primary {
+    transition: background-color 0.3s ease, color 0.3s ease;
+    border-radius: 20px;
+    padding: 10px 15px;
+}
+
+/* Espaciado y sombras en las tarjetas */
+.card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.card:hover {
+    transform: scale(1.03);
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Navbar más estilizado */
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Footer */
+footer {
+    position: relative;
+    bottom: 0;
+    width: 100%;
+}
+
+/* Imagen en detalles del auto */
+.img-fluid {
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Botón de reservar con efecto */
+.btn-success {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.btn-success:hover {
+    transform: scale(1.05);
+    box-shadow: 0px 4px 12px rgba(0, 128, 0, 0.4);
+}
+
+/* Ajustar lista de detalles */
+.list-group-item {
+    font-size: 1.1rem;
+    border: none;
+}
+
+
+/* Mejorar tamaño del selector de fecha y filtro */
+.form-control, .form-select {
+    height: 45px;
+    font-size: 1rem;
+}
+
+/* Estilo para botones outline en rojo */
+.btn-outline-danger {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Título en rojo personalizado si querés un tono distinto */
+.text-danger {
+    color: #dc3545 !important;
+}
