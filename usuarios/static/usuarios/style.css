@@ -44,6 +44,7 @@ button {
     border: none;
     border-radius: 6px;
     cursor: pointer;
+    text-align: center;
 }
 
 button:hover {
@@ -57,3 +58,4 @@ button:hover {
     background-color: #f8d7da;
     margin-top: 10px;
 }
+

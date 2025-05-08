@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}{{ auto.marca }} {{ auto.modelo }} - Detalles{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-lg p-4">
+        <h2 class="text-center text-danger">{{ auto.marca }} {{ auto.modelo }}</h2>
+
+        <div class="row align-items-center">
+            <!-- Imagen del auto -->
+            <div class="col-md-6 text-center">
+                <img src="{{ auto.imagen.url }}" class="img-fluid rounded shadow" alt="{{ auto.marca }} {{ auto.modelo }}">
+            </div>
+
+            <!-- Detalles del auto -->
+            <div class="col-md-6">
+                <h4 class="mb-3 text-dark">Detalles del Auto</h4>
+                <ul class="list-group">
+                    <li class="list-group-item"><strong>Año de Fabricación:</strong> {{ auto.anio_fabricacion }}</li>
+                    <li class="list-group-item"><strong>Kilometraje:</strong> {{ auto.km }} km</li>
+                    <li class="list-group-item"><strong>Patente:</strong> {{ auto.patente }}</li>
+                    <li class="list-group-item"><strong>Categoría:</strong> {{ auto.get_categoria_display }}</li>
+                    <li class="list-group-item"><strong>Capacidad de Pasajeros:</strong> {{ auto.capacidad_pasajeros }}</li>
+                    <li class="list-group-item"><strong>Política de Reembolso:</strong> {{ auto.politica_reembolso }}%</li>
+                    <li class="list-group-item"><strong>Sucursal:</strong> {{ auto.sucursal.nombre }}</li>
+                    <li class="list-group-item bg-light"><strong>Precio por Día:</strong> <span class="text-success fw-bold">${{ auto.precio_por_dia }}</span></li>
+                </ul>
+                
+                <!-- Botones de acción -->
+                <div class="mt-4 text-center">
+                    <a href="{% url 'index' %}" class="btn btn-outline-secondary">Volver</a>
+                    <a href="#" class="btn btn-success btn-lg fw-bold px-4 shadow">Reservar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

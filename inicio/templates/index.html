@@ -22,7 +22,15 @@
                 <option value="mayor" {% if request.GET.orden == "mayor" %}selected{% endif %}>Mayor a menor</option>
             </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
+            <select name="categoria" class="form-select">
+                <option value="">Todas las categorías</option>
+                {% for clave, nombre in categorias %}
+                    <option value="{{ clave }}" {% if request.GET.categoria == clave %}selected{% endif %}>{{ nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>        
+        <div class="col-md-2">
             <select name="sucursal" class="form-select">
                 <option value="">Todas las sucursales</option>
                 {% for suc in sucursal %}
@@ -32,7 +40,7 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-1">
             <button type="submit" class="btn btn-danger w-100">Filtrar</button>
         </div>
     </form>
@@ -49,7 +57,7 @@
                             Sucursal: <strong>{{ auto.sucursal.nombre }}</strong><br>
                             Precio por día: <span class="fw-bold text-success">${{ auto.precio_por_dia }}</span>
                         </p>
-                        <a href="{% url 'detalle_auto' auto.id %}" class="btn btn-outline-danger w-100">Más detalles</a>
+                        <a href="{% url 'vehiculos/detalle_auto' auto.id %}" class="btn btn-outline-danger w-100">Más detalles</a>
                     </div>
                 </div>
             </div>
@@ -73,7 +81,14 @@
                 Nuestro compromiso con los clientes es brindar atención personalizada, transparencia en cada operación y una experiencia de alquiler 
                 simple y sin complicaciones. ¡Conocenos y descubrí por qué cada vez más personas nos eligen para sus viajes!
             </p>
+
+            <h3 class="text-danger mb-3">Contactanos</h3>
+            <p class="fs-5">
+                aka irian las redes,nro de telefono,correo
+            </p>
         </div>
     </div>
 </div>
+
+
 {% endblock %}

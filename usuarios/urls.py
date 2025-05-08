@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import registrarse, login, home_redirect
+from .views import registrarse, login
 
 urlpatterns = [
     path('registrarse/', registrarse, name='registrarse'),

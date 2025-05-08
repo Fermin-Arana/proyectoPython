@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from sucursales.models import Sucursal
-from vehiculos.models import Auto
+from vehiculos.models import Auto, CATEGORIAS
 from usuarios.models import Usuario
 from django.db.models import Q
 
@@ -15,6 +15,11 @@ def index(request):
     fecha = request.GET.get('fecha', '')
     orden = request.GET.get('orden', '')
     sucursal_id = request.GET.get('sucursal', '')
+    categoria = request.GET.get("categoria")
+    
+    #Filtro por categoria
+    if categoria:
+        autos = autos.filter(categoria=categoria)
 
     # Filtro por texto
     if buscar:
@@ -24,7 +29,7 @@ def index(request):
     if sucursal_id:
         autos = autos.filter(sucursal__id=sucursal_id)
 
-    # Filtro por fecha (excluir autos ya reservados ese día)
+    # Filtro por fecha 
     if fecha:
         autos = autos.exclude(reserva__fecha_inicio__lte=fecha, reserva__fecha_fin__gte=fecha)
 
@@ -37,6 +42,7 @@ def index(request):
     return render(request, "index.html", {
         "sucursales": sucursales,
         "autos": autos,
+        "categorias": CATEGORIAS,
         "request": request  # Para acceder a los valores en la plantilla
     })
 

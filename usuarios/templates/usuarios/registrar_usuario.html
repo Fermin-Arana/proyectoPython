@@ -1,32 +1,37 @@
-<!-- registrar_usuario.html -->
-
 {% extends 'usuarios/base.html' %}
 
 {% block title %}Registrarse{% endblock %}
 
 {% block content %}
-    <h2>Formulario de Registro</h2>
-    <form method="post">
-        {% csrf_token %}
-        
-        <!-- Mostrar el formulario con campos y errores -->
-        <div class="form-group">
-            {% for field in form %}
-                <div class="form-group">
-                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                    {{ field }}
-                    {% if field.errors %}
-                        <div class="error-message">
-                            {% for error in field.errors %}
-                                <p class="text-danger">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                </div>
-            {% endfor %}
-        </div>
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Formulario de Registro</h2>
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <form method="post" class="p-4 border rounded shadow-sm bg-light">
+                {% csrf_token %}
+                
+                <!-- Campos del formulario -->
+                {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                            <div class="text-danger small">
+                                {% for error in field.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
 
-        <!-- Botón de registro -->
-        <button type="submit">Registrarse</button>
-    </form>
+                <!-- Botones -->
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="submit" class="btn btn-success">Registrarse</button>
+                    <a href="{% url 'index' %}" class="btn">Volver a Inicio</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
