@@ -8,7 +8,7 @@ def registrarse(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('registrarse')  
+            return redirect('login')  
     else:
         form = CustomUserCreationForm()
 
@@ -26,7 +26,7 @@ def login(request):
 
             if user is not None:
                 login(request, user)
-                return redirect("inicio/index")  # Redirige a la página principal
+                # return redirect("inicio/index")  # Redirige a la página principal
     else:
         form = AuthenticationForm()
 

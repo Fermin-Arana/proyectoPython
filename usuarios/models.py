@@ -14,16 +14,16 @@ class Usuario(AbstractUser):
     correo = models.EmailField(unique=True)
     telefono = models.CharField(max_length=15)
 
-    # Campos necesarios para evitar conflictos si vas a tener subclases como Cliente o Empleado
+
     groups = models.ManyToManyField(
         Group,
-        related_name='usuarios',  # nombre único para evitar conflicto con el default 'user_set'
+        related_name='usuarios',  
         blank=True
     )
 
     user_permissions = models.ManyToManyField(
         Permission,
-        related_name='usuarios',  # idem arriba
+        related_name='usuarios', 
         blank=True
     )
 
@@ -33,5 +33,5 @@ class Usuario(AbstractUser):
     
 class EmpleadoExtra(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
-    sucursal_asignada = models.ForeignKey(Sucursal, on_delete=models.SET_NULL, null=True)  # Aquí ya no es una cadena
+    sucursal_asignada = models.ForeignKey(Sucursal, on_delete=models.SET_NULL, null=True) 
 

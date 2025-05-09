@@ -1,30 +1,33 @@
-{% extends "base.html" %}
+{% extends "usuarios/base.html" %}
 
 {% block title %}Iniciar Sesión{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-  <h2 class="mb-4">Ingresar</h2>
-  <form method="post" novalidate>
-    {% csrf_token %}
-    {{ form.non_field_errors }}
-    <div class="mb-3">
+<div class="container mt-5"> {# container centra #}
+  <h2 class="mb-4">Ingresar</h2> {# titulo de 2do nivel #}
+    <form method="post" novalidate class="login-form"> {# clase nueva para estilos específicos #}
+    {% csrf_token %} {# token de seguridad #}
+
+    {{ form.non_field_errors }} {# errores generales del formulario #}
+
+    <div class="mb-3"> {# campo de usuario #}
       {{ form.username.label_tag }}
       {{ form.username }}
       {% for error in form.username.errors %}
         <div class="text-danger">{{ error }}</div>
       {% endfor %}
     </div>
-    <div class="mb-3">
+
+    <div class="mb-3"> {# campo de contraseña #}
       {{ form.password.label_tag }}
       {{ form.password }}
       {% for error in form.password.errors %}
         <div class="text-danger">{{ error }}</div>
       {% endfor %}
     </div>
-    <button type="submit" class="btn btn-danger">Ingresar</button>
-    <a href="{% url 'index' %}" class="btn btn-danger">Volver a Inicio</a>
+
+    <button type="submit" class="btn btn-primary">Ingresar</button>
+    <a href="{% url 'index' %}" class="btn btn-secondary">Volver a Inicio</a>
   </form>
 </div>
-
 {% endblock %}
