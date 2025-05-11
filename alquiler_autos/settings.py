@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'vehiculos',
     'sucursales',
     'inicio',
+    'panel_admin',
 ]
 
 

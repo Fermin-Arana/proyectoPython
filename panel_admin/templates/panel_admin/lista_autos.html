@@ -1,0 +1,33 @@
+{% extends 'panel_admin/base.html' %}
+
+{% block title %}Lista de Autos{% endblock %}
+
+{% block content %}
+<h2 class="mb-4 text-danger">Vehículos registrados</h2>
+
+<table class="table table-bordered table-hover bg-white">
+  <thead class="table-light">
+    <tr>
+      <th>Marca</th>
+      <th>Modelo</th>
+      <th>Patente</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for auto in autos %}
+    <tr>
+      <td>{{ auto.marca }}</td>
+      <td>{{ auto.modelo }}</td>
+      <td>{{ auto.patente }}</td>
+      <td>
+        <a href="{% url 'eliminar_auto' auto.patente %}" class="btn btn-danger btn-sm"
+           onclick="return confirm('¿Estás seguro de eliminar este auto?');">Eliminar</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+
+{% endblock %}

@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from datetime import date
 from sucursales.models import Sucursal
+from django.core.validators import RegexValidator
 
 CATEGORIAS = [
     ('E', 'Económico'),
@@ -17,7 +18,12 @@ class Auto(models.Model):
     modelo = models.CharField(max_length=50)
     anio_fabricacion = models.PositiveIntegerField()
     km = models.PositiveIntegerField()
-    patente = models.CharField(max_length=20, unique=True)
+    patente = models.CharField(max_length=20, unique=True,validators=[
+        RegexValidator(
+            regex=r'^([A-Z]{3}\d{3}|[a-z]{3}\d{3}|[a-z]{2}\d{3}[a-z]{2}|[A-Z]{2}\d{3}[A-Z]{2})$',
+            message='Ingrese una patente válida (formato ABC123 o AB123CD)',
+        )
+    ])
     categoria = models.CharField(max_length=1, choices=CATEGORIAS)
     capacidad_pasajeros = models.PositiveIntegerField()
     politica_reembolso = models.DecimalField(max_digits=4, decimal_places=2, default=20.00)

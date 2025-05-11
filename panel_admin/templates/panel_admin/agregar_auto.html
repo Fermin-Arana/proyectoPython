@@ -1,0 +1,15 @@
+{% extends 'panel_admin/base.html' %}
+
+{% block title %}Agregar Auto{% endblock %}
+
+{% block content %}
+<h2 class="mb-4 text-danger">Agregar nuevo vehículo</h2>
+
+<form method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-success">Guardar</button>
+</form>
+
+
+{% endblock %}

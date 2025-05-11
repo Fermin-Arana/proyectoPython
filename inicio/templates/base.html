@@ -30,6 +30,9 @@
                         <li class="nav-item"><a class="nav-link btn btn-danger text-white me-2" href="{% url 'login' %}">Ingresar</a></li>
                         <li class="nav-item"><a class="nav-link btn btn-danger text-white me-2" href="{% url 'registrarse' %}">Registrarse</a></li>
                     {% endif %}
+                    {% if es_admin %}
+                        <li class="nav-item"><a class="nav-link btn btn-danger text-white me-2" href="{% url 'panel_admin' %}">Panel Administración</a></li>
+                    {% endif %}    
                 </ul>
             </div>
         </div>

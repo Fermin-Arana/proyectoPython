@@ -15,7 +15,7 @@ def registrarse(request):
     return render(request, 'usuarios/registrar_usuario.html', {'form': form})
 
 
-def login(request):
+def login_view(request):
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
 
@@ -26,7 +26,7 @@ def login(request):
 
             if user is not None:
                 login(request, user)
-                # return redirect("inicio/index")  # Redirige a la página principal
+                return redirect("index")  # Redirige a la página principal
     else:
         form = AuthenticationForm()
 

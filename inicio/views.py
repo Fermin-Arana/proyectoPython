@@ -39,11 +39,14 @@ def index(request):
     elif orden == 'mayor':
         autos = autos.order_by('-precio_por_dia')
 
+    es_admin = request.user.groups.filter(name='admin').exists()
+
     return render(request, "index.html", {
         "sucursales": sucursales,
         "autos": autos,
         "categorias": CATEGORIAS,
-        "request": request  # Para acceder a los valores en la plantilla
+        "request": request,  # Para acceder a los valores en la plantilla
+        "es_admin": es_admin
     })
 
 
