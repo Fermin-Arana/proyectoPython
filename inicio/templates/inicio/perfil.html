@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Perfil de Usuario - Maria Alquileres{% endblock %}
+
+{% block content %}
+<div class="row-total">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-dark text-danger">
+                <h3 class="mb-0">Perfil de Usuario</h3>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Nombre de usuario:</div>
+                    <div class="col-md-8">{{ user.username }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Correo electrónico:</div>
+                    <div class="col-md-8">{{ user.email }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Fecha de registro:</div>
+                    <div class="col-md-8">{{ user.date_joined|date:"d/m/Y" }}</div>
+                </div>
+                <!-- Puedes añadir más información del usuario aquí -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
