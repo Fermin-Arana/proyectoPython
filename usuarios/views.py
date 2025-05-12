@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from .forms import CustomUserCreationForm
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login as auth_login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib import messages  # Añadir esta línea
 
 def registrarse(request):
     if request.method == 'POST':
@@ -25,9 +26,15 @@ def login(request):
             user = authenticate(request, username=username, password=password)
 
             if user is not None:
-                login(request, user)
-                # return redirect("inicio/index")  # Redirige a la página principal
+                auth_login(request, user)
+                return redirect("/")  # Redirige a la página principal
     else:
         form = AuthenticationForm()
 
     return render(request, "usuarios/login.html", {"form": form})
+
+
+def cerrar_sesion(request):
+    logout(request)
+    messages.success(request, "Se cerró la sesión correctamente")  # Ahora funcionará
+    return redirect('/')  # Redirige a la página principal

@@ -22,14 +22,18 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
+                
                 <ul class="navbar-nav ms-auto">
                     {% if user.is_authenticated %}
-                        {#<li class="nav-item"><a class="nav-link btn btn-danger text-white me-2" href="{% url 'perfil' %}">{{ user.username }}</a></li> #}
-                        {#<li class="nav-item"><a class="nav-link btn btn-danger text-white me-2" href="{% url 'logout' %}">Cerrar Sesión</a></li> #}
+                        <li class="nav-item"><a class="nav-link btn btn-danger text-white me-2" href="#">{{ user.username }}</a></li>
+                        <li class="nav-item"><a class="btn btn-logout me-2" href="{% url 'logout' %}">Cerrar Sesión</a></li>
                     {% else %}
                         <li class="nav-item"><a class="nav-link btn btn-danger text-white me-2" href="{% url 'login' %}">Ingresar</a></li>
                         <li class="nav-item"><a class="nav-link btn btn-danger text-white me-2" href="{% url 'registrarse' %}">Registrarse</a></li>
                     {% endif %}
+                    {% if es_admin %}
+                    <li class="nav-item"><a class="nav-link btn btn-danger text-white me-2" href="{% url 'panel_admin' %}">Panel Administración</a></li>
+                {% endif %}    
                 </ul>
             </div>
         </div>
@@ -37,6 +41,15 @@
 
     <!-- Contenido de la página -->
     <div class="container mt-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        
         {% block content %}{% endblock %}
     </div>
 
