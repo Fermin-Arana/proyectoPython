@@ -4,7 +4,7 @@
 
 {% block content %}
   <h1 class="text-danger">Panel de Administración</h1>
-  <p>Bienvenida, {{ request.user.username }}</p>
+  <p>Bienvenid@, {{ request.user.username }}</p>
 
   <div class="list-group">
     <a href="{% url 'agregar_auto' %}" class="list-group-item list-group-item-action">➕ Agregar vehículo</a>

@@ -46,24 +46,40 @@
     </form>
 
     <!-- Listado de autos -->
-    <div class="row">
-        {% for auto in autos %}
-            <div class="col-md-4">
-                <div class="card shadow-lg mb-4">
-                    <img src="{{ auto.imagen.url }}" class="card-img-top" alt="{{ auto.marca }} {{ auto.modelo }}">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ auto.marca }} {{ auto.modelo }}</h5>
-                        <p class="card-text">
-                            Sucursal: <strong>{{ auto.sucursal.nombre }}</strong><br>
-                            Precio por día: <span class="fw-bold text-success">${{ auto.precio_por_dia }}</span>
-                        </p>
-                        <a href="{% url 'detalle_auto' auto.id %}" class="btn btn-outline-danger w-100">Más detalles</a>
-                    </div>
-                </div>
+    <div class="row g-4">
+    {% for auto in autos %}
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+        <!-- Imagen -->
+        <img src="{{ auto.imagen.url }}" class="card-img-top" alt="{{ auto.marca }} {{ auto.modelo }}">
+
+        <div class="card-body d-flex flex-column">
+            <!-- Título -->
+            <h5 class="card-title text-danger fw-bold">{{ auto.marca }} {{ auto.modelo }}</h5>
+
+            <!-- Sucursal + Precio en una sola línea -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="badge bg-danger fs-6 py-2 px-3">
+                <i class="bi bi-geo-alt-fill me-1"></i>{{ auto.sucursal.nombre }}
+            </span>
+            <span class="text-success fw-bold fs-5">
+                <i class="bi bi-currency-dollar me-1"></i>{{ auto.precio_por_dia }}<small class="fs-7">/día</small>
+            </span>
             </div>
-        {% empty %}
-            <p class="text-center">No hay autos disponibles con los criterios seleccionados.</p>
-        {% endfor %}
+
+            <!-- Spacer para empujar el botón abajo -->
+            <div class="flex-grow-1"></div>
+
+            <!-- Botón clásico de Más detalles -->
+            <a href="{% url 'detalle_auto' auto.id %}" class="btn btn-outline-danger w-100">
+            <i class="bi bi-info-circle me-1"></i>Más detalles
+            </a>
+        </div>
+        </div>
+    </div>
+    {% empty %}
+        <p class="text-center">No hay autos disponibles con los criterios seleccionados.</p>
+    {% endfor %}
     </div>
 </div>
 
@@ -83,9 +99,20 @@
             </p>
 
             <h3 class="text-danger mb-3">Contactanos</h3>
-            <p class="fs-5">
-                aka irian las redes,nro de telefono,correo
-            </p>
+            <ul class="list-unstyled fs-5">
+                <li class="mb-2">
+                    <i class="bi bi-telephone-fill text-danger me-2"></i>
+                    <a href="tel:+542219999999" class="text-decoration-none text-dark">+54 221 999 9999</a>
+                </li>
+                <li class="mb-2">
+                    <i class="bi bi-envelope-fill text-danger me-2"></i>
+                    <a href="mailto:mariaalquileres@gmail.com" class="text-decoration-none text-dark">mariaalquileres@gmail.com</a>
+                </li>
+                <li>
+                    <i class="bi bi-instagram text-danger me-2"></i>
+                    <a href="https://www.instagram.com/leomessi" target="_blank" class="text-decoration-none text-dark">@mariaalquileres</a>
+                </li>
+            </ul>
         </div>
     </div>
 </div>
