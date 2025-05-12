@@ -31,6 +31,6 @@ class Auto(models.Model):
     sucursal = models.ForeignKey(Sucursal, on_delete=models.CASCADE)
     imagen = models.ImageField(upload_to='autos/', null=True, blank=True)
 
-    def _str_(self):
+    def __str__(self):
         return f"{self.marca} {self.modelo} ({self.patente})"
     
