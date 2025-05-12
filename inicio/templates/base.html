@@ -25,8 +25,16 @@
                 
                 <ul class="navbar-nav ms-auto">
                     {% if user.is_authenticated %}
-                        <li class="nav-item"><a class="nav-link btn btn-danger text-white me-2" href="#">{{ user.username }}</a></li>
                         <li class="nav-item"><a class="btn btn-logout me-2" href="{% url 'logout' %}">Cerrar Sesión</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle btn btn-danger text-white me-2" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                {{ user.username }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="{% url 'perfil' %}">Ver perfil</a></li>
+                                <li><a class="dropdown-item" href="{% url 'historial_reservas' %}">Ver historial</a></li>
+                            </ul>
+                        </li>
                     {% else %}
                         <li class="nav-item"><a class="nav-link btn btn-danger text-white me-2" href="{% url 'login' %}">Ingresar</a></li>
                         <li class="nav-item"><a class="nav-link btn btn-danger text-white me-2" href="{% url 'registrarse' %}">Registrarse</a></li>
