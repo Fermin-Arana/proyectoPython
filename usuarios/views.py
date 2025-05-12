@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from .forms import CustomUserCreationForm
 from django.contrib.auth import login as auth_login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib import messages  # Añadir esta línea
+from django.contrib import messages
 
 def registrarse(request):
     if request.method == 'POST':
@@ -36,5 +36,5 @@ def login(request):
 
 def cerrar_sesion(request):
     logout(request)
-    messages.success(request, "Se cerró la sesión correctamente")  # Ahora funcionará
+    messages.success(request, "Se cerró la sesión correctamente") 
     return redirect('/')  # Redirige a la página principal

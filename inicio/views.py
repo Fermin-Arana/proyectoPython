@@ -1,9 +1,7 @@
 from django.shortcuts import render
 from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from sucursales.models import Sucursal
 from vehiculos.models import Auto, CATEGORIAS
-from usuarios.models import Usuario
 from django.db.models import Q
 
 def index(request):
