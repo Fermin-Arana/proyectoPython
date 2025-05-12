@@ -87,4 +87,21 @@ footer {
     color: #dc3545 !important;
 }
 
+/* Estilos para el menú desplegable */
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
 
+.dropdown-item:hover {
+    background-color: #f8d7da;
+    color: #dc3545;
+}
+
+.dropdown-divider {
+    border-top: 1px solid #f8d7da;
+}
+
+.row-total {
+    height:  79.4vh;
+}

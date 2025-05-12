@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Historial de Reservas - Maria Alquileres{% endblock %}
+
+{% block content %}
+<div class="row-total">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-dark text-danger">
+                <h3 class="mb-0">Historial de Reservas</h3>
+            </div>
+            <div class="card-body">
+                {% if reservas %}
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Fecha de reserva</th>
+                                    <th>Vehículo</th>
+                                    <th>Fecha inicio</th>
+                                    <th>Fecha fin</th>
+                                    <th>Estado</th>
+                                    <th>Precio total</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reserva in reservas %}
+                                <tr>
+                                    <td>{{ reserva.fecha_reserva|date:"d/m/Y" }}</td>
+                                    <td>{{ reserva.auto.marca }} {{ reserva.auto.modelo }}</td>
+                                    <td>{{ reserva.fecha_inicio|date:"d/m/Y" }}</td>
+                                    <td>{{ reserva.fecha_fin|date:"d/m/Y" }}</td>
+                                    <td>
+                                        {% if reserva.estado == 'confirmada' %}
+                                            <span class="badge bg-success">Confirmada</span>
+                                        {% elif reserva.estado == 'pendiente' %}
+                                            <span class="badge bg-warning text-dark">Pendiente</span>
+                                        {% elif reserva.estado == 'cancelada' %}
+                                            <span class="badge bg-danger">Cancelada</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ reserva.estado }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>${{ reserva.precio_total }}</td>
+                                    <td>
+                                        <a href="{% url 'detalle_reserva' reserva.id %}" class="btn btn-sm btn-info">Ver detalles</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        No tienes reservas registradas. ¡Haz tu primera reserva ahora!
+                    </div>
+                    <a href="{% url 'index' %}" class="btn text-danger">Ver vehículos disponibles</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

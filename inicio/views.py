@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
 from sucursales.models import Sucursal
 from vehiculos.models import Auto, CATEGORIAS
 from django.db.models import Q
@@ -50,3 +51,22 @@ def detalle_auto(request, auto_id):
     auto = get_object_or_404(Auto, id=auto_id)
 
     return render(request, "detalle_auto.html", {"auto": auto})
+
+
+@login_required
+def perfil(request):
+    """Vista para mostrar el perfil del usuario."""
+    return render(request, 'inicio/perfil.html', {
+        'user': request.user
+    })
+
+@login_required
+def historial_reservas(request):
+    """Vista para mostrar el historial de reservas del usuario."""
+    # Aquí deberás obtener las reservas del usuario actual cuando implementes el modelo de reservas
+    # Por ahora, solo pasamos un listado vacío
+    reservas = []
+    
+    return render(request, 'inicio/historial_reservas.html', {
+        'reservas': reservas
+    })
