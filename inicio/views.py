@@ -6,7 +6,6 @@ from vehiculos.models import Auto, CATEGORIAS
 from usuarios.models import Usuario
 from django.db.models import Q
 
-# Create your views here.
 def index(request):
     sucursales = Sucursal.objects.all()
     autos = Auto.objects.select_related('sucursal').all()
@@ -52,4 +51,4 @@ def detalle_auto(request, auto_id):
     # Obtener el auto seleccionado
     auto = get_object_or_404(Auto, id=auto_id)
 
-    return render(request, "vehiculos/detalle_auto.html", {"auto": auto})
+    return render(request, "detalle_auto.html", {"auto": auto})

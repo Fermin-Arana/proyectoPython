@@ -33,7 +33,7 @@
         <div class="col-md-2">
             <select name="sucursal" class="form-select">
                 <option value="">Todas las sucursales</option>
-                {% for suc in sucursal %}
+                {% for suc in sucursales %}
                     <option value="{{ suc.id }}" {% if request.GET.sucursal == suc.id|stringformat:"s" %}selected{% endif %}>
                         {{ suc.nombre }}
                     </option>
@@ -47,7 +47,7 @@
 
     <!-- Listado de autos -->
     <div class="row">
-        {% for auto in auto %}
+        {% for auto in autos %}
             <div class="col-md-4">
                 <div class="card shadow-lg mb-4">
                     <img src="{{ auto.imagen.url }}" class="card-img-top" alt="{{ auto.marca }} {{ auto.modelo }}">
@@ -57,7 +57,7 @@
                             Sucursal: <strong>{{ auto.sucursal.nombre }}</strong><br>
                             Precio por día: <span class="fw-bold text-success">${{ auto.precio_por_dia }}</span>
                         </p>
-                        <a href="{% url 'vehiculos/detalle_auto' auto.id %}" class="btn btn-outline-danger w-100">Más detalles</a>
+                        <a href="{% url 'detalle_auto' auto.id %}" class="btn btn-outline-danger w-100">Más detalles</a>
                     </div>
                 </div>
             </div>
