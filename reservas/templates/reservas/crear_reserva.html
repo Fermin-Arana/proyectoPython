@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}Reservar Vehículo{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'style.css' %}">
+{% endblock %}
+
+{% block content %}
+    <h1 class="titulo">Reservar Vehículo</h1>
+    <form method="post" class="formulario-reserva">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="boton">Reservar</button>
+    </form>
+{% endblock %}

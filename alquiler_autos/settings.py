@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'sucursales',
     'inicio',
     'panel_admin',
+    'reservas',
 ]
 
 

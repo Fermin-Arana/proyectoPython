@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Mi Sitio{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'usuarios/style.css' %}">
+
+    {% block extra_head %}{% endblock %}  {# ← Esto ahora está en el lugar correcto #}
+
+    <style>
+        a.btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #000000;
+            color: white !important;
+            text-decoration: none;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+</html>
