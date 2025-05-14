@@ -6,13 +6,13 @@ body {
     padding: 0;
 }
 
-
 .container {
     max-width: 800px;
     margin: 40px auto;
     padding: 30px;
     background-color: rgb(255, 131, 138);
     border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 h1, h2 {
@@ -46,23 +46,10 @@ button {
     text-align: center;
 }
 
-.boton_link, .boton {
-    text-decoration: none;  
-    margin-top: 20px;
-    padding: 10px 20px;
-    background-color: #000000;
-    color: rgb(255, 255, 255);
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    text-align: center;
-    font-size: 16px;
+button:hover {
+    background-color: #0056b3;
 }
 
-.boton_link:hover, .boton:hover {
-    color: #000000;
-    background-color: #ffffff;
-}
 .error-message {
     color: red;
     border: 1px solid red;

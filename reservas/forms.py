@@ -26,6 +26,14 @@ class ReservaForm(forms.ModelForm):
             'required': 'Debes seleccionar una fecha de fin.',
         }
     )
+    conductor = forms.CharField(
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        label="Nombre del conductor",
+        error_messages={
+            'required': 'Debes ingresar el nombre del conductor.',
+        }
+    )
 
     class Meta:
         model = Reserva

@@ -1,18 +1,17 @@
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <title>{% block title %}Mi Sitio{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'style.css' %}">
-
-    {% block extra_head %}{% endblock %} 
-
+    <link rel="stylesheet" href="{% static 'crear_reserva.css' %}">
     <style>
         a.btn {
             display: inline-block;
             padding: 10px 20px;
-            background-color:rgb(0, 0, 0);
+            background-color: #000000;
             color: white !important;
             text-decoration: none;
             border: none;
@@ -22,6 +21,7 @@
             transition: background-color 0.3s ease;
         }
     </style>
+        
 </head>
 <body>
     <div class="container">
