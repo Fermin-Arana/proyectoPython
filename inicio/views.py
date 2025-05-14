@@ -23,7 +23,7 @@ def index(request):
     if buscar:
         autos = autos.filter(Q(marca__icontains=buscar) | Q(modelo__icontains=buscar))
 
-    # Filtro por sucursal seleccionada
+    # Filtro por sucursal 
     if sucursal_id:
         autos = autos.filter(sucursal__id=sucursal_id)
 
@@ -43,7 +43,7 @@ def index(request):
         "sucursales": sucursales,
         "autos": autos,
         "categorias": CATEGORIAS,
-        "request": request,  # Para acceder a los valores en la plantilla
+        "request": request,  
         "es_admin": es_admin
     })
 

@@ -1,74 +1,130 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Maria Alquileres{% endblock %}</title>
-    
+
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
 
-    
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-</head>
-<body>
-
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+  </head>
+  <body>
     <!-- Barra de navegación -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'index' %}">Maria Alquileres</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                
-                <ul class="navbar-nav ms-auto">
-                    {% if user.is_authenticated %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle btn btn-danger text-white me-2" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                {{ user.username }}
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="{% url 'perfil' %}">Ver perfil</a></li>
-                                <li><a class="dropdown-item" href="{% url 'historial_reservas' %}">Ver historial</a></li>
-                            </ul>
-                        </li>
-                    {% else %}
-                        <li class="nav-item"><a class="nav-link btn btn-danger text-white me-2" href="{% url 'login' %}">Ingresar</a></li>
-                        <li class="nav-item"><a class="nav-link btn btn-danger text-white me-2" href="{% url 'registrarse' %}">Registrarse</a></li>
-                    {% endif %}
-                    {% if es_admin %}
-                    <li class="nav-item"><a class="nav-link btn btn-danger text-white me-2" href="{% url 'panel_admin' %}">Panel Administración</a></li>
-                {% endif %}    
-                </ul>
-            </div>
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'index' %}">Maria Alquileres</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            {% if user.is_authenticated %}
+            <li class="nav-item dropdown">
+              <a
+                class="nav-link dropdown-toggle btn btn-danger text-white me-2"
+                href="#"
+                id="navbarDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                {{ user.username }}
+              </a>
+              <ul
+                class="dropdown-menu dropdown-menu-end"
+                aria-labelledby="navbarDropdown"
+              >
+                <li>
+                  <a class="dropdown-item" href="{% url 'perfil' %}"
+                    >Ver perfil</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'historial_reservas' %}"
+                    >Ver historial</a
+                  >
+                </li>
+                <li class="nav-item">
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="dropdown-item" style="background: none; border: none; width: 100%; text-align: left;">
+                            Cerrar Sesión
+                        </button>
+                    </form>
+                </li>
+              </ul>
+            </li>
+            {% else %}
+            <li class="nav-item">
+              <a
+                class="nav-link btn btn-danger text-white me-2"
+                href="{% url 'login' %}"
+                >Ingresar</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link btn btn-danger text-white me-2"
+                href="{% url 'registrarse' %}"
+                >Registrarse</a
+              >
+            </li>
+            {% endif %} {% if es_admin %}
+            <li class="nav-item">
+              <a
+                class="nav-link btn btn-danger text-white me-2"
+                href="{% url 'panel_admin' %}"
+                >Panel Administración</a
+              >
+            </li>
+            {% endif %}
+          </ul>
         </div>
+      </div>
     </nav>
 
     <!-- Contenido de la página -->
     <div class="container mt-4">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
-        {% endif %}
-        
-        {% block content %}{% endblock %}
+      {% if messages %} {% for message in messages %}
+      <div
+        class="alert alert-{{ message.tags }} alert-dismissible fade show"
+        role="alert"
+      >
+        {{ message }}
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>
+      {% endfor %} {% endif %} {% block content %}{% endblock %}
     </div>
 
     <!-- Footer -->
     <footer class="text-center text-white bg-dark py-3 mt-5">
-        <p class="mb-0">© 2024 Maria Alquileres. Todos los derechos reservados.</p>
+      <p class="mb-0">
+        © 2024 Maria Alquileres. Todos los derechos reservados.
+      </p>
     </footer>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-</body>
+  </body>
 </html>
