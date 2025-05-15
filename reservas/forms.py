@@ -1,7 +1,9 @@
-from datetime import datetime, timedelta
+
 from django import forms
 from .models import Reserva
 from vehiculos.models import Auto
+from django.utils import timezone
+from datetime import timedelta
 
 class ReservaForm(forms.ModelForm):
     vehiculo = forms.ModelChoiceField(  
@@ -35,19 +37,60 @@ class ReservaForm(forms.ModelForm):
         }
     )
 
+    def clean(self):
+        cleaned_data = super().clean()
+
+        vehiculo = cleaned_data.get('vehiculo')
+        conductor = cleaned_data.get('conductor')
+        fecha_inicio = cleaned_data.get('fecha_inicio')
+        fecha_fin = cleaned_data.get('fecha_fin')
+
+        if fecha_inicio is None:
+            self.add_error('fecha_inicio', "La fecha de inicio es obligatoria.")
+        if fecha_fin is None:
+            self.add_error('fecha_fin', "La fecha de fin es obligatoria.")
+
+        print("Fecha inicio:", fecha_inicio)
+
+        if fecha_inicio and fecha_fin:
+            if fecha_fin <= fecha_inicio:
+                self.add_error('fecha_fin', "La fecha de fin debe ser posterior a la fecha de inicio.")
+
+            hoy = timezone.now().date()
+            minimo_fecha = hoy + timedelta(days=2)
+            if fecha_inicio < minimo_fecha:
+                self.add_error('fecha_inicio', "La reserva debe tener al menos 2 días de anticipación.")
+        print ("Fecha fin:", fecha_fin) 
+        if (vehiculo and fecha_inicio and fecha_fin and not self.errors.get('fecha_inicio') and not self.errors.get('fecha_fin')):
+            hay_otro = Reserva.objects.filter(
+                vehiculo=vehiculo,
+                fecha_inicio__lte=fecha_fin,
+                fecha_fin__gte=fecha_inicio
+            ).exclude(pk=self.instance.pk).exists()
+            if hay_otro:
+                self.add_error('vehiculo', "El vehículo ya está reservado en esas fechas.")
+        print ("Conductor:", conductor)
+        if (conductor and fecha_inicio and fecha_fin and not self.errors.get('fecha_inicio') and not self.errors.get('fecha_fin')):
+            hay_otro2 = Reserva.objects.filter(
+                conductor=conductor,
+                fecha_inicio__lte=fecha_fin,
+                fecha_fin__gte=fecha_inicio
+            ).exclude(pk=self.instance.pk).exists()
+            if hay_otro2:
+                self.add_error('conductor', "El conductor ya tiene una reserva en esas fechas.")
+        print ("Vehiculo:", vehiculo)
+        return cleaned_data
+
     class Meta:
         model = Reserva
-        fields = ['vehiculo', 'fecha_inicio', 'fecha_fin']
+        fields = ['vehiculo', 'fecha_inicio', 'fecha_fin', 'conductor']
         widgets = {
             'fecha_inicio': forms.DateInput(attrs={'type': 'date'}),
             'fecha_fin': forms.DateInput(attrs={'type': 'date'}),
         }
     
-    def clean_fecha_inicio(self):
-        hoy = datetime.today().date()
-        pasado = hoy + timedelta(days=2)
-        fecha_inicio = self.cleaned_data.get('fecha_inicio')
-        if fecha_inicio < pasado:
-            raise forms.ValidationError("La reserva debe tener al menos 2 dias de anticipacion")
-        return fecha_inicio
+from datetime import datetime, timedelta
+
+
+
 

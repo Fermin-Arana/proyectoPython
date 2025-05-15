@@ -15,3 +15,6 @@ def crear_reserva(request):
     else:
         form = ReservaForm()
     return render(request, 'reservas/crear_reserva.html', {'form': form})
+
+def reserva_exitosa(request):
+    return render(request, 'reservas/reserva_exitosa.html')
