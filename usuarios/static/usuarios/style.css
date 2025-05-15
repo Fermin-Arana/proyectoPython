@@ -72,4 +72,16 @@ button {
 }
 
 
+a.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #000000;
+    color: white !important;
+    text-decoration: none;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
 
