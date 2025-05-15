@@ -56,10 +56,8 @@
               <i class="bi bi-arrow-left-circle me-2 fs-5"></i>
               Volver
             </a>
-            <a href="{{ reservar_url|default:'#' }}"
-               class="btn btn-danger btn-lg text-white shadow {% if not reservar_url %}disabled{% endif %}">
-              <i class="bi bi-calendar-check me-2 fs-5"></i>
-              Reservar
+            <a href="{{ reservar_url }}" class="btn btn-danger btn-lg text-white shadow">
+              <i class="bi bi-calendar-check me-2 fs-5"></i> Reservar
             </a>
           </div>
         </div>

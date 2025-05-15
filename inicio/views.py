@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
 from sucursales.models import Sucursal
 from vehiculos.models import Auto, CATEGORIAS
 from django.db.models import Q
@@ -50,10 +51,14 @@ def index(request):
 
 
 def detalle_auto(request, auto_id):
-    # Obtener el auto seleccionado
-    auto = get_object_or_404(Auto, id=auto_id)
+    auto = get_object_or_404(Auto, pk=auto_id)
+    reservar_url = reverse('reservas:crear_reserva', args=[auto.id]) 
+    print("Reservar URL generada:", reservar_url)
 
-    return render(request, "detalle_auto.html", {"auto": auto})
+    return render(request, 'detalle_auto.html', {
+        'auto': auto,
+        'reservar_url': reservar_url,
+    })
 
 
 @login_required
