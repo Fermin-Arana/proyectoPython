@@ -80,11 +80,11 @@ WSGI_APPLICATION = 'alquiler_autos.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+import dj_database_url
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.parse("postgresql://alquileres_maria_bd_user:UO3FqQxjYagthkyXTVHcl9pg5FzDd1at@dpg-d0j5qm6mcj7s73fljrv0-a.oregon-postgres.render.com/alquileres_maria_bd")
+    
 }
 
 

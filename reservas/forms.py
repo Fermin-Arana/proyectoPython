@@ -1,12 +1,13 @@
 
 from django import forms
+from django.core.exceptions import ValidationError
 from .models import Reserva
 from vehiculos.models import Auto
 from django.utils import timezone
 from datetime import timedelta
 
 class ReservaForm(forms.ModelForm):
-    vehiculo = forms.ModelChoiceField(  
+    vehiculo = forms.ModelChoiceField(
         queryset=Auto.objects.all(),
         widget=forms.Select(attrs={'class': 'form-control'}),
         label="Vehículo",
@@ -88,9 +89,11 @@ class ReservaForm(forms.ModelForm):
             'fecha_inicio': forms.DateInput(attrs={'type': 'date'}),
             'fecha_fin': forms.DateInput(attrs={'type': 'date'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        auto = kwargs.pop('auto', None)
+        super().__init__(*args, **kwargs)
+        if auto:
+            self.fields['vehiculo'].initial = auto
+            self.fields['vehiculo'].widget = forms.HiddenInput()       
     
-from datetime import datetime, timedelta
-
-
-
-
