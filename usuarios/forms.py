@@ -30,6 +30,13 @@ class CustomUserCreationForm(UserCreationForm):
         },
     )
 
+    fecha_nacimiento = forms.DateField(
+        label="Fecha de nacimiento",
+        required=True,
+        widget=forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+        error_messages={'required': 'La fecha de nacimiento es obligatoria.'},
+    )
+
     class Meta:
         model = Usuario  
         fields = ['username', 'password1', 'password2', 'nombre', 'apellido', 'dni', 'fecha_nacimiento', 'correo', 'telefono']

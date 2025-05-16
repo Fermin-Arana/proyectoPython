@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure--uszdplwk^2@47m@=2#o2%vk^e+)=oz5vxgr%^v+zptvg8iim_
 DEBUG = True
 
 ALLOWED_HOSTS = []
+AUTH_USER_MODEL = 'usuarios.Usuario'
 
 
 # Application definition
@@ -83,7 +84,7 @@ WSGI_APPLICATION = 'alquiler_autos.wsgi.application'
 import dj_database_url
 
 DATABASES = {
-    'default': dj_database_url.parse("postgresql://alquileres_maria_bd_user:UO3FqQxjYagthkyXTVHcl9pg5FzDd1at@dpg-d0j5qm6mcj7s73fljrv0-a.oregon-postgres.render.com/alquileres_maria_bd")
+    'default': dj_database_url.parse("postgresql://alquileres_maria_bd_vh9l_user:hHjK0WR5Ed5qqVmjWdZB8f5ugzd1pJRv@dpg-d0jmp80dl3ps73cm1rug-a.oregon-postgres.render.com/alquileres_maria_bd_vh9l")
     
 }
 

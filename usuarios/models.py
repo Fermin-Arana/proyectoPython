@@ -10,7 +10,7 @@ class Usuario(AbstractUser):
     nombre = models.CharField(max_length=50)
     apellido = models.CharField(max_length=50)
     dni = models.CharField(max_length=10, unique=True)
-    fecha_nacimiento = models.DateField()
+    fecha_nacimiento = models.DateField(null=True, blank=True)
     correo = models.EmailField(unique=True)
     telefono = models.CharField(max_length=15)
 

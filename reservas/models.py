@@ -1,10 +1,11 @@
 from django.db import models
 
-from django.contrib.auth.models import User
+from django.conf import settings
+
 from vehiculos.models import Auto
 
 class Reserva(models.Model):
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     vehiculo = models.ForeignKey(Auto, on_delete=models.CASCADE)
     conductor = models.CharField(max_length=100, default='')
     fecha_inicio = models.DateField()
