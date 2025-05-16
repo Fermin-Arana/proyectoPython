@@ -48,6 +48,14 @@ class CustomUserCreationForm(UserCreationForm):
             'correo': 'Correo electrónico',
             'telefono': 'Teléfono',
         }
+        widgets = {
+            'username': forms.TextInput(attrs={'placeholder': 'Ej: juan84551'}),
+            'nombre': forms.TextInput(attrs={'placeholder': 'Ej: Juan'}),
+            'apellido': forms.TextInput(attrs={'placeholder': 'Ej: Pérez'}),
+            'dni': forms.TextInput(attrs={'placeholder': 'Ej: 40505968'}),
+            'correo': forms.EmailInput(attrs={'placeholder': 'Ej: juan@gmail.com'}),
+            'telefono': forms.TextInput(attrs={'placeholder': 'Ej: 2218974555'}),
+        }
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
@@ -89,3 +97,11 @@ class CustomUserCreationForm(UserCreationForm):
             raise forms.ValidationError("Las contraseñas no coinciden.")
 
         return password2
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Placeholders para campos definidos manualmente
+        self.fields['username'].widget.attrs['placeholder'] = 'Ej: juan84551'
+        self.fields['password1'].widget.attrs['placeholder'] = 'Contraseña segura (mínimo 8 caracteres)'
+        self.fields['password2'].widget.attrs['placeholder'] = 'Repetí la contraseña'

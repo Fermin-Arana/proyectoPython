@@ -1,4 +1,5 @@
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
+from django.utils import timezone
 from django import forms
 from django.core.exceptions import ValidationError
 from .models import Reserva

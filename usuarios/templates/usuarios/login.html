@@ -5,6 +5,13 @@
 {% block content %}
 <div class="container mt-5"> {# container centra #}
   <h2 class="mb-4">Iniciar Sesión</h2> {# titulo de 2do nivel #}
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
     <form method="post" novalidate class="login-form"> {# clase nueva para estilos específicos #}
     {% csrf_token %} {# token de seguridad #}
 

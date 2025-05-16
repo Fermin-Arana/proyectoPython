@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from sucursales.models import Sucursal
 from vehiculos.models import Auto, CATEGORIAS
+from reservas.models import Reserva
 from django.db.models import Q
 
 def index(request):
@@ -69,11 +70,14 @@ def perfil(request):
 
 @login_required
 def historial_reservas(request):
-    """Vista para mostrar el historial de reservas del usuario."""
-    # Aquí deberás obtener las reservas del usuario actual cuando implementes el modelo de reservas
-    # Por ahora, solo pasamos un listado vacío
-    reservas = []
+    reservas = Reserva.objects.filter(usuario=request.user).order_by('-fecha_inicio') 
     
     return render(request, 'inicio/historial_reservas.html', {
         'reservas': reservas
     })
+    
+@login_required
+def detalle_reserva(request, reserva_id):
+    # Obtiene la reserva que pertenece al usuario actual o 404 si no existe
+    reserva = get_object_or_404(Reserva, id=reserva_id, usuario=request.user)
+    return render(request, 'inicio/detalle_reserva.html', {'reserva': reserva})

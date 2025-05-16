@@ -1,10 +1,14 @@
+from django.contrib import messages
 from django.shortcuts import get_object_or_404, render, redirect
 from vehiculos.models import Auto
 from .forms import ReservaForm
 from django.contrib.auth.decorators import login_required
 
-@login_required
+
 def crear_reserva(request, auto_id):
+    if not request.user.is_authenticated:
+        messages.warning(request, "Debés iniciar sesión o registrarte para poder reservar.")
+        return redirect('login')
     auto = get_object_or_404(Auto, pk=auto_id)
     if request.method == 'POST':
         form = ReservaForm(request.POST, auto=auto)
@@ -13,7 +17,7 @@ def crear_reserva(request, auto_id):
             reserva.usuario = request.user
             reserva.vehiculo = auto  # Fijar explícitamente el vehículo
             reserva.save()
-            return redirect('reserva_exitosa')
+            return redirect('reservas:reserva_exitosa')
     else:
         form = ReservaForm(auto=auto)
     return render(request, 'reservas/crear_reserva.html', {
