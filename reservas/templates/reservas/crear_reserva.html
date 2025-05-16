@@ -25,6 +25,14 @@
                 {% endif %}
             </div>
         {% endfor %}
+        {# Mostrar errores del campo oculto vehiculo #}
+        {% if form.errors.vehiculo %}
+            <div class="text-danger small error-message">
+                {% for error in form.errors.vehiculo %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
         <p><strong>Precio por día:</strong> ${{ precio_por_dia }}</p>
         <p><strong>Costo estimado: $</strong><span id="costoEstimado">0.00</span></p>
         <button type="submit" class="boton">Reservar</button>

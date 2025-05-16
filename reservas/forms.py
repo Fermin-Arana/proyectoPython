@@ -4,16 +4,9 @@ from django import forms
 from django.core.exceptions import ValidationError
 from .models import Reserva
 from vehiculos.models import Auto
+from django.core.validators import RegexValidator
 
 class ReservaForm(forms.ModelForm):
-    vehiculo = forms.ModelChoiceField(
-        queryset=Auto.objects.all(),
-        widget=forms.Select(attrs={'class': 'form-control'}),
-        label="Vehículo",
-        error_messages={
-            'required': 'Debes seleccionar un vehículo.',
-        }
-    )
     fecha_inicio = forms.DateField(
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
         label="Fecha de inicio",
@@ -51,6 +44,9 @@ class ReservaForm(forms.ModelForm):
         if auto:
             self.fields['vehiculo'].initial = auto
             self.fields['vehiculo'].widget = forms.HiddenInput()
+        else:
+            # Si no viene auto, lo mostramos normalmente
+            self.fields['vehiculo'].queryset = Auto.objects.all()
 
     def clean(self):
         cleaned_data = super().clean()
@@ -92,3 +88,29 @@ class ReservaForm(forms.ModelForm):
                     self.add_error('conductor', "El conductor ya tiene una reserva en esas fechas.")
                 
         return cleaned_data
+
+class PagoSimuladoForm(forms.Form):
+    nombre_en_tarjeta = forms.CharField(max_length=100, label="Nombre en la tarjeta")
+    numero_tarjeta = forms.CharField(
+        max_length=16,
+        min_length=16,
+        label="Número de tarjeta",
+        validators=[RegexValidator(r'^\d{16}$', message="El número debe tener 16 dígitos.")]
+    )
+    vencimiento = forms.CharField(
+        max_length=5,
+        label="Fecha de vencimiento (MM/AA)",
+        validators=[RegexValidator(r'^(0[1-9]|1[0-2])\/\d{2}$', message="Formato MM/AA.")]
+    )
+    codigo_seguridad = forms.CharField(
+        max_length=4,
+        min_length=3,
+        label="Código de seguridad (CVV)",
+        validators=[RegexValidator(r'^\d{3,4}$', message="Código de seguridad inválido.")]
+    )
+    monto = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        label="Monto a pagar",
+        widget=forms.NumberInput(attrs={'readonly': 'readonly'})
+    )

@@ -6,6 +6,8 @@
 <div class="container mt-5 text-center">
     <div class="alert alert-success shadow-sm p-4">
         <h2 class="mb-3">¡Reserva realizada con éxito! 🎉</h2>
+        <p>Vehículo: {{ reserva.vehiculo }}</p>
+        <p>Desde: {{ reserva.fecha_inicio }} hasta {{ reserva.fecha_fin }}</p>
         <p>Gracias por reservar con María Alquileres. Te enviaremos los detalles por correo electrónico.</p>
         <a href="{% url 'index' %}" class="btn btn-primary mt-4">Volver al Inicio</a>
     </div>
