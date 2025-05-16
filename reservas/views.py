@@ -22,3 +22,6 @@ def crear_reserva(request, auto_id):
         'auto': auto,
         'precio_por_dia': auto.precio_por_dia,
     })
+
+def reserva_exitosa(request):
+    return render(request, 'reservas/reserva_exitosa.html')
