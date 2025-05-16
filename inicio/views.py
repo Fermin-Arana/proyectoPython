@@ -53,7 +53,6 @@ def index(request):
 def detalle_auto(request, auto_id):
     auto = get_object_or_404(Auto, pk=auto_id)
     reservar_url = reverse('reservas:crear_reserva', args=[auto.id]) 
-    print("Reservar URL generada:", reservar_url)
 
     return render(request, 'detalle_auto.html', {
         'auto': auto,
