@@ -13,6 +13,12 @@ body {
     margin-bottom: 30px; 
 }
 
+h1.titulo_cancelada {
+    font-size: 36px !important;
+    color: red;
+    text-align: center;
+}
+
 
 .formulario-reserva {
     width: 50%;

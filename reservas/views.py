@@ -80,3 +80,16 @@ def reserva_exitosa(request, reserva_id):
     return render(request, 'reservas/reserva_exitosa.html', {
         'reserva': reserva
     })
+
+@login_required
+def reserva_cancelar(request, reserva_id):
+    reserva = get_object_or_404(Reserva, id=reserva_id, usuario=request.user)
+    if request.method == 'POST':
+        reserva.estado = 'cancelada'
+        reserva.save()
+        messages.success(request, "Reserva cancelada exitosamente.")
+        return redirect('reservas:reserva_cancelada')
+    return render(request, 'reservas/reserva_cancelar.html', {'reserva': reserva})
+
+def reserva_cancelada(request):
+    return render(request, 'reservas/reserva_cancelada.html')

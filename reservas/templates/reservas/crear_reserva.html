@@ -25,7 +25,6 @@
                 {% endif %}
             </div>
         {% endfor %}
-        {# Mostrar errores del campo oculto vehiculo #}
         {% if form.errors.vehiculo %}
             <div class="text-danger small error-message">
                 {% for error in form.errors.vehiculo %}
