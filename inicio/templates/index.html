@@ -113,6 +113,34 @@
                     <a href="https://www.instagram.com/leomessi" target="_blank" class="text-decoration-none text-dark">@mariaalquileres</a>
                 </li>
             </ul>
+
+            <h3 class="text-danger mb-3">Nuestras sucursales</h3>
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+                {% for suc in sucursales %}
+                <div class="col">
+                    <div class="card border-danger h-100">
+                        <div class="card-body">
+                            <h5 class="card-title text-danger"><i class="bi bi-geo-alt-fill me-2"></i>{{ suc.nombre }}</h5>
+                            {% if suc.direccion %}
+                                <p class="card-text text-muted"><i class="bi bi-signpost-2 me-2"></i>{{ suc.direccion }}</p>
+                            {% else %}
+                                <p class="card-text text-muted"><i class="bi bi-signpost-2 me-2"></i>Dirección no disponible</p>
+                            {% endif %}
+                            {% if suc.telefono %}
+                                <p class="card-text text-muted">
+                                    <i class="bi bi-telephone-fill me-2"></i>
+                                    <a href="tel:{{ suc.telefono|cut:' ' }}" class="text-decoration-none text-dark">
+                                        {{ suc.telefono }}
+                                    </a>
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted">No hay sucursales registradas actualmente.</p>
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>

@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure--uszdplwk^2@47m@=2#o2%vk^e+)=oz5vxgr%^v+zptvg8iim_
 DEBUG = True
 
 ALLOWED_HOSTS = []
+AUTH_USER_MODEL = 'usuarios.Usuario'
 
 
 # Application definition
@@ -83,7 +84,7 @@ WSGI_APPLICATION = 'alquiler_autos.wsgi.application'
 import dj_database_url
 
 DATABASES = {
-    'default': dj_database_url.parse("postgresql://alquileres_maria_bd_user:UO3FqQxjYagthkyXTVHcl9pg5FzDd1at@dpg-d0j5qm6mcj7s73fljrv0-a.oregon-postgres.render.com/alquileres_maria_bd")
+    'default': dj_database_url.parse("postgresql://alquileres_maria_bd_vh9l_user:hHjK0WR5Ed5qqVmjWdZB8f5ugzd1pJRv@dpg-d0jmp80dl3ps73cm1rug-a.oregon-postgres.render.com/alquileres_maria_bd_vh9l")
     
 }
 
@@ -138,3 +139,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Configuración de correo electrónico
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # O el servidor SMTP que uses
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+#supongo que hay que accedera la base de datos para completar esto pero chat me dijo que era inseguro asi q no se comm hacerlo. lo dejo ahi para q funque
+EMAIL_HOST_USER = 'user.email'  #correo del usuario
+EMAIL_HOST_PASSWORD = 'tu_contraseña_de_aplicación'  # contraseña del usuario
+DEFAULT_FROM_EMAIL = 'Maria Alquileres <mariaalquileres@gmail.com>'

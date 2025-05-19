@@ -28,7 +28,7 @@
                                 {% for reserva in reservas %}
                                 <tr>
                                     <td>{{ reserva.fecha_reserva|date:"d/m/Y" }}</td>
-                                    <td>{{ reserva.auto.marca }} {{ reserva.auto.modelo }}</td>
+                                    <td>{{ reserva.vehiculo.marca }} {{ reserva.vehiculo.modelo }}</td>
                                     <td>{{ reserva.fecha_inicio|date:"d/m/Y" }}</td>
                                     <td>{{ reserva.fecha_fin|date:"d/m/Y" }}</td>
                                     <td>
@@ -44,7 +44,7 @@
                                     </td>
                                     <td>${{ reserva.precio_total }}</td>
                                     <td>
-                                        <a href="{% url 'detalle_reserva' reserva.id %}" class="btn btn-sm btn-info">Ver detalles</a>
+                                        <a href="{% url 'detalle_reserva' reserva.id %}" class="btn btn-sm btn-danger">Ver detalles</a>
                                     </td>
                                 </tr>
                                 {% endfor %}
