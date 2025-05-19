@@ -45,7 +45,7 @@
                                     <td>${{ reserva.precio_total }}</td>
                                     <td>
                                         <a href="{% url 'detalle_reserva' reserva.id %}" class="btn btn-sm btn-danger">Ver detalles</a>
-                                    </td>
+                                        <a href="{% url 'reservas:reserva_cancelar' reserva.id %}" class="btn btn-sm btn-danger">Cancelar Reserva</a>
                                 </tr>
                                 {% endfor %}
                             </tbody>
