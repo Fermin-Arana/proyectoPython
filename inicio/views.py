@@ -64,8 +64,6 @@ def detalle_auto(request, auto_id):
     if fecha_desde and fecha_hasta:
         request.session['fecha_desde'] = fecha_desde
         request.session['fecha_hasta'] = fecha_hasta
-        # Redirigir sin los parámetros GET para que no se vean en la URL
-        return redirect('detalle_auto', auto_id=auto_id)
     else:
         request.session.pop('fecha_desde', None)
         request.session.pop('fecha_hasta', None)

@@ -6,7 +6,7 @@ from .models import Reserva, PagoSimulado
 from .forms import ReservaForm, PagoSimuladoForm
 from django.contrib.auth.decorators import login_required
 
-@login_required
+
 def crear_reserva(request, auto_id):
     if not request.user.is_authenticated:
         messages.warning(request, "Debés iniciar sesión o registrarte para poder reservar.")
