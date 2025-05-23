@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, render, redirect
 from vehiculos.models import Auto
@@ -5,29 +6,52 @@ from .models import Reserva, PagoSimulado
 from .forms import ReservaForm, PagoSimuladoForm
 from django.contrib.auth.decorators import login_required
 
+@login_required
 def crear_reserva(request, auto_id):
     if not request.user.is_authenticated:
         messages.warning(request, "Debés iniciar sesión o registrarte para poder reservar.")
         return redirect('login')
     auto = get_object_or_404(Auto, id=auto_id)
-    
+
+    # Leer las fechas de la sesión
+    sd = request.session.get('fecha_desde')
+    sh = request.session.get('fecha_hasta')
+
+    # Parsear a date de forma segura
+    fecha_desde = None
+    fecha_hasta = None
+    if sd and sh:
+        try:
+            fecha_desde = datetime.strptime(sd, "%Y-%m-%d").date()
+            fecha_hasta = datetime.strptime(sh, "%Y-%m-%d").date()
+        except ValueError:
+            # Si el formato es inválido, las dejamos en None
+            fecha_desde = fecha_hasta = None
+
     if request.method == 'POST':
         form = ReservaForm(request.POST, auto=auto)
         if form.is_valid():
             reserva = form.save(commit=False)
             reserva.usuario = request.user
             reserva.vehiculo = auto
+            if fecha_desde and fecha_hasta:
+                reserva.fecha_inicio = fecha_desde
+                reserva.fecha_fin = fecha_hasta
             reserva.save()
-            # Redirigimos al pago
             return redirect('reservas:pagar_reserva', reserva_id=reserva.id)
     else:
-        form = ReservaForm(auto=auto)
-    
+        form = ReservaForm(auto=auto, initial={
+            'fecha_inicio': fecha_desde,
+            'fecha_fin': fecha_hasta,
+        })
+
     return render(request, 'reservas/crear_reserva.html', {
-        'form': form,
-        'usuario': request.user,
-        'auto': auto,
+        'form':           form,
+        'usuario':        request.user,
+        'auto':           auto,
         'precio_por_dia': auto.precio_por_dia,
+        'fecha_desde':    sd,
+        'fecha_hasta':    sh,
     })
     
 @login_required

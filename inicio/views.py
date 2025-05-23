@@ -1,7 +1,7 @@
-from django.shortcuts import render
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
+from django.contrib import messages
 from sucursales.models import Sucursal
 from vehiculos.models import Auto, CATEGORIAS
 from reservas.models import Reserva
@@ -10,28 +10,33 @@ from django.db.models import Q
 def index(request):
     sucursales = Sucursal.objects.all()
     autos = Auto.objects.select_related('sucursal').all()
+    buscar       = request.GET.get('buscar', '')
+    fecha_desde  = request.GET.get('fecha_desde', '')
+    fecha_hasta  = request.GET.get('fecha_hasta', '')
+    orden        = request.GET.get('orden', '')
+    sucursal_id  = request.GET.get('sucursal', '')
+    categoria    = request.GET.get('categoria', '')
 
-    buscar = request.GET.get('buscar', '')
-    fecha = request.GET.get('fecha', '')
-    orden = request.GET.get('orden', '')
-    sucursal_id = request.GET.get('sucursal', '')
-    categoria = request.GET.get("categoria")
-    
-    #Filtro por categoria
+    # Filtrar por categoría
     if categoria:
         autos = autos.filter(categoria=categoria)
 
-    # Filtro por texto
+    # Filtrar por texto
     if buscar:
         autos = autos.filter(Q(marca__icontains=buscar) | Q(modelo__icontains=buscar))
 
-    # Filtro por sucursal seleccionada
+    # Filtrar por sucursal
     if sucursal_id:
         autos = autos.filter(sucursal__id=sucursal_id)
 
-    # Filtro por fecha 
-    if fecha:
-        autos = autos.exclude(reserva__fecha_inicio__lte=fecha, reserva__fecha_fin__gte=fecha)
+    # Filtrar por rango de fechas **solo si ambas están**
+    if (fecha_desde and not fecha_hasta) or (fecha_hasta and not fecha_desde):
+        messages.warning(request, "Debés seleccionar ambas fechas para filtrar por rango.")
+    if fecha_desde and fecha_hasta:
+        autos = autos.exclude(
+            reserva__fecha_inicio__lte=fecha_hasta,
+            reserva__fecha_fin__gte=fecha_desde
+        )
 
     # Ordenar por precio
     if orden == 'menor':
@@ -45,19 +50,32 @@ def index(request):
         "sucursales": sucursales,
         "autos": autos,
         "categorias": CATEGORIAS,
-        "request": request,  # Para acceder a los valores en la plantilla
-        "es_admin": es_admin
+        "request": request,            # para el template
+        "es_admin": es_admin,
+        "fecha_desde": fecha_desde,    # pasamos al template
+        "fecha_hasta": fecha_hasta,
     })
 
 
 
 def detalle_auto(request, auto_id):
+    fecha_desde = request.GET.get('fecha_desde')
+    fecha_hasta = request.GET.get('fecha_hasta')
+    if fecha_desde and fecha_hasta:
+        request.session['fecha_desde'] = fecha_desde
+        request.session['fecha_hasta'] = fecha_hasta
+        # Redirigir sin los parámetros GET para que no se vean en la URL
+        return redirect('detalle_auto', auto_id=auto_id)
+    else:
+        request.session.pop('fecha_desde', None)
+        request.session.pop('fecha_hasta', None)
+
     auto = get_object_or_404(Auto, pk=auto_id)
-    reservar_url = reverse('reservas:crear_reserva', args=[auto.id]) 
+    reservar_url = reverse('reservas:crear_reserva', args=[auto.id])
 
     return render(request, 'detalle_auto.html', {
-        'auto': auto,
-        'reservar_url': reservar_url,
+        'auto':          auto,
+        'reservar_url':  reservar_url,
     })
 
 

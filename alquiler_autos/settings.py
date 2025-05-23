@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure--uszdplwk^2@47m@=2#o2%vk^e+)=oz5vxgr%^v+zptvg8iim_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 AUTH_USER_MODEL = 'usuarios.Usuario'
 
 
@@ -63,7 +63,7 @@ ROOT_URLCONF = 'alquiler_autos.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [ BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
