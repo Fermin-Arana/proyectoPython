@@ -15,3 +15,8 @@ class AutoForm(forms.ModelForm):
         if Auto.objects.filter(patente=patente).exists():
             raise ValidationError("Ya existe un auto con esa patente.")
         return patente
+    
+class AutoEditarForm(forms.ModelForm):
+    class Meta:
+        model = Auto
+        exclude = ['patente', 'sucursal'] 

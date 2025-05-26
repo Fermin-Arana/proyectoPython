@@ -33,17 +33,16 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                 <li><a class="dropdown-item" href="{% url 'perfil' %}">Ver perfil</a></li>
+                                {% if not es_admin %}
                                 <li><a class="dropdown-item" href="{% url 'historial_reservas' %}">Ver historial</a></li>
+                                {% endif %}
                                 <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar Sesión</a></li>
                             </ul>
                         </li>
                     {% else %}
                         <li class="nav-item"><a class="nav-link btn btn-danger text-white me-2" href="{% url 'login' %}">Ingresar</a></li>
                         <li class="nav-item"><a class="nav-link btn btn-danger text-white me-2" href="{% url 'registrarse' %}">Registrarse</a></li>
-                    {% endif %}
-                    {% if es_admin %}
-                    <li class="nav-item"><a class="nav-link btn btn-danger text-white me-2" href="{% url 'panel_admin' %}">Panel Administración</a></li>
-                {% endif %}    
+                    {% endif %}  
                 </ul>
             </div>
         </div>

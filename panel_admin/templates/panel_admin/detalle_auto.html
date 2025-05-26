@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container mt-5">
+    <h2>Detalles del Auto</h2>
+    <p><strong>Marca:</strong> {{ auto.marca }}</p>
+    <p><strong>Modelo:</strong> {{ auto.modelo }}</p>
+    <p><strong>Patente:</strong> {{ auto.patente }}</p>
+    <p><strong>Año:</strong> {{ auto.anio_fabricacion }}</p>
+    <p><strong>Kilometraje:</strong> {{ auto.km }}</p>
+    <p><strong>Capacidad:</strong> {{ auto.capacidad_pasajeros }}</p>
+    <p><strong>Categoría:</strong> {{ auto.get_categoria_display }}</p>
+    <p><strong>Sucursal:</strong> {{ auto.sucursal.nombre }}</p>
+
+    <a href="{% url 'modificar_auto' auto.patente %}" class="btn btn-danger" >📝 Modificar</a>
+    <a href="{% url 'eliminar_auto' auto.patente %}" class="btn btn-danger">🗑️ Eliminar</a>
+    <a href="{% url 'lista_autos' %}" class="btn btn-secondary">← Volver al listado</a>
+  </div>
+{% endblock %}

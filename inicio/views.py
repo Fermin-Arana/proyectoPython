@@ -8,6 +8,9 @@ from reservas.models import Reserva
 from django.db.models import Q
 
 def index(request):
+    if request.user.is_authenticated and request.user.groups.filter(name='admin').exists():
+        return redirect('panel_admin') 
+
     sucursales = Sucursal.objects.all()
     autos = Auto.objects.select_related('sucursal').all()
     buscar       = request.GET.get('buscar', '')
@@ -80,8 +83,10 @@ def detalle_auto(request, auto_id):
 @login_required
 def perfil(request):
     """Vista para mostrar el perfil del usuario."""
+    es_admin = request.user.groups.filter(name='admin').exists()
     return render(request, 'inicio/perfil.html', {
-        'user': request.user
+        'user': request.user,
+        'es_admin': es_admin
     })
 
 @login_required

@@ -21,8 +21,7 @@
       <td>{{ auto.modelo }}</td>
       <td>{{ auto.patente }}</td>
       <td>
-        <a href="{% url 'eliminar_auto' auto.patente %}" class="btn btn-danger btn-sm"
-           onclick="return confirm('¿Estás seguro de eliminar este auto?');">Eliminar</a>
+        <a href="{% url 'detalle_auto_admin' auto.patente %}" class="btn btn-info">Ver detalles</a>
       </td>
     </tr>
     {% endfor %}

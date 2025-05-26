@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container mt-4">
+    <h2>Modificar Auto</h2>
+
+    <p><strong>Patente:</strong> {{ auto.patente }}</p>
+    <p><strong>Sucursal:</strong> {{ auto.sucursal }}</p>
+
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-success">Guardar cambios</button>
+      <a href="{% url 'lista_autos' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+  </div>
+{% endblock %}
