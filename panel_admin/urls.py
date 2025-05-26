@@ -6,5 +6,7 @@ urlpatterns = [
     path('no_autorizado/', views.no_autorizado, name='no_autorizado'),
     path('autos/', views.lista_autos, name='lista_autos'),
     path('autos/agregar/', views.agregar_auto, name='agregar_auto'),
-    path('autos/eliminar/<str:patente>', views.eliminar_auto, name='eliminar_auto')
+    path('autos/eliminar/<str:patente>', views.eliminar_auto, name='eliminar_auto'),
+    path('autos/detalles/<str:patente>', views.detalle_auto, name='detalle_auto_admin'),
+    path('modificar-auto/<str:patente>/', views.modificar_auto, name='modificar_auto')
 ]

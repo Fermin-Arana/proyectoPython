@@ -1,0 +1,16 @@
+{% extends 'panel_admin/base.html' %}
+{% block title %}Confirmar Eliminación{% endblock %}
+
+{% block content %}
+<div class="container text-center mt-5">
+  <h2 class="text-danger">¿Estás seguro que querés eliminar este vehículo?</h2>
+  <p>Patente: <strong>{{ auto.patente }}</strong></p>
+  <p>Marca: <strong>{{ auto.marca }}</strong> - Modelo: <strong>{{ auto.modelo }}</strong></p>
+
+  <form method="POST">
+    {% csrf_token %}
+    <a href="{% url 'detalle_auto_admin' auto.patente %}" class="btn btn-secondary me-3">Cancelar</a>
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+  </form>
+</div>
+{% endblock %}

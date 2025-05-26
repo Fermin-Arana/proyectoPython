@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from vehiculos.models import Auto
-from vehiculos.forms import AutoForm
+from vehiculos.forms import AutoForm, AutoEditarForm
 from django.shortcuts import get_object_or_404
+from django.contrib import messages
+
 
 
 @login_required
@@ -40,5 +42,30 @@ def eliminar_auto(request, patente):
         return redirect('no_autorizado')
     
     auto = get_object_or_404(Auto, patente=patente)
-    auto.delete()
-    return redirect('lista_autos')
+
+    if request.method == 'POST':
+        auto.delete()
+        messages.success(request, f"El vehículo con patente {auto.patente} fue eliminado con éxito.")
+        return redirect('lista_autos')
+
+    return render(request, 'panel_admin/confirmar_eliminar.html', {'auto': auto})
+
+def detalle_auto(request, patente):
+    auto = get_object_or_404(Auto, patente=patente)
+    return render(request, 'panel_admin/detalle_auto.html', {'auto': auto})
+
+def modificar_auto(request, patente):
+    if not request.user.groups.filter(name='admin').exists():
+        return redirect('no_autorizado')
+    
+    auto = get_object_or_404(Auto, patente=patente)
+
+    if request.method == 'POST':
+        form = AutoEditarForm(request.POST, request.FILES, instance=auto)
+        if form.is_valid():
+            form.save()
+            return redirect('detalle_auto_admin', auto.patente)
+    else:
+        form = AutoEditarForm(instance=auto)
+
+    return render(request, 'panel_admin/modificar_auto.html', {'form': form, 'auto': auto})
