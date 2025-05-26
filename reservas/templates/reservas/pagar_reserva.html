@@ -60,6 +60,9 @@
         </div>
 
         <button type="submit" class="btn btn-danger">Pagar</button>
+        <a href="{% url 'reservas:crear_reserva' reserva.vehiculo.id reserva.id %}" class="btn btn-danger">
+            ← Volver a editar reserva
+        </a>
     </form>
 
     {% if messages %}

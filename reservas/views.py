@@ -7,12 +7,12 @@ from .forms import ReservaForm, PagoSimuladoForm
 from django.contrib.auth.decorators import login_required
 
 
-def crear_reserva(request, auto_id):
+def crear_reserva(request, auto_id, reserva_id = None):
     if not request.user.is_authenticated:
         messages.warning(request, "Debés iniciar sesión o registrarte para poder reservar.")
         return redirect('login')
     auto = get_object_or_404(Auto, id=auto_id)
-
+    reserva = None
     # Leer las fechas de la sesión
     sd = request.session.get('fecha_desde')
     sh = request.session.get('fecha_hasta')
@@ -27,16 +27,26 @@ def crear_reserva(request, auto_id):
         except ValueError:
             # Si el formato es inválido, las dejamos en None
             fecha_desde = fecha_hasta = None
-
+    if reserva_id:
+        reserva = get_object_or_404(Reserva, id=reserva_id, usuario=request.user)
+        
     if request.method == 'POST':
-        form = ReservaForm(request.POST, auto=auto)
+        if reserva:  
+            form = ReservaForm(request.POST, auto=auto, instance=reserva)
+        else:
+            form = ReservaForm(request.POST, auto=auto)
+
         if form.is_valid():
             reserva = form.save(commit=False)
             reserva.usuario = request.user
             reserva.vehiculo = auto
-            if fecha_desde and fecha_hasta:
-                reserva.fecha_inicio = fecha_desde
-                reserva.fecha_fin = fecha_hasta
+
+            if not reserva_id:
+                # Solo usar fechas de sesión si es una nueva reserva
+                if fecha_desde and fecha_hasta:
+                    reserva.fecha_inicio = fecha_desde
+                    reserva.fecha_fin = fecha_hasta
+
             reserva.save()
             return redirect('reservas:pagar_reserva', reserva_id=reserva.id)
     else:

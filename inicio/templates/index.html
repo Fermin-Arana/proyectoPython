@@ -14,11 +14,11 @@
         </div>
         <div class="col-md-2">
             <label class="form-label mb-0">Desde</label>
-            <input type="date" name="fecha_desde" class="form-control" placeholder="Desde" value="{{ request.GET.fecha_desde }}">
+            <input type="date" name="fecha_desde" class="form-control" value="{{ request.GET.fecha_desde }}">
         </div>
         <div class="col-md-2">
             <label class="form-label mb-0">Hasta</label>
-            <input type="date" name="fecha_hasta" class="form-control" placeholder="Hasta" value="{{ request.GET.fecha_hasta }}">
+            <input type="date" name="fecha_hasta" class="form-control" value="{{ request.GET.fecha_hasta }}">
         </div>
 
         <!-- Botón para filtros colapsables -->
@@ -34,38 +34,37 @@
                 Buscar
             </button>
         </div>
-    </form>
 
-    <!-- Contenedor colapsable de filtros -->
-    <div class="collapse mb-4" id="filtrosAvanzados">
-        <div class="row g-2 justify-content-center">
-            <div class="col-md-2">
-                <select name="orden" class="form-select">
-                    <option value="">Ordenar por precio</option>
-                    <option value="menor" {% if request.GET.orden == "menor" %}selected{% endif %}>Menor a mayor</option>
-                    <option value="mayor" {% if request.GET.orden == "mayor" %}selected{% endif %}>Mayor a menor</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <select name="categoria" class="form-select">
-                    <option value="">Todas las categorías</option>
-                    {% for clave, nombre in categorias %}
-                        <option value="{{ clave }}" {% if request.GET.categoria == clave %}selected{% endif %}>{{ nombre }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-2">
-                <select name="sucursal" class="form-select">
-                    <option value="">Todas las sucursales</option>
-                    {% for suc in sucursales %}
-                        <option value="{{ suc.id }}" {% if request.GET.sucursal == suc.id|stringformat:"s" %}selected{% endif %}>
-                            {{ suc.nombre }}
-                        </option>
-                    {% endfor %}
-                </select>
+        <!-- Filtros avanzados -->
+        <div class="collapse mt-3" id="filtrosAvanzados">
+            <div class="row g-2 justify-content-center">
+                <div class="col-md-2">
+                    <select name="orden" class="form-select">
+                        <option value="">Ordenar por precio</option>
+                        <option value="menor" {% if request.GET.orden == "menor" %}selected{% endif %}>Menor a mayor</option>
+                        <option value="mayor" {% if request.GET.orden == "mayor" %}selected{% endif %}>Mayor a menor</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="categoria" class="form-select">
+                        <option value="">Todas las categorías</option>
+                        {% for clave, nombre in categorias %}
+                            <option value="{{ clave }}" {% if request.GET.categoria == clave %}selected{% endif %}>{{ nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="sucursal" class="form-select">
+                        <option value="">Todas las sucursales</option>
+                        {% for suc in sucursales %}
+                            <option value="{{ suc.id }}" {% if request.GET.sucursal == suc.id|stringformat:"s" %}selected{% endif %}>{{ suc.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
             </div>
         </div>
-    </div>
+    </form>
+
 
 
     <!-- Listado de autos -->
