@@ -8,6 +8,7 @@ class Reserva(models.Model):
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     vehiculo = models.ForeignKey(Auto, on_delete=models.CASCADE)
     conductor = models.CharField(max_length=100, default='')
+    dni_conductor = models.CharField(max_length=20, default='')
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
     estado = models.CharField(max_length=20, default='pendiente')   
