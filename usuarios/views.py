@@ -84,7 +84,7 @@ class PswrdResetCompleteView(PasswordResetCompleteView):
 
 
 def validar_codigo_2fa(request):
-    if 'codigo_2fa' not in request.session or '2fa_user_id' not in request.session:
+    if 'codigo_2fa' not in request.session or 'user_id_2fa' not in request.session:
         return redirect('no_autorizado')
 
     if request.method == 'POST':
