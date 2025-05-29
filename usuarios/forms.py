@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import Usuario
+from datetime import date
 import re
 
 class CustomUserCreationForm(UserCreationForm):
@@ -93,10 +94,23 @@ class CustomUserCreationForm(UserCreationForm):
         password1 = self.cleaned_data.get('password1')
         password2 = self.cleaned_data.get('password2')
 
+        if not password1:
+            return password2
+            
         if password1 != password2:
             raise forms.ValidationError("Las contraseñas no coinciden.")
 
         return password2
+    
+    def clean_fecha_nacimiento(self):
+        fecha_nacimiento = self.cleaned_data.get('fecha_nacimiento')
+        hoy = date.today()
+        edad = hoy.year - fecha_nacimiento.year - ((hoy.month, hoy.day) < (fecha_nacimiento.month, fecha_nacimiento.day))
+        if (edad < 18):
+            raise forms.ValidationError("Debes ser mayor de edad para registrarte.")
+        
+        return fecha_nacimiento
+    
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
