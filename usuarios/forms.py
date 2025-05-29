@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import Usuario
+from datetime import date
 import re
 
 class CustomUserCreationForm(UserCreationForm):
@@ -93,10 +94,23 @@ class CustomUserCreationForm(UserCreationForm):
         password1 = self.cleaned_data.get('password1')
         password2 = self.cleaned_data.get('password2')
 
+        if not password1:
+            return password2
+            
         if password1 != password2:
             raise forms.ValidationError("Las contraseñas no coinciden.")
 
         return password2
+    
+    def clean_fecha_nacimiento(self):
+        fecha_nacimiento = self.cleaned_data.get('fecha_nacimiento')
+        hoy = date.today()
+        edad = hoy.year - fecha_nacimiento.year - ((hoy.month, hoy.day) < (fecha_nacimiento.month, fecha_nacimiento.day))
+        if (edad < 18):
+            raise forms.ValidationError("Debes ser mayor de edad para registrarte.")
+        
+        return fecha_nacimiento
+    
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -105,3 +119,35 @@ class CustomUserCreationForm(UserCreationForm):
         self.fields['username'].widget.attrs['placeholder'] = 'Ej: juan84551'
         self.fields['password1'].widget.attrs['placeholder'] = 'Contraseña segura (mínimo 8 caracteres)'
         self.fields['password2'].widget.attrs['placeholder'] = 'Repetí la contraseña'
+class UserEditForm(forms.ModelForm):
+    class Meta:
+        model = Usuario
+        fields = ['nombre', 'apellido', 'correo', 'telefono', 'fecha_nacimiento']
+        labels = {
+            'nombre': 'Nombre',
+            'apellido': 'Apellido',
+            'correo': 'Correo electrónico',
+            'telefono': 'Teléfono',
+            'fecha_nacimiento': 'Fecha de nacimiento',
+        }
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Juan'}),
+            'apellido': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Pérez'}),
+            'correo': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Ej: juan@gmail.com'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 2218974555'}),
+            'fecha_nacimiento': forms.DateInput(attrs={'class': 'form-control', 'type': 'fecha'}),
+        }
+    
+    def clean_correo(self):
+        correo = self.cleaned_data.get('correo')
+        # Verificar si el correo ya existe, pero excluir el usuario actual
+        if Usuario.objects.filter(correo=correo).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("Este correo electrónico ya está en uso.")
+        return correo
+    
+    def clean_telefono(self):
+        telefono = self.cleaned_data.get('telefono')
+        # Verificar si el teléfono ya existe, pero excluir el usuario actual
+        if Usuario.objects.filter(telefono=telefono).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("Este teléfono ya está en uso.")
+        return telefono

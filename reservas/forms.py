@@ -29,54 +29,18 @@ class ReservaForm(forms.ModelForm):
             'required': 'Debes ingresar el nombre del conductor.',
         }
     )
-
-    def clean(self):
-        cleaned_data = super().clean()
-
-        vehiculo = cleaned_data.get('vehiculo')
-        conductor = cleaned_data.get('conductor')
-        fecha_inicio = cleaned_data.get('fecha_inicio')
-        fecha_fin = cleaned_data.get('fecha_fin')
-
-        if fecha_inicio is None:
-            self.add_error('fecha_inicio', "La fecha de inicio es obligatoria.")
-        if fecha_fin is None:
-            self.add_error('fecha_fin', "La fecha de fin es obligatoria.")
-
-        print("Fecha inicio:", fecha_inicio)
-
-        if fecha_inicio and fecha_fin:
-            if fecha_fin <= fecha_inicio:
-                self.add_error('fecha_fin', "La fecha de fin debe ser posterior a la fecha de inicio.")
-
-            hoy = timezone.now().date()
-            minimo_fecha = hoy + timedelta(days=2)
-            if fecha_inicio < minimo_fecha:
-                self.add_error('fecha_inicio', "La reserva debe tener al menos 2 días de anticipación.")
-        print ("Fecha fin:", fecha_fin) 
-        if (vehiculo and fecha_inicio and fecha_fin and not self.errors.get('fecha_inicio') and not self.errors.get('fecha_fin')):
-            hay_otro = Reserva.objects.filter(
-                vehiculo=vehiculo,
-                fecha_inicio__lte=fecha_fin,
-                fecha_fin__gte=fecha_inicio
-            ).exclude(pk=self.instance.pk).exists()
-            if hay_otro:
-                self.add_error('vehiculo', "El vehículo ya está reservado en esas fechas.")
-        print ("Conductor:", conductor)
-        if (conductor and fecha_inicio and fecha_fin and not self.errors.get('fecha_inicio') and not self.errors.get('fecha_fin')):
-            hay_otro2 = Reserva.objects.filter(
-                conductor=conductor,
-                fecha_inicio__lte=fecha_fin,
-                fecha_fin__gte=fecha_inicio
-            ).exclude(pk=self.instance.pk).exists()
-            if hay_otro2:
-                self.add_error('conductor', "El conductor ya tiene una reserva en esas fechas.")
-        print ("Vehiculo:", vehiculo)
-        return cleaned_data
+    dni_conductor = forms.CharField(
+        max_length=20,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        label="DNI del conductor",
+        error_messages={
+            'required': 'Debes ingresar el DNI del conductor.',
+        }
+    )
 
     class Meta:
         model = Reserva
-        fields = ['vehiculo', 'fecha_inicio', 'fecha_fin', 'conductor']
+        fields = ['vehiculo', 'fecha_inicio', 'fecha_fin', 'conductor', 'dni_conductor']
         widgets = {
             'fecha_inicio': forms.DateInput(attrs={'type': 'date'}),
             'fecha_fin': forms.DateInput(attrs={'type': 'date'}),
@@ -98,6 +62,7 @@ class ReservaForm(forms.ModelForm):
         fecha_fin = cleaned_data.get('fecha_fin')
         vehiculo = cleaned_data.get('vehiculo')
         conductor = cleaned_data.get('conductor')
+        dni_conductor = cleaned_data.get('dni_conductor')
         
         if fecha_inicio is None:
             self.add_error('fecha_inicio', "La fecha de inicio es obligatoria.")
@@ -122,6 +87,7 @@ class ReservaForm(forms.ModelForm):
                 if hay_otro:
                     self.add_error('vehiculo', "El vehículo ya está reservado en esas fechas.")
                     
+            # Validación para el nombre del conductor
             if (conductor and not self.errors.get('fecha_inicio') and not self.errors.get('fecha_fin')):
                 hay_otro2 = Reserva.objects.filter(
                     conductor=conductor,
@@ -130,6 +96,16 @@ class ReservaForm(forms.ModelForm):
                 ).exclude(pk=self.instance.pk).exists()
                 if hay_otro2:
                     self.add_error('conductor', "El conductor ya tiene una reserva en esas fechas.")
+                
+            # Validación para el DNI del conductor
+            if (dni_conductor and not self.errors.get('fecha_inicio') and not self.errors.get('fecha_fin')):
+                hay_otro_dni = Reserva.objects.filter(
+                    dni_conductor=dni_conductor,
+                    fecha_inicio__lte=fecha_fin,
+                    fecha_fin__gte=fecha_inicio
+                ).exclude(pk=self.instance.pk).exists()
+                if hay_otro_dni:
+                    self.add_error('dni_conductor', "Este DNI ya está asociado a otra reserva en las mismas fechas.")
                 
         return cleaned_data
 

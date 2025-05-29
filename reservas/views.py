@@ -127,3 +127,23 @@ def reserva_cancelar(request, reserva_id):
 
 def reserva_cancelada(request):
     return render(request, 'reservas/reserva_cancelada.html')
+
+@login_required
+def reserva_modificar(request, reserva_id):
+    reserva = get_object_or_404(Reserva, id=reserva_id, usuario=request.user)
+    auto = reserva.vehiculo
+
+    if request.method == 'POST':
+        form = ReservaForm(request.POST, instance=reserva, auto=auto)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Reserva modificada exitosamente.")
+            return redirect('historial_reservas') 
+    else:
+        form = ReservaForm(instance=reserva, auto=auto)
+
+    return render(request, 'reservas/reserva_modificar.html', {
+        'form': form,
+        'auto': auto,
+        'reserva': reserva
+    })
