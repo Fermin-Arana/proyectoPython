@@ -6,6 +6,8 @@ from sucursales.models import Sucursal
 from vehiculos.models import Auto, CATEGORIAS
 from reservas.models import Reserva
 from django.db.models import Q
+from django.core.mail import send_mail
+from django.http import HttpResponse
 
 def index(request):
     if request.user.is_authenticated and request.user.groups.filter(name='admin').exists():
@@ -102,3 +104,13 @@ def detalle_reserva(request, reserva_id):
     # Obtiene la reserva que pertenece al usuario actual o 404 si no existe
     reserva = get_object_or_404(Reserva, id=reserva_id, usuario=request.user)
     return render(request, 'inicio/detalle_reserva.html', {'reserva': reserva})
+
+def prueba_envio_mail(request):
+    send_mail(
+        'Prueba de correo',
+        'Hola, este es un correo enviado desde Django.',
+        'topanelo2016@gmail.com',  # Desde
+        ['topanelo2016@gmail.com'],  # A (puede ser el mismo)
+        fail_silently=False,
+    )
+    return HttpResponse("Correo enviado correctamente.")

@@ -1,0 +1,14 @@
+<form method="post">
+  {% csrf_token %}
+  <label>Ingrese el código que recibió por email:</label>
+  <input type="text" name="codigo" required maxlength="6" minlength="6" />
+  <button type="submit">Verificar</button>
+</form>
+
+{% if messages %}
+  <ul>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}

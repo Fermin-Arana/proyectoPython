@@ -11,4 +11,5 @@ urlpatterns = [
     path('historial-reservas/', views.historial_reservas, name='historial_reservas'),
     path("detalle_auto/<int:auto_id>/", detalle_auto, name="detalle_auto"),
     path('detalle-reserva/<int:reserva_id>/', views.detalle_reserva, name='detalle_reserva'),
+    path('probar-correo/', views.prueba_envio_mail, name='probar_correo'),
 ]

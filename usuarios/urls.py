@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import registrarse, login_view, cerrar_sesion, PswrdResetView, PswrdResetDoneView, PswrdResetConfirmView, PswrdResetCompleteView
+from .views import registrarse, login_view, cerrar_sesion, PswrdResetView, PswrdResetDoneView, PswrdResetConfirmView, PswrdResetCompleteView, validar_codigo_2fa
 
 urlpatterns = [
     path('registrarse/', registrarse, name='registrarse'),
@@ -9,5 +9,6 @@ urlpatterns = [
     path('password-reset/done/', PswrdResetDoneView.as_view(), name='password_reset_done'),
     path('password-reset-confirm/<uidb64>/<token>/', PswrdResetConfirmView.as_view(), name='password_reset_confirm'),
     path('password-reset-complete/', PswrdResetCompleteView.as_view(), name='password_reset_complete'),
+    path('validar-codigo-2fa/', validar_codigo_2fa, name='validar_codigo_2fa'),
 ]
 
