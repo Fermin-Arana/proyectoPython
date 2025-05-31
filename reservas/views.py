@@ -156,9 +156,32 @@ def reserva_exitosa(request, reserva_id):
 @login_required
 def reserva_cancelar(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id, usuario=request.user)
+    
+    dias = (reserva.fecha_fin - reserva.fecha_inicio).days
+    monto = reserva.vehiculo.precio_por_dia * dias
     if request.method == 'POST':
         reserva.estado = 'cancelada'
         reserva.save()
+        # Send cancellation email
+        send_mail(
+            subject='Reserva Cancelada - Alquileres María',
+            message=f"""
+            Hola {request.user.nombre or request.user.username},
+
+            Tu reserva para el vehículo {reserva.vehiculo.marca} {reserva.vehiculo.modelo} ha sido cancelada.
+                        Detalles:
+                        - Fecha de inicio: {reserva.fecha_inicio}
+                        - Fecha de fin: {reserva.fecha_fin}
+                        - Monto pagado: ${monto:.2f}
+            Si tienes dudas, contáctanos.
+
+            Atentamente,
+            El equipo de Alquileres María
+            """,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[request.user.correo],
+            fail_silently=False,
+        )
         messages.success(request, "Reserva cancelada exitosamente.")
         return redirect('reservas:reserva_cancelada')
     return render(request, 'reservas/reserva_cancelar.html', {'reserva': reserva})
@@ -175,6 +198,27 @@ def reserva_modificar(request, reserva_id):
         form = ReservaForm(request.POST, instance=reserva, auto=auto)
         if form.is_valid():
             form.save()
+            # Send modification email
+            send_mail(
+                subject='Reserva Modificada - Alquileres María',
+                message=f"""
+                Hola {request.user.nombre or request.user.username},
+
+                Tu reserva para el vehículo {reserva.vehiculo.marca} {reserva.vehiculo.modelo} ha sido modificada exitosamente.
+
+                Nuevos detalles:
+                - Fecha de inicio: {reserva.fecha_inicio}
+                - Fecha de fin: {reserva.fecha_fin}
+
+                Si tienes dudas, contáctanos.
+
+                Atentamente,
+                El equipo de Alquileres María
+                """,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[request.user.correo],
+                fail_silently=False,
+            )
             messages.success(request, "Reserva modificada exitosamente.")
             return redirect('historial_reservas') 
     else:
