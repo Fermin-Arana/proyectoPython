@@ -26,9 +26,16 @@ class Usuario(AbstractUser):
         related_name='usuarios', 
         blank=True
     )
+    
+    def save(self, *args, **kwargs):
+        if self.username:
+            self.username = self.username.lower()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.username} - {self.nombre} {self.apellido}"
+    
+    
 
     
 class EmpleadoExtra(models.Model):

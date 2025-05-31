@@ -1,10 +1,13 @@
 from datetime import datetime
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, render, redirect
+from usuarios.models import Usuario
 from vehiculos.models import Auto
-from .models import Reserva, PagoSimulado
+from .models import Reserva, PagoSimulado, Tarjeta
 from .forms import ReservaForm, PagoSimuladoForm
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail
+from django.conf import settings
 
 
 def crear_reserva(request, auto_id, reserva_id = None):
@@ -16,7 +19,7 @@ def crear_reserva(request, auto_id, reserva_id = None):
     # Leer las fechas de la sesión
     sd = request.session.get('fecha_desde')
     sh = request.session.get('fecha_hasta')
-
+    
     # Parsear a date de forma segura
     fecha_desde = None
     fecha_hasta = None
@@ -51,8 +54,8 @@ def crear_reserva(request, auto_id, reserva_id = None):
             return redirect('reservas:pagar_reserva', reserva_id=reserva.id)
     else:
         form = ReservaForm(auto=auto, initial={
-            'fecha_inicio': fecha_desde,
-            'fecha_fin': fecha_hasta,
+            'fecha_inicio': fecha_desde.isoformat() if fecha_desde else '',
+            'fecha_fin': fecha_hasta.isoformat() if fecha_hasta else '',
         })
 
     return render(request, 'reservas/crear_reserva.html', {
@@ -69,37 +72,71 @@ def pagar_reserva(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id, usuario=request.user)
 
     # Monto calculado
-    monto = reserva.vehiculo.precio_por_dia * (reserva.fecha_fin - reserva.fecha_inicio).days
+    dias = (reserva.fecha_fin - reserva.fecha_inicio).days
+    monto = reserva.vehiculo.precio_por_dia * dias
+    
+    
 
     if request.method == 'POST':
         post = request.POST.copy()
-        post['monto'] = str(monto)  # Aseguramos que el campo "monto" esté presente
+        post['monto'] = str(monto)
         form = PagoSimuladoForm(post)
 
         if form.is_valid():
-            numero = form.cleaned_data['numero_tarjeta']
+            datos = form.cleaned_data
 
-            # Validación ficticia: si termina en 0000, rechazamos
-            if numero.endswith('0000'):
-                messages.error(request, "El pago fue rechazado: tarjeta inválida.")
-            else:
-                # Guardamos el pago simulado exitoso
-                PagoSimulado.objects.create(
-                    reserva=reserva,
-                    nombre_en_tarjeta=form.cleaned_data['nombre_en_tarjeta'],
-                    numero_tarjeta=numero,
-                    vencimiento=form.cleaned_data['vencimiento'],
-                    codigo_seguridad=form.cleaned_data['codigo_seguridad'],
-                    monto=monto,
-                    estado='exitoso'
+            try:
+                tarjeta = Tarjeta.objects.get(
+                    nombre_en_tarjeta=datos['nombre_en_tarjeta'],
+                    numero_tarjeta=datos['numero_tarjeta'],
+                    vencimiento=datos['vencimiento'],
+                    codigo_seguridad=datos['codigo_seguridad']
                 )
+            except Tarjeta.DoesNotExist:
+                messages.error(request, "Datos de tarjeta incorrectos o tarjeta no registrada.")
+            else:
+                if tarjeta.saldo < monto:
+                    messages.error(request, "La tarjeta no tiene saldo suficiente.")
+                else:
+                    # Descontamos saldo
+                    tarjeta.saldo -= monto
+                    tarjeta.save()
 
-                # Confirmamos la reserva
-                reserva.estado = 'confirmada'
-                reserva.save()
+                    # Creamos el pago exitoso
+                    PagoSimulado.objects.create(
+                        reserva=reserva,
+                        tarjeta=tarjeta,
+                        monto=monto,
+                        estado='exitoso'
+                    )
 
-                return redirect('reservas:reserva_exitosa', reserva_id=reserva.id)
-        # Si no es válido, dejamos que llegue al render final con errores
+                    reserva.estado = 'confirmada'
+                    reserva.save()
+                    send_mail(
+                        subject='Reserva Confirmada - Alquileres María',
+                        message = f"""\
+                        Hola {request.user.nombre or request.user.username},
+
+                        Tu reserva para el vehículo {reserva.vehiculo.marca} {reserva.vehiculo.modelo}
+                        ha sido confirmada exitosamente.
+
+                        Detalles:
+                        - Fecha de inicio: {reserva.fecha_inicio}
+                        - Fecha de fin: {reserva.fecha_fin}
+                        - Monto pagado: ${monto:.2f}
+
+                        ¡Gracias por confiar en nosotros!
+
+                        Atentamente,
+                        El equipo de Alquileres María
+                        """,
+                            from_email=settings.DEFAULT_FROM_EMAIL,
+                            recipient_list=[request.user.correo],
+                            fail_silently=False,
+                    )
+                    if not request.user.email:
+                        messages.warning(request, "No se pudo enviar el correo porque no tenés un email registrado.")
+                    return redirect('reservas:reserva_exitosa', reserva_id=reserva.id)
     else:
         form = PagoSimuladoForm(initial={'monto': monto})
 
@@ -111,6 +148,7 @@ def pagar_reserva(request, reserva_id):
 
 def reserva_exitosa(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id)
+    
     return render(request, 'reservas/reserva_exitosa.html', {
         'reserva': reserva
     })

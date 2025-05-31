@@ -1,11 +1,16 @@
 from django.shortcuts import redirect, render
-from .forms import CustomUserCreationForm
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.core.mail import send_mail
+from django.conf import settings
+from usuarios.models import Usuario
+from .forms import CustomPasswordResetForm, CustomUserCreationForm
 from django.contrib.auth import  login as auth_login, logout, authenticate, get_user_model
 from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm, SetPasswordForm
 from django.contrib import messages
 from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.urls import reverse_lazy
-from django.core.mail import send_mail
 from .utils import generar_codigo_otp
 from decouple import config
 import time
@@ -64,13 +69,54 @@ def cerrar_sesion(request):
     messages.success(request, "Se cerró la sesión correctamente") 
     return redirect('/')  # Redirige a la página principal
 
+def recuperar_contrasena(request):
+    if request.method == 'POST':
+        correo = request.POST.get('correo')
+        try:
+            usuario = Usuario.objects.get(correo=correo)
+            token = default_token_generator.make_token(usuario)
+            uid = urlsafe_base64_encode(force_bytes(usuario.pk))
+            link = f"http://{settings.DEFAULT_DOMAIN}/usuarios/password-reset-confirm/{uid}/{token}/"
+
+            send_mail(
+                subject='Restablecer tu contraseña - Alquileres María',
+                message=f"""Hola {usuario.nombre or usuario.username},
+
+Recibiste este correo porque se solicitó restablecer tu contraseña.
+
+Hacé clic en el siguiente enlace para establecer una nueva contraseña:
+{link}
+
+Si no fuiste vos, simplemente ignorá este correo.
+
+Gracias,
+El equipo de Alquileres María
+""",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[correo],
+                fail_silently=False,
+            )
+
+            messages.success(request, "📬 Revisa tu correo para continuar con el cambio de contraseña.")
+            return redirect('login')
+
+        except Usuario.DoesNotExist:
+            messages.error(request, "❌ No se encontró ningún usuario con ese correo.")
+    
+    return render(request, 'usuarios/recuperar_contrasena_manual.html')
+
+
 class PswrdResetView(PasswordResetView):
     template_name = 'usuarios/password_reset_form.html'
     email_template_name = 'usuarios/password_reset_email.html'
     subject_template_name = 'usuarios/password_reset_subject.txt'
     success_url = reverse_lazy('password_reset_done')
-    form_class = PasswordResetForm
+    form_class = CustomPasswordResetForm
 
+    def form_valid(self, form):
+        print(f"📩 Se ejecutó form_valid. Enviando email a: {form.cleaned_data['email']}")
+        return super().form_valid(form)
+    
 class PswrdResetDoneView(PasswordResetDoneView):
     template_name = 'usuarios/password_reset_done.html'
 

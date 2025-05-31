@@ -9,6 +9,7 @@ from django.core.validators import RegexValidator
 class ReservaForm(forms.ModelForm):
     fecha_inicio = forms.DateField(
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        input_formats=['%Y-%m-%d'], 
         label="Fecha de inicio",
         error_messages={
             'required': 'Debes seleccionar una fecha de inicio.',
@@ -16,6 +17,7 @@ class ReservaForm(forms.ModelForm):
     )
     fecha_fin = forms.DateField(
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        input_formats=['%Y-%m-%d'],  
         label="Fecha de fin",
         error_messages={
             'required': 'Debes seleccionar una fecha de fin.',
@@ -30,7 +32,7 @@ class ReservaForm(forms.ModelForm):
         }
     )
     dni_conductor = forms.CharField(
-        max_length=20,
+        max_length=8,
         widget=forms.TextInput(attrs={'class': 'form-control'}),
         label="DNI del conductor",
         error_messages={

@@ -1,8 +1,14 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, PasswordResetForm
 from .models import Usuario
 from datetime import date
 import re
+
+class CustomPasswordResetForm(PasswordResetForm):
+    def get_users(self, email):
+        from django.contrib.auth import get_user_model
+        UserModel = get_user_model()
+        return UserModel._default_manager.filter(correo__iexact=email, is_active=True)
 
 class CustomUserCreationForm(UserCreationForm):
     username = forms.CharField(
@@ -59,8 +65,8 @@ class CustomUserCreationForm(UserCreationForm):
         }
 
     def clean_username(self):
-        username = self.cleaned_data.get('username')
-        if Usuario.objects.filter(username=username).exists():
+        username = self.cleaned_data.get('username').lower()
+        if Usuario.objects.filter(username__iexact=username).exists():
             raise forms.ValidationError("Ese nombre de usuario ya está en uso. Probá con otro.")
         return username
 
@@ -108,6 +114,8 @@ class CustomUserCreationForm(UserCreationForm):
         edad = hoy.year - fecha_nacimiento.year - ((hoy.month, hoy.day) < (fecha_nacimiento.month, fecha_nacimiento.day))
         if (edad < 18):
             raise forms.ValidationError("Debes ser mayor de edad para registrarte.")
+        if edad > 100:
+            raise forms.ValidationError("La edad ingresada debe ser una edad real")
         
         return fecha_nacimiento
     
@@ -119,6 +127,7 @@ class CustomUserCreationForm(UserCreationForm):
         self.fields['username'].widget.attrs['placeholder'] = 'Ej: juan84551'
         self.fields['password1'].widget.attrs['placeholder'] = 'Contraseña segura (mínimo 8 caracteres)'
         self.fields['password2'].widget.attrs['placeholder'] = 'Repetí la contraseña'
+
 class UserEditForm(forms.ModelForm):
     class Meta:
         model = Usuario

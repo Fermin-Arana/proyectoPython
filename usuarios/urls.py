@@ -1,10 +1,11 @@
 from django.urls import path
-from .views import registrarse, login_view, cerrar_sesion, PswrdResetView, PswrdResetDoneView, PswrdResetConfirmView, PswrdResetCompleteView, validar_codigo_2fa
+from .views import recuperar_contrasena, registrarse, login_view, cerrar_sesion, PswrdResetView, PswrdResetDoneView, PswrdResetConfirmView, PswrdResetCompleteView, validar_codigo_2fa
 
 urlpatterns = [
     path('registrarse/', registrarse, name='registrarse'),
     path('login/', login_view, name='login'),
     path('logout/', cerrar_sesion, name='logout'),
+    path('recuperar-contrasena/', recuperar_contrasena, name='recuperar_contrasena_manual'),
     path('password-reset/', PswrdResetView.as_view(), name='password_reset'),
     path('password-reset/done/', PswrdResetDoneView.as_view(), name='password_reset_done'),
     path('password-reset-confirm/<uidb64>/<token>/', PswrdResetConfirmView.as_view(), name='password_reset_confirm'),

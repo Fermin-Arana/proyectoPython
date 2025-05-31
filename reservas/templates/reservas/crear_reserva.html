@@ -12,11 +12,6 @@
 
     <form method="post" class="formulario-reserva">
         {% csrf_token %}
-        {% if fecha_desde and fecha_hasta %}
-            <input type="hidden" name="fecha_desde" value="{{ fecha_desde }}">
-            <input type="hidden" name="fecha_hasta" value="{{ fecha_hasta }}">
-        {% endif %}
-
         {% for field in form %}
             <div class="mb-3" {% if field.is_hidden %}style="display:none"{% endif %}>
                 <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
@@ -50,7 +45,7 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', () => {
-    const precioPorDia = Number('{{ precio_por_dia|default:"0" }}');
+    const precioPorDia = parseFloat('{{ precio_por_dia|floatformat:2|default:"0" }}');
     const fechaInicioInput = document.getElementById('id_fecha_inicio');
     const fechaFinInput = document.getElementById('id_fecha_fin');
     const costoEstimadoSpan = document.getElementById('costoEstimado');
@@ -71,6 +66,7 @@
 
     fechaInicioInput.addEventListener('change', calcularCosto);
     fechaFinInput.addEventListener('change', calcularCosto);
+    calcularCosto();
     });
 </script>
 
