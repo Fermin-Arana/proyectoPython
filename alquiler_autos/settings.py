@@ -141,18 +141,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-<<<<<<< HEAD
-
-# Configuración de correo electrónico
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # O el servidor SMTP que uses
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-#supongo que hay que accedera la base de datos para completar esto pero chat me dijo que era inseguro asi q no se comm hacerlo. lo dejo ahi para q funque
-EMAIL_HOST_USER = 'user.email'  #correo del usuario
-EMAIL_HOST_PASSWORD = 'tu_contraseña_de_aplicación'  # contraseña del usuario
-DEFAULT_FROM_EMAIL = 'Maria Alquileres <mariaalquileres@gmail.com>' 
-=======
 # Configuración de correo electrónico
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'  #
@@ -162,4 +150,3 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = 'Maria Alquileres <mariaalquileres.lp@gmail.com>'
 DEFAULT_DOMAIN = 'localhost:8000'
->>>>>>> a1f21d685f238f57e620bfeaa742cc390a630947

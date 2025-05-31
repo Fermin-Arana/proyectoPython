@@ -1,8 +1,4 @@
 from django.shortcuts import redirect, render
-<<<<<<< HEAD
-from .forms import CustomUserCreationForm
-from django.contrib.auth import login as auth_login, logout, authenticate
-=======
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
@@ -11,17 +7,13 @@ from django.conf import settings
 from usuarios.models import Usuario
 from .forms import CustomPasswordResetForm, CustomUserCreationForm
 from django.contrib.auth import  login as auth_login, logout, authenticate, get_user_model
->>>>>>> a1f21d685f238f57e620bfeaa742cc390a630947
 from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm, SetPasswordForm
 from django.contrib import messages
 from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.urls import reverse_lazy
-<<<<<<< HEAD
-=======
 from .utils import generar_codigo_otp
 from decouple import config
 import time
->>>>>>> a1f21d685f238f57e620bfeaa742cc390a630947
 
 User = get_user_model()
 def registrarse(request):
@@ -47,11 +39,6 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
 
             if user is not None:
-<<<<<<< HEAD
-                auth_login(request, user)
-                messages.success(request, "Inicio de sesión exitoso")
-                return redirect("/")  # Redirige a la página principal
-=======
                 if user.groups.filter(name='admin').exists():
                     codigo = generar_codigo_otp()
                     request.session['codigo_2fa'] = codigo
@@ -72,7 +59,6 @@ def login_view(request):
                     auth_login(request, user)
                     messages.success(request, "Inicio de sesión exitoso")
                     return redirect("/")  # Redirige a la página principal
->>>>>>> a1f21d685f238f57e620bfeaa742cc390a630947
     else:
         form = AuthenticationForm()
 
@@ -80,10 +66,6 @@ def login_view(request):
 
 def cerrar_sesion(request):
     logout(request)
-<<<<<<< HEAD
-    messages.success(request, "Se cerró la sesión correctamente")  
-    return redirect('/')
-=======
     messages.success(request, "Se cerró la sesión correctamente") 
     return redirect('/')  # Redirige a la página principal
 
@@ -123,24 +105,18 @@ El equipo de Alquileres María
     
     return render(request, 'usuarios/recuperar_contrasena_manual.html')
 
->>>>>>> a1f21d685f238f57e620bfeaa742cc390a630947
 
 class PswrdResetView(PasswordResetView):
     template_name = 'usuarios/password_reset_form.html'
     email_template_name = 'usuarios/password_reset_email.html'
     subject_template_name = 'usuarios/password_reset_subject.txt'
     success_url = reverse_lazy('password_reset_done')
-<<<<<<< HEAD
-    form_class = PasswordResetForm
-
-=======
     form_class = CustomPasswordResetForm
 
     def form_valid(self, form):
         print(f"📩 Se ejecutó form_valid. Enviando email a: {form.cleaned_data['email']}")
         return super().form_valid(form)
     
->>>>>>> a1f21d685f238f57e620bfeaa742cc390a630947
 class PswrdResetDoneView(PasswordResetDoneView):
     template_name = 'usuarios/password_reset_done.html'
 
@@ -151,11 +127,6 @@ class PswrdResetConfirmView(PasswordResetConfirmView):
 
 class PswrdResetCompleteView(PasswordResetCompleteView):
     template_name = 'usuarios/password_reset_complete.html'
-<<<<<<< HEAD
-    
-    
-    
-=======
 
 
 def validar_codigo_2fa(request):
@@ -198,4 +169,3 @@ def validar_codigo_2fa(request):
             return redirect('validar_codigo_2fa')
 
     return render(request, 'usuarios/validar_codigo.html')
->>>>>>> a1f21d685f238f57e620bfeaa742cc390a630947

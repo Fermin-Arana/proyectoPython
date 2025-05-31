@@ -30,11 +30,7 @@ def index(request):
     if buscar:
         autos = autos.filter(Q(marca__icontains=buscar) | Q(modelo__icontains=buscar))
 
-<<<<<<< HEAD
-    # Filtro por sucursal 
-=======
     # Filtrar por sucursal
->>>>>>> a1f21d685f238f57e620bfeaa742cc390a630947
     if sucursal_id:
         autos = autos.filter(sucursal__id=sucursal_id)
 
@@ -59,15 +55,10 @@ def index(request):
         "sucursales": sucursales,
         "autos": autos,
         "categorias": CATEGORIAS,
-<<<<<<< HEAD
-        "request": request,  
-        "es_admin": es_admin
-=======
         "request": request,            # para el template
         "es_admin": es_admin,
         "fecha_desde": fecha_desde,    # pasamos al template
         "fecha_hasta": fecha_hasta,
->>>>>>> a1f21d685f238f57e620bfeaa742cc390a630947
     })
 
 
