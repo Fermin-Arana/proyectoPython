@@ -46,7 +46,7 @@ button {
     text-align: center;
 }
 
-.boton_link, .boton {
+.boton_link, .boton, .btn, .btn-primary, .btn-link {
     text-decoration: none;  
     margin-top: 20px;
     padding: 10px 20px;
@@ -57,11 +57,26 @@ button {
     cursor: pointer;
     text-align: center;
     font-size: 16px;
+    display: inline-block;
+    width: auto;
+    min-width: 150px;
 }
 
-.boton_link:hover, .boton:hover {
+.boton_link:hover, .boton:hover, .btn:hover, .btn-primary:hover {
     color: #000000;
     background-color: #ffffff;
+}
+
+.btn-link {
+    background-color: transparent;
+    color: #000000;
+    text-decoration: underline;
+}
+
+.btn-link:hover {
+    background-color: transparent;
+    color: #ffffff;
+    text-decoration: underline;
 }
 .error-message {
     color: red;
@@ -70,6 +85,16 @@ button {
     background-color: #f8d7da;
     margin-top: 10px;
 }
+a.btn {
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    background-color: #000000;
+    color: rgb(255, 255, 255);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: center;
+        }
 
 
 a.btn {
