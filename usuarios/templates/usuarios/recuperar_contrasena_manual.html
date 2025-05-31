@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Recuperar Contraseña - Maria Alquileres{% endblock %}
+{% block content %}
+<div class="row-total">
+    <div class="col-md-8 offset-md-3">
+        <div class="card">
+            <div class="card-header bg-dark text-danger">
+                <h3 class="mb-0">Recuperar Contraseña</h3>
+            </div>
+            <div class="card-body">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} mt-2">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+                <p>Ingrese su dirección de correo electrónico y revise las instrucciones enviadas al mismo para restablecer su contraseña.</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="correo" class="form-label">Correo electrónico:</label>
+                        <input type="email" name="correo" id="correo" class="form-control" placeholder="ejemplo@correo.com" required>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-danger">Enviar enlace</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <a href="{% url 'login' %}" class="text-danger">Volver a iniciar sesión</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

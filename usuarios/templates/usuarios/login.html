@@ -4,7 +4,14 @@
 
 {% block content %}
 <div class="container mt-5"> {# container centra #}
-  <h2 class="mb-4">Ingresar</h2> {# titulo de 2do nivel #}
+  <h2 class="mb-4">Iniciar Sesión</h2> {# titulo de 2do nivel #}
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
     <form method="post" novalidate class="login-form"> {# clase nueva para estilos específicos #}
     {% csrf_token %} {# token de seguridad #}
 
@@ -26,6 +33,7 @@
       {% endfor %}
     </div>
 
+<<<<<<< HEAD
     <button type="submit" class="btn btn-primary">Ingresar</button>
     <a href="{% url 'index' %}" class="btn btn-primary">Volver a Inicio</a>
     
@@ -36,6 +44,19 @@
 <div class="card-footer">
   <p class="mb-0 text-center">¿No tienes una cuenta? <a href="{% url 'registrarse' %}" class="text-danger">Regístrate aquí</a></p>
 </div>
+=======
+
+    <div class="mt-3 text-center">
+      <button type="submit" class="btn btn-secondary w-100">Ingresar</button>
+      <a href="{% url 'index' %}" class="btn btn-secondary w-100">Volver a Inicio</a>
+      <a href="{% url 'recuperar_contrasena_manual' %}" class="text-decoration-none small text-muted">¿Olvidaste tu contraseña?</a>
+    </div>
+
+
+    <div class="card-footer">
+      <p class="mb-0 text-center">¿No tienes una cuenta? <a href="{% url 'registrarse' %}" class="text-danger">Regístrate aquí</a></p>
+    </div>
+>>>>>>> a1f21d685f238f57e620bfeaa742cc390a630947
   </form>
 </div>
 {% endblock %}

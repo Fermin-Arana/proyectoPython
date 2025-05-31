@@ -10,7 +10,7 @@ class Usuario(AbstractUser):
     nombre = models.CharField(max_length=50)
     apellido = models.CharField(max_length=50)
     dni = models.CharField(max_length=10, unique=True)
-    fecha_nacimiento = models.DateField()
+    fecha_nacimiento = models.DateField(null=True, blank=True)
     correo = models.EmailField(unique=True)
     telefono = models.CharField(max_length=15)
 
@@ -26,9 +26,16 @@ class Usuario(AbstractUser):
         related_name='usuarios', 
         blank=True
     )
+    
+    def save(self, *args, **kwargs):
+        if self.username:
+            self.username = self.username.lower()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.username} - {self.nombre} {self.apellido}"
+    
+    
 
     
 class EmpleadoExtra(models.Model):

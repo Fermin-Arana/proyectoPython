@@ -11,11 +11,16 @@ Koko
 
 ## IMPORTANTE:
 Requisitos a tener instalados:
-
 - Python 3.11+
 - pip
 - Virtualenv (recomendado)
 - Git
+
+## Tecnologías utilizadas:
+- Django 5.1
+- PostgreSQL (usada en producción en Render)
+- HTML5, CSS3, JavaScript (para interacciones en frontend)
+- Bootstrap 5 (para estilos responsivos)
 
 
 ##  Instalación y ejecución local

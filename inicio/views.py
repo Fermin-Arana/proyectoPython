@@ -1,35 +1,51 @@
-from django.shortcuts import render
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
+from django.contrib import messages
 from sucursales.models import Sucursal
 from vehiculos.models import Auto, CATEGORIAS
+from reservas.models import Reserva
 from django.db.models import Q
+from django.core.mail import send_mail
+from django.http import HttpResponse
 
 def index(request):
+    if request.user.is_authenticated and request.user.groups.filter(name='admin').exists():
+        return redirect('panel_admin') 
+
     sucursales = Sucursal.objects.all()
     autos = Auto.objects.select_related('sucursal').all()
+    buscar       = request.GET.get('buscar', '')
+    fecha_desde  = request.GET.get('fecha_desde', '')
+    fecha_hasta  = request.GET.get('fecha_hasta', '')
+    orden        = request.GET.get('orden', '')
+    sucursal_id  = request.GET.get('sucursal', '')
+    categoria    = request.GET.get('categoria', '')
 
-    buscar = request.GET.get('buscar', '')
-    fecha = request.GET.get('fecha', '')
-    orden = request.GET.get('orden', '')
-    sucursal_id = request.GET.get('sucursal', '')
-    categoria = request.GET.get("categoria")
-    
-    #Filtro por categoria
+    # Filtrar por categoría
     if categoria:
         autos = autos.filter(categoria=categoria)
 
-    # Filtro por texto
+    # Filtrar por texto
     if buscar:
         autos = autos.filter(Q(marca__icontains=buscar) | Q(modelo__icontains=buscar))
 
+<<<<<<< HEAD
     # Filtro por sucursal 
+=======
+    # Filtrar por sucursal
+>>>>>>> a1f21d685f238f57e620bfeaa742cc390a630947
     if sucursal_id:
         autos = autos.filter(sucursal__id=sucursal_id)
 
-    # Filtro por fecha 
-    if fecha:
-        autos = autos.exclude(reserva__fecha_inicio__lte=fecha, reserva__fecha_fin__gte=fecha)
+    # Filtrar por rango de fechas **solo si ambas están**
+    if (fecha_desde and not fecha_hasta) or (fecha_hasta and not fecha_desde):
+        messages.warning(request, "Debés seleccionar ambas fechas para filtrar por rango.")
+    if fecha_desde and fecha_hasta:
+        autos = autos.exclude(
+            reserva__fecha_inicio__lte=fecha_hasta,
+            reserva__fecha_fin__gte=fecha_desde
+        )
 
     # Ordenar por precio
     if orden == 'menor':
@@ -43,33 +59,89 @@ def index(request):
         "sucursales": sucursales,
         "autos": autos,
         "categorias": CATEGORIAS,
+<<<<<<< HEAD
         "request": request,  
         "es_admin": es_admin
+=======
+        "request": request,            # para el template
+        "es_admin": es_admin,
+        "fecha_desde": fecha_desde,    # pasamos al template
+        "fecha_hasta": fecha_hasta,
+>>>>>>> a1f21d685f238f57e620bfeaa742cc390a630947
     })
 
 
 
 def detalle_auto(request, auto_id):
-    # Obtener el auto seleccionado
-    auto = get_object_or_404(Auto, id=auto_id)
+    fecha_desde = request.GET.get('fecha_desde')
+    fecha_hasta = request.GET.get('fecha_hasta')
+    if fecha_desde and fecha_hasta:
+        request.session['fecha_desde'] = fecha_desde
+        request.session['fecha_hasta'] = fecha_hasta
+    else:
+        request.session.pop('fecha_desde', None)
+        request.session.pop('fecha_hasta', None)
 
-    return render(request, "detalle_auto.html", {"auto": auto})
+    auto = get_object_or_404(Auto, pk=auto_id)
+    reservar_url = reverse('reservas:crear_reserva', args=[auto.id])
 
+    return render(request, 'detalle_auto.html', {
+        'auto':          auto,
+        'reservar_url':  reservar_url,
+    })
+
+
+# Agrega esta importación al principio del archivo junto con las otras importaciones
+from usuarios.forms import UserEditForm
+
+# Agrega esta función al final del archivo
+@login_required
+def editar_perfil(request):
+    """Vista para editar el perfil del usuario."""
+    if request.method == 'POST':
+        # Procesar el formulario enviado
+        form = UserEditForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Perfil actualizado correctamente')
+            return redirect('perfil')
+    else:
+        # Mostrar formulario con datos actuales
+        form = UserEditForm(instance=request.user)
+    
+    return render(request, 'inicio/editar_perfil.html', {
+        'form': form
+    })
 
 @login_required
 def perfil(request):
     """Vista para mostrar el perfil del usuario."""
+    es_admin = request.user.groups.filter(name='admin').exists()
     return render(request, 'inicio/perfil.html', {
-        'user': request.user
+        'user': request.user,
+        'es_admin': es_admin
     })
 
 @login_required
 def historial_reservas(request):
-    """Vista para mostrar el historial de reservas del usuario."""
-    # Aquí deberás obtener las reservas del usuario actual cuando implementes el modelo de reservas
-    # Por ahora, solo pasamos un listado vacío
-    reservas = []
+    reservas = Reserva.objects.filter(usuario=request.user).order_by('-fecha_inicio') 
     
     return render(request, 'inicio/historial_reservas.html', {
         'reservas': reservas
     })
+    
+@login_required
+def detalle_reserva(request, reserva_id):
+    # Obtiene la reserva que pertenece al usuario actual o 404 si no existe
+    reserva = get_object_or_404(Reserva, id=reserva_id, usuario=request.user)
+    return render(request, 'inicio/detalle_reserva.html', {'reserva': reserva})
+
+def prueba_envio_mail(request):
+    send_mail(
+        'Prueba de correo',
+        'Hola, este es un correo enviado desde Django.',
+        'topanelo2016@gmail.com',  # Desde
+        ['topanelo2016@gmail.com'],  # A (puede ser el mismo)
+        fail_silently=False,
+    )
+    return HttpResponse("Correo enviado correctamente.")

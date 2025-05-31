@@ -9,7 +9,7 @@ urlpatterns = [
     path('', include('usuarios.urls')),
     path('', include('inicio.urls')), 
     path('panel-admin/', include('panel_admin.urls')),
-    path('reservas/', include('reservas.urls')),
+    path('reservar/', include('reservas.urls')),
 ]
 
 if settings.DEBUG:

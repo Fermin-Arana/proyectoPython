@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
 
-{% block title %}Perfil de Usuario - Maria Alquileres{% endblock %}
+{% block title %}Perfil de Usuario - María Alquileres{% endblock %}
 
 {% block content %}
 <div class="row-total">
     <div class="col-md-8 offset-md-2">
         <div class="card">
-            <div class="card-header bg-dark text-danger">
+            <div class="card-header bg-dark text-danger d-flex justify-content-between align-items-center">
                 <h3 class="mb-0">Perfil de Usuario</h3>
+                <a href="{% url 'editar_perfil' %}" class="btn btn-danger">Editar Perfil</a>
             </div>
             <div class="card-body">
                 <div class="row mb-3">
@@ -16,13 +17,32 @@
                 </div>
                 <div class="row mb-3">
                     <div class="col-md-4 fw-bold">Correo electrónico:</div>
-                    <div class="col-md-8">{{ user.email }}</div>
+                    <div class="col-md-8">{{ user.correo }}</div>  {# Cambiar aquí si usás 'correo' #}
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Nombre:</div>
+                    <div class="col-md-8">{{ user.nombre }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Apellido:</div>
+                    <div class="col-md-8">{{ user.apellido }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">DNI:</div>
+                    <div class="col-md-8">{{ user.dni }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Fecha de nacimiento:</div>
+                    <div class="col-md-8">{{ user.fecha_nacimiento|date:"d/m/Y" }}</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-4 fw-bold">Teléfono:</div>
+                    <div class="col-md-8">{{ user.telefono }}</div>
                 </div>
                 <div class="row mb-3">
                     <div class="col-md-4 fw-bold">Fecha de registro:</div>
                     <div class="col-md-8">{{ user.date_joined|date:"d/m/Y" }}</div>
                 </div>
-                <!-- Puedes añadir más información del usuario aquí -->
             </div>
         </div>
     </div>

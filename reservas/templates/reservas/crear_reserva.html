@@ -1,32 +1,85 @@
 {% extends 'reservas/base.html' %}
-
 {% load static %}
 
 {% block title %}Reservar Vehículo{% endblock %}
 
-{% block extra_head %}
-<link rel="stylesheet" href="{% static 'crear_reserva.css' %}">
+{% block content %}
+<div class="container mt-5">
+    <h1 class="titulo">Reservar Vehículo</h1>
+
+    <p><strong>Usuario:</strong> {{ usuario.username }}</p>
+    <p><strong>Vehículo:</strong> {{ auto.marca }} {{ auto.modelo }}</p>
+
+    <form method="post" class="formulario-reserva">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="mb-3" {% if field.is_hidden %}style="display:none"{% endif %}>
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <div class="text-danger small error-message">
+                        {% for error in field.errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+        {% if form.errors.vehiculo %}
+            <div class="text-danger small error-message">
+                {% for error in form.errors.vehiculo %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <p><strong>Precio por día:</strong> ${{ precio_por_dia }}</p>
+        <p><strong>Costo estimado: $</strong><span id="costoEstimado">0.00</span></p>
+        <button type="submit" class="boton">Reservar</button>
+        <a href="{% url 'detalle_auto' auto.id %}{% if fecha_desde and fecha_hasta %}?fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}{% endif %}" class="btn btn-secondary mb-3">
+            ← Volver al detalle del vehículo
+        </a>
+    </form>
+</div>
 {% endblock %}
 
-{% block content %}
-    <div class="container mt-5">
-        <h1 class="titulo">Reservar Vehículo</h1>
-        <form method="post" class="formulario-reserva">
-            {% csrf_token %}
-            {% for field in form %}
-                    <div class="mb-3">
-                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.errors %}
-                            <div class="text-danger small error-message">
-                                {% for error in field.errors %}
-                                    <p>{{ error }}</p>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-            <button type="submit" class="boton">Reservar</button>
-        </form>
-    </div>
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    const precioPorDia = parseFloat('{{ precio_por_dia|floatformat:2|default:"0" }}');
+    const fechaInicioInput = document.getElementById('id_fecha_inicio');
+    const fechaFinInput = document.getElementById('id_fecha_fin');
+    const costoEstimadoSpan = document.getElementById('costoEstimado');
+
+    function calcularCosto() {
+        const inicio = new Date(fechaInicioInput.value);
+        const fin = new Date(fechaFinInput.value);
+
+        if (!isNaN(inicio.getTime()) && !isNaN(fin.getTime()) && fin > inicio && !isNaN(precioPorDia)) {
+        const diffTime = fin.getTime() - inicio.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        const costo = diffDays * precioPorDia;
+        costoEstimadoSpan.textContent = costo.toFixed(2);
+        } else {
+        costoEstimadoSpan.textContent = '0.00';
+        }
+    }
+
+    fechaInicioInput.addEventListener('change', calcularCosto);
+    fechaFinInput.addEventListener('change', calcularCosto);
+    calcularCosto();
+    });
+</script>
+
+<script>
+    document.querySelector('form.formulario-reserva').addEventListener('submit', function(event) {
+        const fechaInicio = new Date(document.getElementById('id_fecha_inicio').value);
+        const fechaFin = new Date(document.getElementById('id_fecha_fin').value);
+
+        if (fechaFin < fechaInicio) {
+            event.preventDefault();
+            alert('La fecha de fin no puede ser anterior a la fecha de inicio.');
+        }
+    });
+</script>
+
 {% endblock %}

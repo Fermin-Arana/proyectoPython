@@ -1,0 +1,20 @@
+{% extends 'reservas/base.html' %}
+{% load static %}
+{% block title %}Cancelar Reserva{% endblock %}
+
+{% block content %}
+    <h1>Cancelar Reserva</h1>
+    <ul>
+        <li> Auto: {{ reserva.auto.marca }} {{ reserva.auto.modelo }} {{ reserva.auto.categoria}}</li>
+        <li> Cantidad a reembolsar: {{reserva.auto.politica_reembolso}}  </li>
+        <li> Estado de la reserva: {{ reserva.estado }}</li>
+    </ul>
+    <img src="{{ reserva.auto.imagen.url }}" alt="Imagen del auto" style="width: 300px; height: 200px;">
+
+    <form method="POST">
+        {% csrf_token %}
+        <h2> ¿Esta seguro de que desea cancelar su reserva? </h2>
+        <button type = "submit"> Cancelar reserva </button>
+        <a href="{% url 'historial_reservas' %}" class= "btn btn-secondary mb-3"> Volver a mis reservas </a>
+    </form>
+{% endblock %}

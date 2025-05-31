@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalle de Reserva{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Detalle de la Reserva</h2>
+    <div class="card p-3">
+        <p><strong>Vehículo:</strong> {{ reserva.vehiculo.marca }} {{ reserva.vehiculo.modelo }}</p>
+        <p><strong>Fecha de reserva:</strong> {{ reserva.fecha_reserva|date:"d/m/Y" }}</p>
+        <p><strong>Fecha inicio:</strong> {{ reserva.fecha_inicio|date:"d/m/Y" }}</p>
+        <p><strong>Fecha fin:</strong> {{ reserva.fecha_fin|date:"d/m/Y" }}</p>
+        <p><strong>Estado:</strong> {{ reserva.estado }}</p>
+        <p><strong>Precio total:</strong> ${{ reserva.precio_total }}</p>
+    </div>
+    <a href="{% url 'historial_reservas' %}" class="btn btn-secondary mt-3">Volver al historial</a>
+</div>
+{% endblock %}

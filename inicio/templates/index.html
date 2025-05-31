@@ -7,43 +7,65 @@
     <h2 class="text-center text-danger">Bienvenido a Maria Alquileres</h2>
     <p class="text-center">Explore todos los autos disponibles en nuestras sucursales</p>
 
-    <!-- Formulario de búsqueda y filtros -->
-    <form method="GET" class="row g-3 my-4">
+    <form method="GET" class="row g-2 justify-content-center align-items-end mb-4">
+        <!-- Campo de búsqueda -->
         <div class="col-md-3">
             <input type="text" name="buscar" class="form-control" placeholder="Buscar por marca o modelo..." value="{{ request.GET.buscar }}">
         </div>
         <div class="col-md-2">
-            <input type="date" name="fecha" class="form-control" value="{{ request.GET.fecha }}">
+            <label class="form-label mb-0">Desde</label>
+            <input type="date" name="fecha_desde" class="form-control" value="{{ request.GET.fecha_desde }}">
         </div>
         <div class="col-md-2">
-            <select name="orden" class="form-select">
-                <option value="">Ordenar por precio</option>
-                <option value="menor" {% if request.GET.orden == "menor" %}selected{% endif %}>Menor a mayor</option>
-                <option value="mayor" {% if request.GET.orden == "mayor" %}selected{% endif %}>Mayor a menor</option>
-            </select>
+            <label class="form-label mb-0">Hasta</label>
+            <input type="date" name="fecha_hasta" class="form-control" value="{{ request.GET.fecha_hasta }}">
         </div>
+
+        <!-- Botón para filtros colapsables -->
         <div class="col-md-2">
-            <select name="categoria" class="form-select">
-                <option value="">Todas las categorías</option>
-                {% for clave, nombre in categorias %}
-                    <option value="{{ clave }}" {% if request.GET.categoria == clave %}selected{% endif %}>{{ nombre }}</option>
-                {% endfor %}
-            </select>
-        </div>        
-        <div class="col-md-2">
-            <select name="sucursal" class="form-select">
-                <option value="">Todas las sucursales</option>
-                {% for suc in sucursales %}
-                    <option value="{{ suc.id }}" {% if request.GET.sucursal == suc.id|stringformat:"s" %}selected{% endif %}>
-                        {{ suc.nombre }}
-                    </option>
-                {% endfor %}
-            </select>
+            <button class="btn btn-danger w-100" type="button" data-bs-toggle="collapse" data-bs-target="#filtrosAvanzados">
+                Filtros avanzados
+            </button>
         </div>
-        <div class="col-md-1">
-            <button type="submit" class="btn btn-danger w-100">Filtrar</button>
+
+        <!-- Botón de búsqueda -->
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-danger w-100">
+                Buscar
+            </button>
+        </div>
+
+        <!-- Filtros avanzados -->
+        <div class="collapse mt-3" id="filtrosAvanzados">
+            <div class="row g-2 justify-content-center">
+                <div class="col-md-2">
+                    <select name="orden" class="form-select">
+                        <option value="">Ordenar por precio</option>
+                        <option value="menor" {% if request.GET.orden == "menor" %}selected{% endif %}>Menor a mayor</option>
+                        <option value="mayor" {% if request.GET.orden == "mayor" %}selected{% endif %}>Mayor a menor</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="categoria" class="form-select">
+                        <option value="">Todas las categorías</option>
+                        {% for clave, nombre in categorias %}
+                            <option value="{{ clave }}" {% if request.GET.categoria == clave %}selected{% endif %}>{{ nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="sucursal" class="form-select">
+                        <option value="">Todas las sucursales</option>
+                        {% for suc in sucursales %}
+                            <option value="{{ suc.id }}" {% if request.GET.sucursal == suc.id|stringformat:"s" %}selected{% endif %}>{{ suc.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
         </div>
     </form>
+
+
 
     <!-- Listado de autos -->
     <div class="row g-4">
@@ -71,7 +93,8 @@
             <div class="flex-grow-1"></div>
 
             <!-- Botón clásico de Más detalles -->
-            <a href="{% url 'detalle_auto' auto.id %}" class="btn btn-outline-danger w-100">
+            <a href="{% url 'detalle_auto' auto.id %}{% if fecha_desde and fecha_hasta %}?fecha_desde={{ fecha_desde }}&fecha_hasta={{ fecha_hasta }}{% endif %}"
+            class="btn btn-outline-danger w-100">
             <i class="bi bi-info-circle me-1"></i>Más detalles
             </a>
         </div>
@@ -106,13 +129,41 @@
                 </li>
                 <li class="mb-2">
                     <i class="bi bi-envelope-fill text-danger me-2"></i>
-                    <a href="mailto:mariaalquileres@gmail.com" class="text-decoration-none text-dark">mariaalquileres@gmail.com</a>
+                    <a href="mailto:mariaalquileres@gmail.com" class="text-decoration-none text-dark">mariaalquileres.lp@gmail.com</a>
                 </li>
                 <li>
                     <i class="bi bi-instagram text-danger me-2"></i>
                     <a href="https://www.instagram.com/leomessi" target="_blank" class="text-decoration-none text-dark">@mariaalquileres</a>
                 </li>
             </ul>
+
+            <h3 class="text-danger mb-3">Nuestras sucursales</h3>
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+                {% for suc in sucursales %}
+                <div class="col">
+                    <div class="card border-danger h-100">
+                        <div class="card-body">
+                            <h5 class="card-title text-danger"><i class="bi bi-geo-alt-fill me-2"></i>{{ suc.nombre }}</h5>
+                            {% if suc.direccion %}
+                                <p class="card-text text-muted"><i class="bi bi-signpost-2 me-2"></i>{{ suc.direccion }}</p>
+                            {% else %}
+                                <p class="card-text text-muted"><i class="bi bi-signpost-2 me-2"></i>Dirección no disponible</p>
+                            {% endif %}
+                            {% if suc.telefono %}
+                                <p class="card-text text-muted">
+                                    <i class="bi bi-telephone-fill me-2"></i>
+                                    <a href="tel:{{ suc.telefono|cut:' ' }}" class="text-decoration-none text-dark">
+                                        {{ suc.telefono }}
+                                    </a>
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-muted">No hay sucursales registradas actualmente.</p>
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>
