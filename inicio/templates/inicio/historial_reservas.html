@@ -45,7 +45,9 @@
                                     <td>${{ reserva.precio_total }}</td>
                                     <td>
                                         <a href="{% url 'detalle_reserva' reserva.id %}" class="btn btn-sm btn-danger">Ver detalles</a>
-                                        <a href="{% url 'reservas:reserva_cancelar' reserva.id %}" class="btn btn-sm btn-danger">Cancelar Reserva</a>
+                                        {% if not reserva.estado == 'cancelada' %}
+                                            <a href="{% url 'reservas:reserva_cancelar' reserva.id %}" class="btn btn-sm btn-danger">Cancelar Reserva</a>
+                                        {% endif %}
                                         <a href="{% url 'reservas:reserva_modificar' reserva.id %}" class= "btn btn-sm btn-danger"> Modificar Reserva </a>
                                 </tr>
                                 {% endfor %}
