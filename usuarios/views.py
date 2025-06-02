@@ -50,7 +50,7 @@ def login_view(request):
                         'Código 2FA para ingresar',
                         f'Tu código es: {codigo}',
                         None,  # o config('EMAIL_HOST_USER')
-                        ['braiantumoriortiz@gmail.com'],
+                        [user.correo],
                         fail_silently=False,
                     )
                     return redirect('validar_codigo_2fa')
