@@ -127,12 +127,3 @@ def detalle_reserva(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id, usuario=request.user)
     return render(request, 'inicio/detalle_reserva.html', {'reserva': reserva})
 
-def prueba_envio_mail(request):
-    send_mail(
-        'Prueba de correo',
-        'Hola, este es un correo enviado desde Django.',
-        'topanelo2016@gmail.com',  # Desde
-        ['topanelo2016@gmail.com'],  # A (puede ser el mismo)
-        fail_silently=False,
-    )
-    return HttpResponse("Correo enviado correctamente.")

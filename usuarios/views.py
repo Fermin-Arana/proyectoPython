@@ -5,7 +5,7 @@ from django.utils.encoding import force_bytes
 from django.core.mail import send_mail
 from django.conf import settings
 from usuarios.models import Usuario
-from .forms import CustomPasswordResetForm, CustomUserCreationForm
+from .forms import CustomPasswordResetForm, CustomUserCreationForm, CustomAuthenticationForm, CustomSetPasswordForm
 from django.contrib.auth import  login as auth_login, logout, authenticate, get_user_model
 from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm, SetPasswordForm
 from django.contrib import messages
@@ -31,7 +31,7 @@ def registrarse(request):
 
 def login_view(request):
     if request.method == "POST":
-        form = AuthenticationForm(request, data=request.POST)
+        form = CustomAuthenticationForm(request, data=request.POST)
 
         if form.is_valid():
             username = form.cleaned_data.get("username")
@@ -49,7 +49,7 @@ def login_view(request):
                     send_mail(
                         'Código 2FA para ingresar',
                         f'Tu código es: {codigo}',
-                        config('EMAIL_HOST_USER'),  # o config('EMAIL_HOST_USER')
+                        None,  # o config('EMAIL_HOST_USER')
                         [user.correo],
                         fail_silently=False,
                     )
@@ -59,6 +59,8 @@ def login_view(request):
                     auth_login(request, user)
                     messages.success(request, "Inicio de sesión exitoso")
                     return redirect("/")  # Redirige a la página principal
+        else:
+            messages.error(request, "Usuario o contraseña incorrecto. Intente nuevamente")
     else:
         form = AuthenticationForm()
 
@@ -123,7 +125,7 @@ class PswrdResetDoneView(PasswordResetDoneView):
 class PswrdResetConfirmView(PasswordResetConfirmView):
     template_name = 'usuarios/password_reset_confirm.html'
     success_url = reverse_lazy('password_reset_complete')
-    form_class = SetPasswordForm
+    form_class = CustomSetPasswordForm
 
 class PswrdResetCompleteView(PasswordResetCompleteView):
     template_name = 'usuarios/password_reset_complete.html'
@@ -143,7 +145,7 @@ def validar_codigo_2fa(request):
         tiempo_actual = time.time()
 
         # Definimos tiempo máximo válido (en segundos)
-        TIEMPO_MAXIMO = 60  # 5 minutos
+        TIEMPO_MAXIMO = 5 * 60  # 5 minutos
 
         if not timestamp_guardado or (tiempo_actual - timestamp_guardado) > TIEMPO_MAXIMO:
             # Código expiró o no existe timestamp
@@ -161,7 +163,7 @@ def validar_codigo_2fa(request):
             del request.session['user_id_2fa']
             del request.session['codigo_2fa_timestamp']
 
-            messages.success(request, "Autenticación 2FA exitosa")
+            messages.success(request, "Se inició sesión correctamente")
             return redirect('panel_admin')
 
         else:

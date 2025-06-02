@@ -3,6 +3,18 @@ from django.contrib.auth.forms import UserCreationForm, PasswordResetForm
 from .models import Usuario
 from datetime import date
 import re
+from django.contrib.auth.forms import AuthenticationForm, SetPasswordForm
+from django.core.exceptions import ValidationError
+
+def validar_contrasena_alfanumerica(password):
+    errores = []
+    
+    if len(password) < 8 or not re.search(r'[A-Za-z]', password) or not re.search(r'[0-9]', password) :
+        errores.append("La contraseña debe tener al menos 8 caracteres.")
+        errores.append("La contraseña debe ser alfanumérica (letras y números).")
+    
+    if errores:
+        raise ValidationError(errores)
 
 class CustomPasswordResetForm(PasswordResetForm):
     def get_users(self, email):
@@ -86,23 +98,26 @@ class CustomUserCreationForm(UserCreationForm):
         password = self.cleaned_data.get('password1')
         errores = []
 
-        if len(password) < 8:
+        if not password:
+            raise forms.ValidationError("Debes ingresar una contraseña.")
+
+        if len(password) < 8 or not re.search(r'[A-Za-z]', password) or not re.search(r'[0-9]', password) :
             errores.append("La contraseña debe tener al menos 8 caracteres.")
-        if not re.search(r'[A-Za-z]', password) or not re.search(r'[0-9]', password):
             errores.append("La contraseña debe ser alfanumérica (letras y números).")
 
         if errores:
             raise forms.ValidationError(errores)
-        
+
+        # No llamamos a validate_password para evitar validadores por defecto
         return password
-    
+
     def clean_password2(self):
         password1 = self.cleaned_data.get('password1')
         password2 = self.cleaned_data.get('password2')
 
         if not password1:
             return password2
-            
+
         if password1 != password2:
             raise forms.ValidationError("Las contraseñas no coinciden.")
 
@@ -119,6 +134,10 @@ class CustomUserCreationForm(UserCreationForm):
         
         return fecha_nacimiento
     
+    def _post_clean(self):
+        # Evita validadores por defecto de Django
+        super(forms.ModelForm, self)._post_clean()
+
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -160,3 +179,31 @@ class UserEditForm(forms.ModelForm):
         if Usuario.objects.filter(telefono=telefono).exclude(pk=self.instance.pk).exists():
             raise forms.ValidationError("Este teléfono ya está en uso.")
         return telefono
+    
+
+class CustomAuthenticationForm(AuthenticationForm):
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        return username.lower() if username else username
+    
+class CustomSetPasswordForm(SetPasswordForm):
+    def clean_new_password1(self):
+        password = self.cleaned_data.get('new_password1')
+        validar_contrasena_alfanumerica(password)
+        return password
+
+    def clean(self):
+        cleaned_data = self.cleaned_data  # No llamar a super().clean()
+        password1 = cleaned_data.get('new_password1')
+        password2 = cleaned_data.get('new_password2')
+
+        if password1 and password2 and password1 != password2:
+            self.add_error('new_password2', "Las contraseñas no coinciden.")
+
+        return cleaned_data
+
+    def _post_clean(self):
+        # NO llamar a super para evitar validadores globales de Django
+        # OJO: Si no funciona, podés dejarla vacía o comentar y probar.
+        
+        pass
