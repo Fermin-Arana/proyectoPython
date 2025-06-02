@@ -82,10 +82,10 @@ def detalle_auto(request, auto_id):
     })
 
 
-# Agrega esta importación al principio del archivo junto con las otras importaciones
+
 from usuarios.forms import UserEditForm
 
-# Agrega esta función al final del archivo
+
 @login_required
 def editar_perfil(request):
     """Vista para editar el perfil del usuario."""

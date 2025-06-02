@@ -1,3 +1,7 @@
+{% extends "usuarios/base.html" %}
+{% block title %}Verificar Codigo{% endblock %}
+
+{% block content %}
 <form method="post">
   {% csrf_token %}
   <label>Ingrese el código que recibió por email:</label>
@@ -12,3 +16,4 @@
     {% endfor %}
   </ul>
 {% endif %}
+{% endblock %}

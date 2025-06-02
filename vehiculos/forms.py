@@ -19,4 +19,4 @@ class AutoForm(forms.ModelForm):
 class AutoEditarForm(forms.ModelForm):
     class Meta:
         model = Auto
-        exclude = ['patente', 'sucursal'] 
+        exclude = ['patente', 'sucursal', 'marca', 'modelo'] 

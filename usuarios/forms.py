@@ -161,21 +161,25 @@ class UserEditForm(forms.ModelForm):
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Juan'}),
             'apellido': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Pérez'}),
-            'correo': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Ej: juan@gmail.com'}),
+            'correo': forms.EmailInput(attrs={
+                'class': 'form-control bg-light text-muted',
+                'readonly': 'readonly'
+            }),
             'telefono': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 2218974555'}),
-            'fecha_nacimiento': forms.DateInput(attrs={'class': 'form-control', 'type': 'fecha'}),
+            'fecha_nacimiento': forms.DateInput(attrs={
+                'class': 'form-control bg-light text-muted',
+                'readonly': 'readonly'
+            }),
         }
-    
+
     def clean_correo(self):
-        correo = self.cleaned_data.get('correo')
-        # Verificar si el correo ya existe, pero excluir el usuario actual
-        if Usuario.objects.filter(correo=correo).exclude(pk=self.instance.pk).exists():
-            raise forms.ValidationError("Este correo electrónico ya está en uso.")
-        return correo
-    
+        return self.instance.correo
+
+    def clean_fecha_nacimiento(self):
+        return self.instance.fecha_nacimiento
+
     def clean_telefono(self):
         telefono = self.cleaned_data.get('telefono')
-        # Verificar si el teléfono ya existe, pero excluir el usuario actual
         if Usuario.objects.filter(telefono=telefono).exclude(pk=self.instance.pk).exists():
             raise forms.ValidationError("Este teléfono ya está en uso.")
         return telefono
@@ -202,8 +206,5 @@ class CustomSetPasswordForm(SetPasswordForm):
 
         return cleaned_data
 
-    def _post_clean(self):
-        # NO llamar a super para evitar validadores globales de Django
-        # OJO: Si no funciona, podés dejarla vacía o comentar y probar.
-        
+    def _post_clean(self): 
         pass
