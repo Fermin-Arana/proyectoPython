@@ -208,3 +208,20 @@ class CustomSetPasswordForm(SetPasswordForm):
 
     def _post_clean(self): 
         pass
+
+class CrearEmpleadoForm(forms.ModelForm):
+    class Meta:
+        model = Usuario
+        fields = ['username', 'correo', 'nombre', 'apellido', 'dni']
+
+    def clean_correo(self):
+        correo = self.cleaned_data['correo']
+        if Usuario.objects.filter(correo=correo).exists():
+            raise forms.ValidationError("Ya existe un usuario con ese correo.")
+        return correo
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        if Usuario.objects.filter(username=username).exists():
+            raise forms.ValidationError("Ya existe un usuario con ese nombre de usuario.")
+        return username
