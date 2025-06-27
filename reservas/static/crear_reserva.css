@@ -1,86 +1,477 @@
+/* Estilos base */
 body {
-    background-color: rgb(45, 8, 10);
-    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
+    min-height: 100vh;
 }
 
-.titulo {
-    color: #000000;
-    font-size: 60px; 
-    font-family: Arial, sans-serif;
-    margin-top: 20px;
-    margin-bottom: 30px; 
+/* Header del vehículo */
+.vehicle-header-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    border: 1px solid #e9ecef;
 }
 
-h1.titulo_cancelada {
-    font-size: 36px !important;
-    color: red;
-    text-align: center;
+.vehicle-image {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 20px 0 0 20px;
 }
 
-
-.formulario-reserva {
-    width: 50%;
-    margin: 50 auto;
-    background-color: rgb(255, 131, 138);
-    padding: 5px;
-    border-radius: 0px;
+.no-image-placeholder {
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 20px 0 0 20px;
 }
 
-form input,
-form select,
-form textarea {
-    width: 100%;              /* Que ocupe todo el ancho disponible */
-    padding: 12px 15px;       /* Más espacio interior */
-    font-size: 16px;          /* Tamaño de letra más grande */
-    border-radius: 6px;       /* Bordes redondeados */
-    border: 1px solid #ccc;   /* Borde gris claro */
-    margin-bottom: 15px;      /* Separación entre campos */
-    box-sizing: border-box;   /* Para que el padding no afecte el ancho */
-}
-
-
-.boton {
-    background-color: rgb(0, 0, 0);
-    color: #ffffff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    padding: 12px 20px;
-}
-
-.boton:hover {
-    background-color: #ffffff; 
-    color: rgb(0, 0, 0);
-}
-
-.container {
-    max-width: 800px;
-    margin: 40px auto;  /* ← este 40px arriba y abajo */
+.vehicle-info {
     padding: 30px;
-    background-color: rgb(255, 131, 138);
-    border-radius: 12px;
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
-.error-message {
-    color: red;
-    border: 1px solid red;
-    padding: 5px;
-    background-color: #f8d7da;
-    margin-top: 10px;
+.vehicle-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-a.btn {
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #000000;
+.vehicle-details {
+    flex-grow: 1;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: rgba(108, 117, 125, 0.1);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.detail-item:hover {
+    background: rgba(108, 117, 125, 0.2);
+    transform: translateX(5px);
+}
+
+.detail-item i {
+    margin-right: 15px;
+    font-size: 1.2rem;
+    width: 20px;
+}
+
+.detail-label {
+    font-weight: 600;
+    margin-right: 10px;
+    color: #495057;
+}
+
+.detail-value {
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.price-highlight {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
     color: white !important;
-    text-decoration: none;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
+    font-size: 1.1rem;
+}
+
+.price-highlight .detail-label,
+.price-highlight .detail-value {
+    color: white !important;
+}
+
+.price {
+    font-size: 1.3rem !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.user-info {
+    background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+    color: white;
+    padding: 15px;
+    border-radius: 10px;
     text-align: center;
-    transition: background-color 0.3s ease;
+    font-size: 1.1rem;
+}
+
+/* Formulario de reserva */
+.reservation-form-card {
+    border: none;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #007bff 0%, #6610f2 100%) !important;
+}
+
+.form-section {
+    margin-bottom: 40px;
+    padding: 25px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-radius: 15px;
+    border-left: 5px solid #007bff;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.section-title {
+    color: #2c3e50;
+    font-weight: bold;
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.section-title i {
+    margin-right: 10px;
+}
+
+.form-group-enhanced {
+    margin-bottom: 25px;
+}
+
+.form-label-enhanced {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+    display: block;
+    font-size: 1.1rem;
+}
+
+.form-label-enhanced i {
+    margin-right: 8px;
+}
+
+.form-control {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 12px 15px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    transform: translateY(-2px);
+}
+
+.error-message-enhanced {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-top: 8px;
+    font-weight: 500;
+    box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3);
+}
+
+.error-message-enhanced i {
+    margin-right: 8px;
+}
+
+/* Opciones de seguro */
+.insurance-options {
+    display: grid;
+    gap: 15px;
+}
+
+.insurance-card {
+    border: 3px solid #e9ecef;
+    border-radius: 15px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    background: white;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.insurance-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.5s;
+}
+
+.insurance-card:hover::before {
+    left: 100%;
+}
+
+.insurance-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.insurance-card.basic {
+    border-color: #6c757d;
+}
+
+.insurance-card.complete {
+    border-color: #17a2b8;
+}
+
+.insurance-card.premium {
+    border-color: #28a745;
+}
+
+.insurance-card input[type="radio"]:checked + .insurance-label {
+    background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+    color: white;
+}
+
+.insurance-card.basic input[type="radio"]:checked + .insurance-label {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+}
+
+.insurance-card.complete input[type="radio"]:checked + .insurance-label {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+}
+
+.insurance-card.premium input[type="radio"]:checked + .insurance-label {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.insurance-label {
+    display: block;
+    margin: 0;
+    padding: 15px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.insurance-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.insurance-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.insurance-price {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #28a745;
+}
+
+.insurance-description {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Resumen de costos */
+.cost-summary-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border: 2px solid #007bff;
+    border-radius: 20px;
+    margin-bottom: 30px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 123, 255, 0.1);
+}
+
+.cost-header {
+    background: linear-gradient(135deg, #007bff 0%, #6610f2 100%);
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+
+.cost-header h4 {
+    margin: 0;
+    font-size: 1.4rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.cost-details {
+    padding: 25px;
+}
+
+.cost-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #e9ecef;
+    font-size: 1.1rem;
+}
+
+.cost-item:last-of-type {
+    border-bottom: none;
+}
+
+.cost-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.cost-label i {
+    margin-right: 8px;
+    color: #007bff;
+}
+
+.cost-value {
+    font-weight: bold;
+    color: #28a745;
+    font-size: 1.2rem;
+}
+
+.cost-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    margin-top: 15px;
+    border-top: 3px solid #007bff;
+    background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.total-label {
+    font-weight: bold;
+    font-size: 1.3rem;
+    color: #2c3e50;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.total-value {
+    font-weight: bold;
+    font-size: 2rem;
+    color: #28a745;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Botones de acción */
+.action-buttons {
+    display: grid;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.btn-confirm {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border: none;
+    padding: 18px 30px;
+    border-radius: 15px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+}
+
+.btn-confirm:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(40, 167, 69, 0.4);
+}
+
+.btn-back {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    color: white;
+    text-decoration: none;
+    padding: 15px 25px;
+    border-radius: 15px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(108, 117, 125, 0.3);
+    display: block;
+}
+
+.btn-back:hover {
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(108, 117, 125, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .vehicle-image {
+        border-radius: 20px 20px 0 0;
+        height: 250px;
+    }
+    
+    .no-image-placeholder {
+        border-radius: 20px 20px 0 0;
+        height: 250px;
+    }
+    
+    .vehicle-info {
+        height: auto;
+        padding: 20px;
+    }
+    
+    .vehicle-title {
+        font-size: 2rem;
+    }
+    
+    .form-section {
+        padding: 20px;
+    }
+    
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Animaciones */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.vehicle-header-card,
+.reservation-form-card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.form-section {
+    animation: fadeInUp 0.6s ease-out;
+    animation-delay: 0.1s;
+    animation-fill-mode: both;
+}
+
+/* Ocultar radio buttons */
+.insurance-card input[type="radio"] {
+    display: none;
 }

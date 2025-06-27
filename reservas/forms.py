@@ -39,10 +39,24 @@ class ReservaForm(forms.ModelForm):
             'required': 'Debes ingresar el DNI del conductor.',
         }
     )
+    
+    # Nuevos campos para seguros
+    SEGURO_CHOICES = [
+        ('basico', 'Seguro Básico (Incluido)'),
+        ('completo', 'Seguro Completo (+$500/día)'),
+        ('premium', 'Seguro Premium (+$1000/día)')
+    ]
+    
+    tipo_seguro = forms.ChoiceField(
+        choices=SEGURO_CHOICES,
+        widget=forms.RadioSelect(attrs={'class': 'form-check-input'}),
+        label="Tipo de Seguro",
+        initial='basico'
+    )
 
     class Meta:
         model = Reserva
-        fields = ['vehiculo', 'fecha_inicio', 'fecha_fin', 'conductor', 'dni_conductor']
+        fields = ['vehiculo', 'fecha_inicio', 'fecha_fin', 'conductor', 'dni_conductor', 'tipo_seguro']
         widgets = {
             'fecha_inicio': forms.DateInput(attrs={'type': 'date'}),
             'fecha_fin': forms.DateInput(attrs={'type': 'date'}),
@@ -55,8 +69,28 @@ class ReservaForm(forms.ModelForm):
             self.fields['vehiculo'].initial = auto
             self.fields['vehiculo'].widget = forms.HiddenInput()
         else:
-            # Si no viene auto, lo mostramos normalmente
             self.fields['vehiculo'].queryset = Auto.objects.all()
+
+    def save(self, commit=True):
+        reserva = super().save(commit=False)
+        tipo_seguro = self.cleaned_data.get('tipo_seguro')
+        
+        # Resetear seguros
+        reserva.seguro_basico = False
+        reserva.seguro_completo = False
+        reserva.seguro_premium = False
+        
+        # Asignar seguro seleccionado
+        if tipo_seguro == 'basico':
+            reserva.seguro_basico = True
+        elif tipo_seguro == 'completo':
+            reserva.seguro_completo = True
+        elif tipo_seguro == 'premium':
+            reserva.seguro_premium = True
+            
+        if commit:
+            reserva.save()
+        return reserva
 
     def clean(self):
         cleaned_data = super().clean()
