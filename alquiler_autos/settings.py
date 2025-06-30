@@ -86,7 +86,8 @@ WSGI_APPLICATION = 'alquiler_autos.wsgi.application'
 import dj_database_url
 
 DATABASES = {
-    'default': dj_database_url.parse("postgresql://maria_user:SWp6CSfkGZ4YtwEHPnTKTyzUsC4Wva4N@dpg-d16r9sumcj7s73cglhm0-a.oregon-postgres.render.com/alquileres_db")
+    'default': dj_database_url.parse("postgresql://alquileres_maria_bd_vh9l_user:hHjK0WR5Ed5qqVmjWdZB8f5ugzd1pJRv@dpg-d0jmp80dl3ps73cm1rug-a.oregon-postgres.render.com/alquileres_maria_bd_vh9l")
+    
 }
 
 

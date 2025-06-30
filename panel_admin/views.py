@@ -4,7 +4,12 @@ from vehiculos.models import Auto
 from vehiculos.forms import AutoForm, AutoEditarForm
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
-
+import secrets
+from usuarios.forms import CrearEmpleadoForm
+from django.core.mail import send_mail
+from usuarios.models import Usuario
+from django.conf import settings
+from django.contrib.auth.models import Group
 
 
 @login_required
@@ -69,3 +74,30 @@ def modificar_auto(request, patente):
         form = AutoEditarForm(instance=auto)
 
     return render(request, 'panel_admin/modificar_auto.html', {'form': form, 'auto': auto})
+
+def crear_empleado(request):
+    if request.method == 'POST':
+        form = CrearEmpleadoForm(request.POST)
+        if form.is_valid():
+            usuario = form.save(commit=False)
+            password = secrets.token_urlsafe(8)
+            usuario.set_password(password)
+            usuario.save()
+
+            grupo_empleado, _ = Group.objects.get_or_create(name='empleado')
+            usuario.groups.add(grupo_empleado)
+
+            send_mail(
+                'Tu cuenta en Alquileres María',
+                f'Hola {usuario.nombre},\n\nTu cuenta fue creada.\nUsuario: {usuario.username}\nContraseña: {password}\n\nPor favor cambia tu contraseña luego de ingresar.',
+                settings.DEFAULT_FROM_EMAIL,
+                [usuario.correo],
+                fail_silently=False,
+            )
+
+            return redirect('panel_admin')
+    
+    else:
+        form = CrearEmpleadoForm()
+    
+    return render(request, 'panel_admin/crear_empleado.html', {'form': form})

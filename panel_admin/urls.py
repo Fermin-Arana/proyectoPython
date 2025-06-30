@@ -8,5 +8,6 @@ urlpatterns = [
     path('autos/agregar/', views.agregar_auto, name='agregar_auto'),
     path('autos/eliminar/<str:patente>', views.eliminar_auto, name='eliminar_auto'),
     path('autos/detalles/<str:patente>', views.detalle_auto, name='detalle_auto_admin'),
-    path('modificar-auto/<str:patente>/', views.modificar_auto, name='modificar_auto')
+    path('modificar-auto/<str:patente>/', views.modificar_auto, name='modificar_auto'),
+    path('crear_empleado', views.crear_empleado, name='crear_empleado')
 ]
