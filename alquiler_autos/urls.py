@@ -10,6 +10,7 @@ urlpatterns = [
     path('', include('inicio.urls')), 
     path('panel-admin/', include('panel_admin.urls')),
     path('reservar/', include('reservas.urls')),
+    path('graficos/', include('vehiculos_graficos.urls')),
 ]
 
 if settings.DEBUG:
