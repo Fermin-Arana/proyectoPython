@@ -5,7 +5,7 @@ from .models import Auto
 class AutoForm(forms.ModelForm):
     class Meta:
         model = Auto
-        fields = '__all__'  # O especificá campos si querés
+        exclude = ['activo']
         widgets = {
             'patente': forms.TextInput(attrs={'placeholder': 'Ej: ABC123 o AB123CD'})
         }
@@ -19,4 +19,4 @@ class AutoForm(forms.ModelForm):
 class AutoEditarForm(forms.ModelForm):
     class Meta:
         model = Auto
-        exclude = ['patente', 'sucursal', 'marca', 'modelo'] 
+        exclude = ['patente', 'sucursal', 'marca', 'modelo', 'activo'] 
