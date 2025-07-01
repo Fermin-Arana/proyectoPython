@@ -11,6 +11,7 @@
     <p><strong>Capacidad:</strong> {{ auto.capacidad_pasajeros }}</p>
     <p><strong>Categoría:</strong> {{ auto.get_categoria_display }}</p>
     <p><strong>Sucursal:</strong> {{ auto.sucursal.nombre }}</p>
+    <p><strong>Estado:</strong> {{ auto.activo }}</p>
 
     <a href="{% url 'modificar_auto' auto.patente %}" class="btn btn-danger" >📝 Modificar</a>
     <a href="{% url 'eliminar_auto' auto.patente %}" class="btn btn-danger">🗑️ Eliminar</a>

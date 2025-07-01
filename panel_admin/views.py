@@ -48,9 +48,16 @@ def eliminar_auto(request, patente):
     
     auto = get_object_or_404(Auto, patente=patente)
 
+    reservas_activas = auto.reserva_set.filter(estado__in=['confirmada'])
+
+    if (reservas_activas.exists()):
+        messages.error(request, "No se puede eliminar este auto porque tiene reservas activas")
+        return redirect('lista_autos')
+
     if request.method == 'POST':
-        auto.delete()
-        messages.success(request, f"El vehículo con patente {auto.patente} fue eliminado con éxito.")
+        auto.activo = False
+        auto.save()
+        messages.success(request, f"El vehículo con patente {auto.patente} fue deshabilitado con éxito.")
         return redirect('lista_autos')
 
     return render(request, 'panel_admin/confirmar_eliminar.html', {'auto': auto})

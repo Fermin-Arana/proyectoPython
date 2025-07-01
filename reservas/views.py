@@ -15,7 +15,7 @@ def crear_reserva(request, auto_id, reserva_id = None):
     if not request.user.is_authenticated:
         messages.warning(request, "Debés iniciar sesión o registrarte para poder reservar.")
         return redirect('login')
-    auto = get_object_or_404(Auto, id=auto_id)
+    auto = get_object_or_404(Auto, id=auto_id, activo=True)
     reserva = None
     # Leer las fechas de la sesión
     sd = request.session.get('fecha_desde')

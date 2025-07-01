@@ -14,7 +14,7 @@ def index(request):
         return redirect('panel_admin') 
 
     sucursales = Sucursal.objects.all()
-    autos = Auto.objects.select_related('sucursal').all()
+    autos = Auto.objects.select_related('sucursal').filter(activo=True)
     buscar       = request.GET.get('buscar', '')
     fecha_desde  = request.GET.get('fecha_desde', '')
     fecha_hasta  = request.GET.get('fecha_hasta', '')
@@ -73,7 +73,7 @@ def detalle_auto(request, auto_id):
         request.session.pop('fecha_desde', None)
         request.session.pop('fecha_hasta', None)
 
-    auto = get_object_or_404(Auto, pk=auto_id)
+    auto = get_object_or_404(Auto, pk=auto_id, activo=True)
     reservar_url = reverse('reservas:crear_reserva', args=[auto.id])
 
     return render(request, 'detalle_auto.html', {
