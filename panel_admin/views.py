@@ -7,7 +7,7 @@ from django.contrib import messages
 import secrets
 from usuarios.forms import CrearEmpleadoForm
 from django.core.mail import send_mail
-from usuarios.models import Usuario
+from usuarios.models import EmpleadoExtra, Usuario
 from django.conf import settings
 from django.contrib.auth.models import Group
 
@@ -27,6 +27,16 @@ def lista_autos(request):
         return redirect('no_autorizado')
     autos = Auto.objects.all()
     return render(request, 'panel_admin/lista_autos.html',{'autos': autos})
+
+def lista_empleados(request):
+    if not request.user.groups.filter(name='admin').exists():
+        return redirect('no_autorizado')
+    empleados = EmpleadoExtra.objects.select_related('usuario', 'sucursal_asignada')
+    return render(request, 'panel_admin/lista_empleados.html', {'empleados': empleados})
+
+def detalle_empleado(request, correo):
+    empleado = get_object_or_404(EmpleadoExtra, usuario__correo=correo)
+    return render(request, 'panel_admin/detalle_empleado.html', {'empleado': empleado})
 
 def agregar_auto(request):
     if not request.user.groups.filter(name='admin').exists():
@@ -93,6 +103,10 @@ def crear_empleado(request):
 
             grupo_empleado, _ = Group.objects.get_or_create(name='empleado')
             usuario.groups.add(grupo_empleado)
+
+            sucursal = form.cleaned_data['sucursal_asignada']
+            EmpleadoExtra.objects.create(usuario=usuario, sucursal_asignada=sucursal)
+
 
             send_mail(
                 'Tu cuenta en Alquileres María',

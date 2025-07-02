@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container mt-5">
+    <h2>Detalles del Empleado</h2>
+    <p><strong>Nombre:</strong> {{ empleado.usuario.nombre }}</p>
+    <p><strong>Apellido:</strong> {{ empleado.usuario.apellido }}</p>
+    <p><strong>Nombre de usuario:</strong> {{ empleado.usuario.username }}</p>
+    <p><strong>Correo:</strong> {{ empleado.usuario.correo }}</p>
+    <p><strong>DNI:</strong> {{ empleado.usuario.dni }}</p>
+    <p><strong>Sucursal:</strong> {{ empleado.sucursal_asignada.nombre }}</p>
+
+    <a href="" class="btn btn-danger">🗑️ Eliminar</a>
+    <a href="{% url 'lista_empleados' %}" class="btn btn-secondary">← Volver al listado</a>
+  </div>
+{% endblock %}

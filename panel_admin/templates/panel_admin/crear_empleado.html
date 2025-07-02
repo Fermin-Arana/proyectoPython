@@ -1,6 +1,13 @@
-<h1>Crear nuevo empleado</h1>
+{% extends 'panel_admin/base.html' %}
+{% block title %}Agregar Empleado{% endblock %}
+
+{% block content %}
+
+<h2 class="mb-4 text-danger">Agregar nuevo empleado</h2>
 <form method="post">
   {% csrf_token %}
   {{ form.as_p }}
   <button type="submit">Crear empleado</button>
 </form>
+
+{% endblock %}

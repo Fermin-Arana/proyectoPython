@@ -5,6 +5,7 @@ from datetime import date
 import re
 from django.contrib.auth.forms import AuthenticationForm, SetPasswordForm
 from django.core.exceptions import ValidationError
+from sucursales.models import Sucursal
 
 def validar_contrasena_alfanumerica(password):
     errores = []
@@ -210,6 +211,12 @@ class CustomSetPasswordForm(SetPasswordForm):
         pass
 
 class CrearEmpleadoForm(forms.ModelForm):
+    sucursal_asignada = forms.ModelChoiceField(
+        queryset=Sucursal.objects.all(),
+        label='Sucursal asignada',
+        required=True
+    )
+
     class Meta:
         model = Usuario
         fields = ['username', 'correo', 'nombre', 'apellido', 'dni']

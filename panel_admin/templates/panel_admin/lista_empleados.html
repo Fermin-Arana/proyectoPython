@@ -1,0 +1,32 @@
+{% extends 'panel_admin/base.html' %}
+
+{% block title %}Lista de Empleados{% endblock %}
+
+{% block content %}
+<h2 class="mb-4 text-danger">Empleados registrados</h2>
+
+<table class="table table-bordered table-hover bg-white">
+  <thead class="table-light">
+    <tr>
+      <th>Nombre y Apellido</th>
+      <th>Correo</th>
+      <th>Sucursal</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for empleado in empleados %}
+    <tr>
+      <td>{{ empleado.usuario.nombre }} {{ empleado.usuario.apellido }}</td>
+      <td>{{ empleado.usuario.correo }}</td>
+      <td>{{ empleado.sucursal_asignada.nombre }}</td>
+      <td>
+        <a href="{% url 'detalle_empleado' empleado.usuario.correo %}" class="btn btn-info">Ver detalles</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+
+{% endblock %}
