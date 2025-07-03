@@ -30,7 +30,16 @@ class Auto(models.Model):
     precio_por_dia = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     sucursal = models.ForeignKey(Sucursal, on_delete=models.CASCADE)
     imagen = models.ImageField(upload_to='autos/', null=True, blank=True)
-
+    estado = models.CharField(
+        max_length=20,
+        choices=[
+            ('disponible', 'Disponible'),
+            ('reservado', 'Reservado'),
+            ('inhabilitado', 'Inhabilitado'),
+            ('mantenimiento', 'En Mantenimiento')
+        ],
+        default='disponible'
+    )
     def __str__(self):
         return f"{self.marca} {self.modelo} ({self.patente})"
     

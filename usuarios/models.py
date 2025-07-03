@@ -10,10 +10,10 @@ import uuid
 class Usuario(AbstractUser):
     nombre = models.CharField(max_length=50)
     apellido = models.CharField(max_length=50)
-    dni = models.CharField(max_length=10, unique=True)
+    dni = models.CharField(max_length=10, unique=True, null=True, blank=True)
     fecha_nacimiento = models.DateField(null=True, blank=True)
-    correo = models.EmailField(unique=True)
-    telefono = models.CharField(max_length=15)
+    correo = models.EmailField(unique=True, null=True, blank=True)  # Add null=True, blank=True
+    telefono = models.CharField(max_length=15, null=True, blank=True)
     
     # Nuevos campos para activación
     is_active = models.BooleanField(default=False)  # Cuenta inactiva por defecto
