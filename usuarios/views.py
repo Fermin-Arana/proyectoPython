@@ -169,3 +169,56 @@ def validar_codigo_2fa(request):
             return redirect('validar_codigo_2fa')
 
     return render(request, 'usuarios/validar_codigo.html')
+
+
+def activar_cuenta(request, token):
+    """Activa la cuenta del usuario usando el token"""
+    try:
+        usuario = Usuario.objects.get(activation_token=token, is_active=False)
+        usuario.is_active = True
+        usuario.save()
+        
+        messages.success(request, 
+            f"¡Cuenta activada exitosamente! Ahora puedes iniciar sesión con tu usuario: {usuario.username}")
+        return redirect('login')
+        
+    except Usuario.DoesNotExist:
+        messages.error(request, "Token de activación inválido o cuenta ya activada.")
+        return redirect('login')
+
+def cambiar_password_inicial(request):
+    """Permite al usuario cambiar su contraseña temporal"""
+    if not request.user.is_authenticated:
+        return redirect('login')
+    
+    if not request.user.created_by_employee:
+        messages.error(request, "Esta función es solo para cuentas creadas por empleados.")
+        return redirect('inicio')
+    
+    if request.method == 'POST':
+        password_actual = request.POST.get('password_actual')
+        nueva_password = request.POST.get('nueva_password')
+        confirmar_password = request.POST.get('confirmar_password')
+        
+        # Verificar contraseña actual
+        if not request.user.check_password(password_actual):
+            messages.error(request, "Contraseña actual incorrecta.")
+        elif nueva_password != confirmar_password:
+            messages.error(request, "Las contraseñas no coinciden.")
+        elif len(nueva_password) < 8:
+            messages.error(request, "La nueva contraseña debe tener al menos 8 caracteres.")
+        else:
+            # Cambiar contraseña
+            request.user.set_password(nueva_password)
+            request.user.password_temp = None  # Limpiar contraseña temporal
+            request.user.created_by_employee = False  # Ya no necesita cambio forzoso
+            request.user.save()
+            
+            # Actualizar sesión
+            from django.contrib.auth import update_session_auth_hash
+            update_session_auth_hash(request, request.user)
+            
+            messages.success(request, "Contraseña cambiada exitosamente.")
+            return redirect('inicio')
+    
+    return render(request, 'usuarios/cambiar_password_inicial.html')

@@ -11,5 +11,7 @@ urlpatterns = [
     path('password-reset-confirm/<uidb64>/<token>/', PswrdResetConfirmView.as_view(), name='password_reset_confirm'),
     path('password-reset-complete/', PswrdResetCompleteView.as_view(), name='password_reset_complete'),
     path('validar-codigo-2fa/', validar_codigo_2fa, name='validar_codigo_2fa'),
+    path('activar/<uuid:token>/', views.activar_cuenta, name='activar_cuenta'),
+    path('cambiar-password-inicial/', views.cambiar_password_inicial, name='cambiar_password_inicial'),
 ]
 
