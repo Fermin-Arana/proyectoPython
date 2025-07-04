@@ -40,5 +40,7 @@ class Usuario(AbstractUser):
     
 class EmpleadoExtra(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE)
-    sucursal_asignada = models.ForeignKey(Sucursal, on_delete=models.SET_NULL, null=True) 
+    sucursal_asignada = models.ForeignKey(Sucursal, on_delete=models.SET_NULL, null=True)
+    activo = models.BooleanField(default=True)
+    correo_original = models.EmailField(null=True, blank=True)
 

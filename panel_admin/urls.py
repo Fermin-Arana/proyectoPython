@@ -11,5 +11,6 @@ urlpatterns = [
     path('modificar-auto/<str:patente>/', views.modificar_auto, name='modificar_auto'),
     path('crear_empleado', views.crear_empleado, name='crear_empleado'),
     path('empleados/', views.lista_empleados, name='lista_empleados'),
-    path('empleados/detalles/<str:correo>', views.detalle_empleado, name='detalle_empleado')
+    path('empleados/detalles/<str:correo>', views.detalle_empleado, name='detalle_empleado'),
+    path('empleados/eliminar/<str:correo>', views.eliminar_empleado, name='eliminar_empleado')
 ]

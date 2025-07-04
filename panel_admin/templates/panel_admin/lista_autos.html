@@ -5,6 +5,8 @@
 {% block content %}
 <h2 class="mb-4 text-danger">Vehículos registrados</h2>
 
+{% include 'panel_admin/_filtro_estado.html' with estado_actual=estado_actual estado_nombre=estado_nombre %}
+
 <table class="table table-bordered table-hover bg-white">
   <thead class="table-light">
     <tr>

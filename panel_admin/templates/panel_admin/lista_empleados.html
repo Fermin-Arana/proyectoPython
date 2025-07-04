@@ -5,6 +5,8 @@
 {% block content %}
 <h2 class="mb-4 text-danger">Empleados registrados</h2>
 
+{% include 'panel_admin/_filtro_estado.html' with estado_actual=estado_actual estado_nombre=estado_nombre %}
+
 <table class="table table-bordered table-hover bg-white">
   <thead class="table-light">
     <tr>
@@ -18,7 +20,7 @@
     {% for empleado in empleados %}
     <tr>
       <td>{{ empleado.usuario.nombre }} {{ empleado.usuario.apellido }}</td>
-      <td>{{ empleado.usuario.correo }}</td>
+      <td>{{ empleado.correo_original|default:empleado.usuario.correo }}</td>
       <td>{{ empleado.sucursal_asignada.nombre }}</td>
       <td>
         <a href="{% url 'detalle_empleado' empleado.usuario.correo %}" class="btn btn-info">Ver detalles</a>

@@ -10,6 +10,7 @@ from django.core.mail import send_mail
 from usuarios.models import EmpleadoExtra, Usuario
 from django.conf import settings
 from django.contrib.auth.models import Group
+from django.utils.crypto import get_random_string
 
 
 @login_required
@@ -21,18 +22,53 @@ def panel_admin(request):
 def no_autorizado(request):
     return render(request, 'panel_admin/no_autorizado.html')
 
+def filtrar_por_estado(queryset, estado):
+    if estado == 'activos':
+        return queryset.filter(activo=True)
+    elif estado == 'inactivos':
+        return queryset.filter(activo=False)
+    else:  
+        return queryset
+
 @login_required
 def lista_autos(request):
     if not request.user.groups.filter(name='admin').exists():
         return redirect('no_autorizado')
-    autos = Auto.objects.all()
-    return render(request, 'panel_admin/lista_autos.html',{'autos': autos})
+    
+    estado_actual = request.GET.get('estado', 'todo') 
+    nombres_estado = {
+        'activos': 'Activos',
+        'inactivos': 'Eliminados',
+        'todo': 'Todos'
+    }
+    estado_nombre = nombres_estado.get(estado_actual, 'Todos')
+
+    autos = filtrar_por_estado(Auto.objects.all(), estado_actual)
+
+    return render(request, 'panel_admin/lista_autos.html', {
+        'autos': autos,
+        'estado_actual': estado_actual,
+        'estado_nombre': estado_nombre
+    })
 
 def lista_empleados(request):
     if not request.user.groups.filter(name='admin').exists():
         return redirect('no_autorizado')
-    empleados = EmpleadoExtra.objects.select_related('usuario', 'sucursal_asignada')
-    return render(request, 'panel_admin/lista_empleados.html', {'empleados': empleados})
+    estado_actual = request.GET.get('estado', 'todo') 
+    nombres_estado = {
+        'activos': 'Activos',
+        'inactivos': 'Eliminados',
+        'todo': 'Todos'
+    }
+    estado_nombre = nombres_estado.get(estado_actual, 'Todos')
+
+    empleados = filtrar_por_estado(EmpleadoExtra.objects.select_related('usuario', 'sucursal_asignada'), estado_actual)
+
+    return render(request, 'panel_admin/lista_empleados.html', {
+        'empleados': empleados,
+        'estado_actual': estado_actual,
+        'estado_nombre': estado_nombre
+        })
 
 def detalle_empleado(request, correo):
     empleado = get_object_or_404(EmpleadoExtra, usuario__correo=correo)
@@ -122,3 +158,22 @@ def crear_empleado(request):
         form = CrearEmpleadoForm()
     
     return render(request, 'panel_admin/crear_empleado.html', {'form': form})
+
+def eliminar_empleado(request,correo):
+    if not request.user.groups.filter(name='admin').exists():
+        return redirect('no_autorizado')
+    
+    empleado = get_object_or_404(EmpleadoExtra, usuario__correo=correo)
+
+    if request.method == 'POST':
+        if not empleado.correo_original:
+            empleado.correo_original = empleado.usuario.correo
+
+        empleado.usuario.correo = f"borrado_{get_random_string(8)}@gmail.com"
+        empleado.usuario.save()
+        empleado.activo = False
+        empleado.save()
+        messages.success(request, f"El empleado '{empleado.usuario.nombre} {empleado.usuario.apellido}' fue dado de baja.")
+        return redirect('lista_empleados')
+    
+    return render(request, 'panel_admin/confirmar_eliminar_empleado.html', {'empleado': empleado})

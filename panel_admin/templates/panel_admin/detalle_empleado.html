@@ -6,11 +6,13 @@
     <p><strong>Nombre:</strong> {{ empleado.usuario.nombre }}</p>
     <p><strong>Apellido:</strong> {{ empleado.usuario.apellido }}</p>
     <p><strong>Nombre de usuario:</strong> {{ empleado.usuario.username }}</p>
-    <p><strong>Correo:</strong> {{ empleado.usuario.correo }}</p>
+    <p><strong>Correo:</strong> {{ empleado.correo_original|default:empleado.usuario.correo }}</p>
     <p><strong>DNI:</strong> {{ empleado.usuario.dni }}</p>
     <p><strong>Sucursal:</strong> {{ empleado.sucursal_asignada.nombre }}</p>
-
-    <a href="" class="btn btn-danger">🗑️ Eliminar</a>
+    
+    {% if empleado.activo %}
+      <a href="{% url 'eliminar_empleado' empleado.usuario.correo %}" class="btn btn-danger">🗑️ Eliminar</a>
+    {% endif %}  
     <a href="{% url 'lista_empleados' %}" class="btn btn-secondary">← Volver al listado</a>
   </div>
 {% endblock %}
