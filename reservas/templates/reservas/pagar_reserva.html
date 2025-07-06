@@ -1,74 +1,190 @@
 {% extends 'reservas/base.html' %}
+{% load static %}
+
 {% block title %}Pagar Reserva{% endblock %}
 
 {% block content %}
-<div class="container my-4">
-    <h2 class="text-danger">Pagar reserva para {{ reserva.vehiculo.marca }} {{ reserva.vehiculo.modelo }}</h2>
-    <p>Monto a pagar: <strong>${{ monto }}</strong></p>
+<link rel="stylesheet" href="{% static 'crear_reserva.css' %}">
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Header del vehículo -->
+            <div class="vehicle-header-card mb-4">
+                <div class="row g-0 align-items-stretch">
+                    <div class="col-md-5 d-flex">
+                        {% if reserva.vehiculo.imagen %}
+                            <img src="{{ reserva.vehiculo.imagen.url }}" class="vehicle-image" alt="{{ reserva.vehiculo.marca }} {{ reserva.vehiculo.modelo }}">
+                        {% else %}
+                            <div class="no-image-placeholder w-100">
+                                <i class="fas fa-car fa-5x text-muted"></i>
+                                <p class="text-muted mt-2">Sin imagen disponible</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-7">
+                        <div class="vehicle-info">
+                            <div class="vehicle-header">
+                                <h1 class="vehicle-title">{{ reserva.vehiculo.marca }} {{ reserva.vehiculo.modelo }}</h1>
+                                <div class="price-badge">
+                                    <i class="fas fa-dollar-sign"></i>
+                                    Precio por día: ${{ reserva.vehiculo.precio_por_dia }}
+                                </div>
+                            </div>
+                            <div class="vehicle-details">
+                                <div class="detail-item">
+                                    <i class="fas fa-calendar-alt text-info"></i>
+                                    <span class="detail-label">Año:</span>
+                                    <span class="detail-value">{{ reserva.vehiculo.anio_fabricacion }}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-users text-success"></i>
+                                    <span class="detail-label">Capacidad:</span>
+                                    <span class="detail-value">{{ reserva.vehiculo.capacidad_pasajeros }} pasajeros</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-tag text-warning"></i>
+                                    <span class="detail-label">Categoría:</span>
+                                    <span class="detail-value">{{ reserva.vehiculo.categoria }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <form method="post" novalidate>
-        {% csrf_token %}
+            <!-- Formulario de pago -->
+            <div class="card shadow-lg reservation-form-card">
+                <div class="card-header bg-gradient-primary text-black">
+                    <h2 class="mb-0">
+                        <i class="fas fa-credit-card"></i> 
+                        Completar Pago
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <!-- Resumen del monto -->
+                    <div class="cost-summary-card mb-4">
+                        <div class="cost-header">
+                            <h4><i class="fas fa-calculator"></i> Resumen de Pago</h4>
+                        </div>
+                        <div class="cost-details">
+                            <div class="cost-item">
+                                <span class="cost-label">Vehículo:</span>
+                                <span class="cost-value">{{ reserva.vehiculo.marca }} {{ reserva.vehiculo.modelo }}</span>
+                            </div>
+                            <div class="cost-item">
+                                <span class="cost-label">Fechas:</span>
+                                <span class="cost-value">{{ reserva.fecha_inicio|date:"d/m/Y" }} - {{ reserva.fecha_fin|date:"d/m/Y" }}</span>
+                            </div>
+                            <div class="cost-item total-item">
+                                <span class="cost-label">Total a pagar:</span>
+                                <span class="cost-value total-amount">${{ monto }}</span>
+                            </div>
+                        </div>
+                    </div>
 
-        <div class="mb-3">
-            <label for="{{ form.nombre_en_tarjeta.id_for_label }}" class="form-label">Nombre en la tarjeta</label>
-            {{ form.nombre_en_tarjeta }}
-            {% if form.nombre_en_tarjeta.errors %}
-                <div class="text-danger small">
-                    {{ form.nombre_en_tarjeta.errors.as_text }}
+                    <!-- Formulario de tarjeta -->
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="form-section">
+                            <h5 class="section-title">
+                                <i class="fas fa-credit-card text-primary"></i>
+                                Información de la Tarjeta
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.nombre_en_tarjeta.id_for_label }}" class="form-label">Nombre en la tarjeta</label>
+                                    {{ form.nombre_en_tarjeta }}
+                                    {% if form.nombre_en_tarjeta.errors %}
+                                        <div class="error-message">
+                                            {% for error in form.nombre_en_tarjeta.errors %}
+                                                <i class="fas fa-exclamation-triangle"></i> {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.numero_tarjeta.id_for_label }}" class="form-label">Número de tarjeta</label>
+                                    {{ form.numero_tarjeta }}
+                                    {% if form.numero_tarjeta.errors %}
+                                        <div class="error-message">
+                                            {% for error in form.numero_tarjeta.errors %}
+                                                <i class="fas fa-exclamation-triangle"></i> {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.vencimiento.id_for_label }}" class="form-label">Vencimiento (MM/AA)</label>
+                                    {{ form.vencimiento }}
+                                    {% if form.vencimiento.errors %}
+                                        <div class="error-message">
+                                            {% for error in form.vencimiento.errors %}
+                                                <i class="fas fa-exclamation-triangle"></i> {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ form.codigo_seguridad.id_for_label }}" class="form-label">Código de seguridad</label>
+                                    {{ form.codigo_seguridad }}
+                                    {% if form.codigo_seguridad.errors %}
+                                        <div class="error-message">
+                                            {% for error in form.codigo_seguridad.errors %}
+                                                <i class="fas fa-exclamation-triangle"></i> {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ form.monto.id_for_label }}" class="form-label">Monto</label>
+                                {{ form.monto }}
+                                {% if form.monto.errors %}
+                                    <div class="error-message">
+                                        {% for error in form.monto.errors %}
+                                            <i class="fas fa-exclamation-triangle"></i> {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Botones de acción -->
+                        <div class="action-buttons mt-4">
+                            <button type="submit" class="btn-confirm-payment">
+                                <i class="fas fa-credit-card"></i>
+                                Procesar Pago - ${{ monto }}
+                            </button>
+                            <a href="{% url 'reservas:crear_reserva' reserva.vehiculo.id %}" class="btn-back">
+                                <i class="fas fa-arrow-left"></i>
+                                Volver a editar reserva
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Mensajes -->
+            {% if messages %}
+                <div class="mt-4">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            <i class="fas fa-info-circle"></i>
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
                 </div>
             {% endif %}
         </div>
-
-        <div class="mb-3">
-            <label for="{{ form.numero_tarjeta.id_for_label }}" class="form-label">Número de tarjeta</label>
-            {{ form.numero_tarjeta }}
-            {% if form.numero_tarjeta.errors %}
-                <div class="text-danger small">
-                    {{ form.numero_tarjeta.errors.as_text }}
-                </div>
-            {% endif %}
-        </div>
-
-        <div class="mb-3">
-            <label for="{{ form.vencimiento.id_for_label }}" class="form-label">Vencimiento (MM/AA)</label>
-            {{ form.vencimiento }}
-            {% if form.vencimiento.errors %}
-                <div class="text-danger small">
-                    {{ form.vencimiento.errors.as_text }}
-                </div>
-            {% endif %}
-        </div>
-
-        <div class="mb-3">
-            <label for="{{ form.codigo_seguridad.id_for_label }}" class="form-label">Código de seguridad (CVV)</label>
-            {{ form.codigo_seguridad }}
-            {% if form.codigo_seguridad.errors %}
-                <div class="text-danger small">
-                    {{ form.codigo_seguridad.errors.as_text }}
-                </div>
-            {% endif %}
-        </div>
-
-        <div class="mb-3">
-            <label for="{{ form.monto.id_for_label }}" class="form-label">Monto</label>
-            {{ form.monto }}
-            {% if form.monto.errors %}
-                <div class="text-danger small">
-                    {{ form.monto.errors.as_text }}
-                </div>
-            {% endif %}
-        </div>
-
-        <button type="submit" class="btn btn-danger">Pagar</button>
-        <a href="{% url 'reservas:crear_reserva' reserva.vehiculo.id reserva.id %}" class="btn btn-danger">
-            ← Volver a editar reserva
-        </a>
-    </form>
-
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} mt-3">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
+    </div>
 </div>
 {% endblock %}

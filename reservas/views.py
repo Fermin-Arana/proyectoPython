@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, render, redirect
 from usuarios.models import Usuario
@@ -7,15 +7,31 @@ from .models import Reserva, PagoSimulado, Tarjeta
 from .forms import ReservaForm, PagoSimuladoForm
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
+from django.contrib.auth.models import Group
 from django.conf import settings
 from decimal import Decimal
+from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 
-def crear_reserva(request, auto_id, reserva_id = None):
+def crear_reserva(request, auto_id):
     if not request.user.is_authenticated:
         messages.warning(request, "Debés iniciar sesión o registrarte para poder reservar.")
         return redirect('login')
     auto = get_object_or_404(Auto, id=auto_id, activo=True)
+    return redirect('usuarios:login')
+
+    auto = get_object_or_404(Auto, pk=auto_id)
+    
+    # Leer fechas desde parámetros GET primero, luego desde sesión
+    fecha_desde = request.GET.get('fecha_desde') or request.session.get('fecha_desde')
+    fecha_hasta = request.GET.get('fecha_hasta') or request.session.get('fecha_hasta')
+    
+    # Actualizar sesión si las fechas vienen por GET
+    if request.GET.get('fecha_desde') and request.GET.get('fecha_hasta'):
+        request.session['fecha_desde'] = request.GET.get('fecha_desde')
+        request.session['fecha_hasta'] = request.GET.get('fecha_hasta')
+
     reserva = None
     # Leer las fechas de la sesión
     sd = request.session.get('fecha_desde')
@@ -31,8 +47,10 @@ def crear_reserva(request, auto_id, reserva_id = None):
         except ValueError:
             # Si el formato es inválido, las dejamos en None
             fecha_desde = fecha_hasta = None
-    if reserva_id:
-        reserva = get_object_or_404(Reserva, id=reserva_id, usuario=request.user)
+    
+    # Eliminar estas líneas problemáticas ya que reserva_id no está definido
+    # if reserva_id:
+    #     reserva = get_object_or_404(Reserva, id=reserva_id, usuario=request.user)
         
     if request.method == 'POST':
         if reserva:  
@@ -45,7 +63,8 @@ def crear_reserva(request, auto_id, reserva_id = None):
             reserva.usuario = request.user
             reserva.vehiculo = auto
 
-            if not reserva_id:
+            # Cambiar esta condición ya que reserva_id no existe
+            if not reserva.pk:  # Si es una nueva reserva (no tiene primary key)
                 # Solo usar fechas de sesión si es una nueva reserva
                 if fecha_desde and fecha_hasta:
                     reserva.fecha_inicio = fecha_desde
@@ -270,3 +289,5 @@ def reserva_modificar(request, reserva_id):
         'auto': auto,
         'reserva': reserva
     })
+
+

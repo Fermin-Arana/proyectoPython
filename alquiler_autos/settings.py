@@ -39,14 +39,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    'inicio',
     'usuarios',
     'vehiculos',
-    'sucursales',
-    'inicio',
-    'panel_admin',
     'reservas',
+<<<<<<< HEAD
     'vehiculos_graficos',
+=======
+    'sucursales',
+    'panel_admin',
+    'panel_empleado',  # Nueva app
+>>>>>>> ramaCami
 ]
 
 
@@ -58,7 +61,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'usuarios.middleware.ForcePasswordChangeMiddleware',
 ]
+
+# URL base del sitio para emails
+SITE_URL = 'http://localhost:8000'  # Cambiar en producción
 
 ROOT_URLCONF = 'alquiler_autos.urls'
 

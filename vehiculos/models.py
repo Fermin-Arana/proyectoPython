@@ -32,6 +32,16 @@ class Auto(models.Model):
     imagen = models.ImageField(upload_to='autos/', null=True, blank=True)
     activo = models.BooleanField(default=True)
 
+    estado = models.CharField(
+        max_length=20,
+        choices=[
+            ('disponible', 'Disponible'),
+            ('reservado', 'Reservado'),
+            ('inhabilitado', 'Inhabilitado'),
+            ('mantenimiento', 'En Mantenimiento')
+        ],
+        default='disponible'
+    )
     def __str__(self):
         return f"{self.marca} {self.modelo} ({self.patente})"
     

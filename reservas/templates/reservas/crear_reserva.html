@@ -10,19 +10,19 @@
         <div class="col-md-10">
             <!-- Header con imagen del vehículo -->
             <div class="vehicle-header-card mb-4">
-                <div class="row g-0">
-                    <div class="col-md-5">
+                <div class="row g-0 align-items-stretch">
+                    <div class="col-md-5 d-flex">
                         {% if auto.imagen %}
                             <img src="{{ auto.imagen.url }}" class="vehicle-image" alt="{{ auto.marca }} {{ auto.modelo }}">
                         {% else %}
-                            <div class="no-image-placeholder">
+                            <div class="no-image-placeholder w-100">
                                 <i class="fas fa-car fa-5x text-muted"></i>
                                 <p class="text-muted mt-2">Sin imagen disponible</p>
                             </div>
                         {% endif %}
                     </div>
-                    <div class="col-md-7">
-                        <div class="vehicle-info">
+                    <div class="col-md-7 d-flex">
+                        <div class="vehicle-info w-100">
                             <h1 class="vehicle-title">
                                 <i class="fas fa-car text-primary"></i>
                                 {{ auto.marca }} {{ auto.modelo }}
@@ -60,7 +60,7 @@
 
             <!-- Formulario de reserva -->
             <div class="card shadow-lg reservation-form-card">
-                <div class="card-header bg-gradient-primary text-white">
+                <div class="card-header bg-gradient-primary text-black">
                     <h2 class="mb-0">
                         <i class="fas fa-clipboard-list"></i> 
                         Completar Reserva
@@ -304,10 +304,8 @@
         
         calcularCosto();
     });
-</script>
-{% endblock %}
 
-<script>
+    // Validación de fechas
     document.querySelector('form.formulario-reserva').addEventListener('submit', function(event) {
         const fechaInicio = new Date(document.getElementById('id_fecha_inicio').value);
         const fechaFin = new Date(document.getElementById('id_fecha_fin').value);
@@ -318,5 +316,6 @@
         }
     });
 </script>
-
 {% endblock %}
+
+

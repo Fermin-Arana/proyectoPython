@@ -11,6 +11,11 @@ from usuarios.models import EmpleadoExtra, Usuario
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.utils.crypto import get_random_string
+from django.contrib.auth.models import Group
+from usuarios.models import Usuario
+from usuarios.forms import CustomUserCreationForm, UserEditForm
+from usuarios.utils import generar_password_temporal, enviar_email_activacion
+
 
 
 @login_required

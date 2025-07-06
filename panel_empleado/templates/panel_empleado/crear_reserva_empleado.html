@@ -1,0 +1,265 @@
+{% extends 'panel_admin/base.html' %}
+{% load static %}
+
+{% block title %}Crear Reserva - Empleado{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'crear_reserva.css' %}">
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0"><i class="fas fa-user-tie"></i> Crear Reserva Instantánea</h3>
+                    <small>Panel de Empleado</small>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Reserva Instantánea:</strong> Esta reserva se confirmará automáticamente.
+                    </div>
+                    
+                    <!-- Información del vehículo -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p><strong><i class="fas fa-car"></i> Vehículo:</strong> {{ auto.marca }} {{ auto.modelo }}</p>
+                            <p><strong><i class="fas fa-tag"></i> Patente:</strong> {{ auto.patente }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong><i class="fas fa-dollar-sign"></i> Precio por día:</strong> ${{ auto.precio_por_dia }}</p>
+                            <p><strong><i class="fas fa-users"></i> Capacidad:</strong> {{ auto.capacidad_pasajeros }} pasajeros</p>
+                        </div>
+                    </div>
+
+                    <form method="post" class="formulario-reserva">
+                        {% csrf_token %}
+                        
+                        <!-- Selección tipo de cliente -->
+                        <div class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-user"></i> Tipo de Cliente
+                            </label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="cliente_tipo" id="cliente_existente" value="existente" checked>
+                                <label class="form-check-label" for="cliente_existente">
+                                    Cliente Existente
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="cliente_tipo" id="cliente_nuevo" value="nuevo">
+                                <label class="form-check-label" for="cliente_nuevo">
+                                    Nuevo Cliente
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Selección de cliente existente -->
+                        <div id="cliente_existente_section" class="mb-4">
+                            <label class="form-label">
+                                <i class="fas fa-user"></i> Seleccionar Cliente
+                            </label>
+                            <select name="cliente_id" class="form-select">
+                                <option value="">Seleccionar cliente...</option>
+                                {% for cliente in clientes %}
+                                    <option value="{{ cliente.id }}">
+                                        {{ cliente.username }} - {{ cliente.nombre }} {{ cliente.apellido }}
+                                        ({{ cliente.correo }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <!-- Formulario para nuevo cliente -->
+                        <div id="nuevo_cliente_section" class="mb-4" style="display: none;">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5><i class="fas fa-user-plus"></i> Datos del Nuevo Cliente</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Nombre de usuario</label>
+                                                <input type="text" name="nuevo_username" class="form-control" placeholder="Ej: juan84551">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Contraseña</label>
+                                                <input type="password" name="nuevo_password" class="form-control" placeholder="Mínimo 8 caracteres">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Nombre</label>
+                                                <input type="text" name="nuevo_nombre" class="form-control" placeholder="Ej: Juan">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Apellido</label>
+                                                <input type="text" name="nuevo_apellido" class="form-control" placeholder="Ej: Pérez">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">DNI</label>
+                                                <input type="text" name="nuevo_dni" class="form-control" placeholder="Ej: 40505968">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Fecha de nacimiento</label>
+                                                <input type="date" name="nuevo_fecha_nacimiento" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Correo electrónico</label>
+                                                <input type="email" name="nuevo_correo" class="form-control" placeholder="Ej: juan@gmail.com">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Teléfono</label>
+                                                <input type="text" name="nuevo_telefono" class="form-control" placeholder="Ej: 2218974555">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Datos de la reserva -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5><i class="fas fa-calendar-alt"></i> Datos de la Reserva</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">
+                                                <i class="fas fa-calendar-alt"></i> Fecha de inicio
+                                            </label>
+                                            <input type="date" name="fecha_inicio" class="form-control" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">
+                                                <i class="fas fa-calendar-alt"></i> Fecha de fin
+                                            </label>
+                                            <input type="date" name="fecha_fin" class="form-control" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">
+                                                <i class="fas fa-user-tie"></i> Nombre del conductor
+                                            </label>
+                                            <input type="text" name="conductor" class="form-control" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">
+                                                <i class="fas fa-id-card"></i> DNI del conductor
+                                            </label>
+                                            <input type="text" name="dni_conductor" class="form-control" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Seguros -->
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-shield-alt"></i> Tipo de seguro
+                                    </label>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="radio" name="tipo_seguro" id="seguro_basico" value="basico" checked>
+                                                <label class="form-check-label" for="seguro_basico">
+                                                    Seguro Básico (Incluido)
+                                                </label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="radio" name="tipo_seguro" id="seguro_completo" value="completo">
+                                                <label class="form-check-label" for="seguro_completo">
+                                                    Seguro Completo (+$500/día)
+                                                </label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="radio" name="tipo_seguro" id="seguro_premium" value="premium">
+                                                <label class="form-check-label" for="seguro_premium">
+                                                    Seguro Premium (+$1000/día)
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-check-circle"></i> Confirmar Reserva Instantánea
+                            </button>
+                            <a href="{% url 'panel_admin' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Volver al Panel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// JavaScript para mostrar/ocultar secciones
+document.addEventListener('DOMContentLoaded', function() {
+    const clienteExistente = document.getElementById('cliente_existente');
+    const clienteNuevo = document.getElementById('cliente_nuevo');
+    const existenteSection = document.getElementById('cliente_existente_section');
+    const nuevoSection = document.getElementById('nuevo_cliente_section');
+    
+    clienteExistente.addEventListener('change', function() {
+        if (this.checked) {
+            existenteSection.style.display = 'block';
+            nuevoSection.style.display = 'none';
+            // Hacer campos de cliente existente requeridos
+            document.querySelector('select[name="cliente_id"]').required = true;
+            // Quitar requerido de campos de nuevo cliente
+            nuevoSection.querySelectorAll('input').forEach(input => input.required = false);
+        }
+    });
+    
+    clienteNuevo.addEventListener('change', function() {
+        if (this.checked) {
+            existenteSection.style.display = 'none';
+            nuevoSection.style.display = 'block';
+            // Quitar requerido de cliente existente
+            document.querySelector('select[name="cliente_id"]').required = false;
+            // Hacer campos de nuevo cliente requeridos
+            nuevoSection.querySelectorAll('input').forEach(input => {
+                if (input.name !== 'nuevo_telefono') { // teléfono opcional
+                    input.required = true;
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock %}
