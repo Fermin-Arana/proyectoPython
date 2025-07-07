@@ -11,7 +11,10 @@ from django.http import HttpResponse
 
 def index(request):
     if request.user.is_authenticated and request.user.groups.filter(name='admin').exists():
-        return redirect('panel_admin') 
+        return redirect('panel_admin')
+    elif request.user.is_authenticated and request.user.groups.filter(name='empleado').exists():
+        return redirect('panel_empleado')
+
 
     sucursales = Sucursal.objects.all()
     autos = Auto.objects.select_related('sucursal').filter(activo=True)
