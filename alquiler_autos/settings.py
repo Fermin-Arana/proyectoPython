@@ -43,13 +43,10 @@ INSTALLED_APPS = [
     'usuarios',
     'vehiculos',
     'reservas',
-<<<<<<< HEAD
     'vehiculos_graficos',
-=======
     'sucursales',
     'panel_admin',
     'panel_empleado',  # Nueva app
->>>>>>> ramaCami
 ]
 
 
