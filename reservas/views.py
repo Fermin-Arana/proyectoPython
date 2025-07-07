@@ -16,7 +16,9 @@ from django.utils import timezone
 
 def crear_reserva(request, auto_id):
     if not request.user.is_authenticated:
+        messages.warning(request, "Debés iniciar sesión o registrarte para poder reservar.")
         return redirect('usuarios:login')
+    auto = get_object_or_404(Auto, id=auto_id, activo=True)
 
     auto = get_object_or_404(Auto, pk=auto_id)
     

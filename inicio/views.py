@@ -73,9 +73,7 @@ def detalle_auto(request, auto_id):
         request.session.pop('fecha_desde', None)
         request.session.pop('fecha_hasta', None)
 
-    auto = get_object_or_404(Auto, pk=auto_id)
-    
-    # Construir la URL de reserva con fechas si están disponibles
+    auto = get_object_or_404(Auto, pk=auto_id, activo=True)
     reservar_url = reverse('reservas:crear_reserva', args=[auto.id])
     if fecha_desde and fecha_hasta:
         reservar_url += f'?fecha_desde={fecha_desde}&fecha_hasta={fecha_hasta}'

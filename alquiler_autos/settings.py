@@ -43,11 +43,11 @@ INSTALLED_APPS = [
     'usuarios',
     'vehiculos',
     'reservas',
+    'vehiculos_graficos',
     'sucursales',
     'panel_admin',
     'panel_empleado',  # Nueva app
 ]
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

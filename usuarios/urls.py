@@ -1,6 +1,8 @@
 from django.urls import path
 from .views import recuperar_contrasena, registrarse, login_view, cerrar_sesion, PswrdResetView, PswrdResetDoneView, PswrdResetConfirmView, PswrdResetCompleteView, validar_codigo_2fa, activar_cuenta, cambiar_password_inicial
 
+app_name = 'usuarios' 
+
 urlpatterns = [
     path('registrarse/', registrarse, name='registrarse'),
     path('login/', login_view, name='login'),
