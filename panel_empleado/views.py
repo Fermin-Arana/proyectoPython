@@ -109,7 +109,7 @@ def lista_autos_empleado(request):
             request.user.groups.filter(name='admin').exists()):
         return redirect('no_autorizado_empleado')
     
-    autos = Auto.objects.all().order_by('estado', 'marca', 'modelo')
+    autos = Auto.objects.filter(activo=True).order_by('estado', 'marca', 'modelo')
     return render(request, 'panel_empleado/lista_autos.html', {'autos': autos})
 
 @login_required
