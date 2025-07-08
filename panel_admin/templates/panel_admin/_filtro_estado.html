@@ -3,8 +3,14 @@
     {{ estado_nombre }}
   </button>
   <ul class="dropdown-menu" aria-labelledby="dropdownEstado">
-    <li><a class="dropdown-item" href="?estado=activos">Activos</a></li>
-    <li><a class="dropdown-item" href="?estado=inactivos">Eliminados</a></li>
-    <li><a class="dropdown-item" href="?estado=todo">Todos</a></li>
+    <li>
+      <a class="dropdown-item" href="?estado=activos{% if busqueda %}&busqueda={{ busqueda }}{% endif %}">Activos</a>
+    </li>
+    <li>
+      <a class="dropdown-item" href="?estado=inactivos{% if busqueda %}&busqueda={{ busqueda }}{% endif %}">Eliminados</a>
+    </li>
+    <li>
+      <a class="dropdown-item" href="?estado=todo{% if busqueda %}&busqueda={{ busqueda }}{% endif %}">Todos</a>
+    </li>
   </ul>
 </div>

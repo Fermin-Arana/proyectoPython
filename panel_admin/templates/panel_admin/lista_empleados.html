@@ -6,10 +6,21 @@
 <h2 class="mb-4 text-danger">Empleados registrados</h2>
 
 {% include 'panel_admin/_filtro_estado.html' with estado_actual=estado_actual estado_nombre=estado_nombre %}
+<form method="get" class="mb-3 d-flex" role="search">
+  <input type="text" class="form-control me-2" name="busqueda"
+         placeholder="Buscar por DNI" value="{{ busqueda }}">
+  <input type="hidden" name="estado" value="{{ estado_actual }}">
+  <button class="btn btn-danger" type="submit">Buscar</button>
+
+  {% if busqueda %}
+    <a href="?estado={{ estado_actual }}" class="btn btn-danger ms-2">Limpiar</a>
+  {% endif %}
+</form>
 
 <table class="table table-bordered table-hover bg-white">
   <thead class="table-light">
     <tr>
+      <th>Estado</th>
       <th>Nombre y Apellido</th>
       <th>Correo</th>
       <th>Sucursal</th>
@@ -18,12 +29,19 @@
   </thead>
   <tbody>
     {% for empleado in empleados %}
-    <tr>
+    <tr class="{% if empleado.activo %}fila-activo{% else %}fila-inactivo{% endif %}">
+      <td>
+      {% if empleado.activo %}
+        <span class="badge rounded-pill bg-success">Activo</span>
+      {% else %}
+        <span class="badge rounded-pill bg-danger">Inactivo</span>
+      {% endif %}
+      </td>
       <td>{{ empleado.usuario.nombre }} {{ empleado.usuario.apellido }}</td>
       <td>{{ empleado.correo_original|default:empleado.usuario.correo }}</td>
       <td>{{ empleado.sucursal_asignada.nombre }}</td>
       <td>
-        <a href="{% url 'detalle_empleado' empleado.usuario.correo %}" class="btn btn-info">Ver detalles</a>
+        <a href="{% url 'detalle_empleado' empleado.usuario.correo %}" class="btn btn-danger">Ver detalles</a>
       </td>
     </tr>
     {% endfor %}

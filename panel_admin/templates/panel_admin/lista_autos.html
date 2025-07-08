@@ -1,15 +1,28 @@
 {% extends 'panel_admin/base.html' %}
 
 {% block title %}Lista de Autos{% endblock %}
-
 {% block content %}
+
 <h2 class="mb-4 text-danger">Vehículos registrados</h2>
 
 {% include 'panel_admin/_filtro_estado.html' with estado_actual=estado_actual estado_nombre=estado_nombre %}
 
+<form method="get" class="mb-3 d-flex" role="search">
+  <input type="text" class="form-control me-2" name="busqueda"
+         placeholder="Buscar por marca, modelo o patente" value="{{ busqueda }}">
+  <input type="hidden" name="estado" value="{{ estado_actual }}">
+  <button class="btn btn-danger me-2" type="submit">Buscar</button>
+
+  {% if busqueda %}
+    <a href="?estado={{ estado_actual }}" class="btn btn-danger">Limpiar</a>
+  {% endif %}
+</form>
+
+
 <table class="table table-bordered table-hover bg-white">
   <thead class="table-light">
     <tr>
+      <th>Estado</th>
       <th>Marca</th>
       <th>Modelo</th>
       <th>Patente</th>
@@ -18,12 +31,19 @@
   </thead>
   <tbody>
     {% for auto in autos %}
-    <tr>
+    <tr class="{% if auto.activo %}fila-activo{% else %}fila-inactivo{% endif %}">
+      <td>
+      {% if auto.activo %}
+        <span class="badge rounded-pill bg-success">Activo</span>
+      {% else %}
+        <span class="badge rounded-pill bg-danger">Inactivo</span>
+      {% endif %}
+      </td>
       <td>{{ auto.marca }}</td>
       <td>{{ auto.modelo }}</td>
       <td>{{ auto.patente }}</td>
       <td>
-        <a href="{% url 'detalle_auto_admin' auto.patente %}" class="btn btn-info btn-sm">Ver detalles</a>
+        <a href="{% url 'detalle_auto_admin' auto.patente %}" class="btn btn-danger btn-sm">Ver detalles</a>
       </td>
     </tr>
     {% endfor %}

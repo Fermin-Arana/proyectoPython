@@ -5,6 +5,7 @@ from vehiculos.forms import AutoForm, AutoEditarForm
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
 import secrets
+import string
 from usuarios.forms import CrearEmpleadoForm
 from django.core.mail import send_mail
 from usuarios.models import EmpleadoExtra, Usuario
@@ -15,6 +16,8 @@ from django.contrib.auth.models import Group
 from usuarios.models import Usuario
 from usuarios.forms import CustomUserCreationForm, UserEditForm
 from usuarios.utils import generar_password_temporal, enviar_email_activacion
+from django.db.models import Q
+
 
 
 
@@ -48,12 +51,23 @@ def lista_autos(request):
     }
     estado_nombre = nombres_estado.get(estado_actual, 'Todos')
 
+    busqueda = request.GET.get('busqueda', '').strip()
+
     autos = filtrar_por_estado(Auto.objects.all(), estado_actual)
+
+    if busqueda:
+        autos = autos.filter(
+        Q(patente__icontains=busqueda) |
+        Q(marca__icontains=busqueda) |
+        Q(modelo__icontains=busqueda)
+    )
+
 
     return render(request, 'panel_admin/lista_autos.html', {
         'autos': autos,
         'estado_actual': estado_actual,
-        'estado_nombre': estado_nombre
+        'estado_nombre': estado_nombre,
+        'busqueda' : busqueda
     })
 
 def lista_empleados(request):
@@ -67,12 +81,20 @@ def lista_empleados(request):
     }
     estado_nombre = nombres_estado.get(estado_actual, 'Todos')
 
+    busqueda = request.GET.get('busqueda', '').strip()
+
     empleados = filtrar_por_estado(EmpleadoExtra.objects.select_related('usuario', 'sucursal_asignada'), estado_actual)
+
+    if busqueda:
+        empleados = empleados.filter(
+            usuario__dni__icontains=busqueda
+        )
 
     return render(request, 'panel_admin/lista_empleados.html', {
         'empleados': empleados,
         'estado_actual': estado_actual,
-        'estado_nombre': estado_nombre
+        'estado_nombre': estado_nombre,
+        'busqueda': busqueda
         })
 
 def detalle_empleado(request, correo):
@@ -133,12 +155,16 @@ def modificar_auto(request, patente):
 
     return render(request, 'panel_admin/modificar_auto.html', {'form': form, 'auto': auto})
 
+def generar_password_alfanumerica(longitud=8):
+    caracteres = string.ascii_letters + string.digits
+    return ''.join(secrets.choice(caracteres) for _ in range(longitud))
+
 def crear_empleado(request):
     if request.method == 'POST':
         form = CrearEmpleadoForm(request.POST)
         if form.is_valid():
             usuario = form.save(commit=False)
-            password = secrets.token_urlsafe(8)
+            password = generar_password_alfanumerica(8)
             usuario.set_password(password)
             usuario.save()
 

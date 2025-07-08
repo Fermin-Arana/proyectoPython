@@ -2,7 +2,7 @@
 
 {% block content %}
   <div class="container mt-5">
-    <h2>Detalles del Empleado</h2>
+    <h2 class="mb-4 text-danger">Detalles del Empleado</h2>
     <p><strong>Nombre:</strong> {{ empleado.usuario.nombre }}</p>
     <p><strong>Apellido:</strong> {{ empleado.usuario.apellido }}</p>
     <p><strong>Nombre de usuario:</strong> {{ empleado.usuario.username }}</p>
@@ -13,6 +13,6 @@
     {% if empleado.activo %}
       <a href="{% url 'eliminar_empleado' empleado.usuario.correo %}" class="btn btn-danger">🗑️ Eliminar</a>
     {% endif %}  
-    <a href="{% url 'lista_empleados' %}" class="btn btn-secondary">← Volver al listado</a>
+    <a href="{% url 'lista_empleados' %}" class="btn btn-danger">← Volver al listado</a>
   </div>
 {% endblock %}
