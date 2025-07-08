@@ -166,6 +166,7 @@ def crear_empleado(request):
             usuario = form.save(commit=False)
             password = generar_password_alfanumerica(8)
             usuario.set_password(password)
+            usuario.is_active = True
             usuario.save()
 
             grupo_empleado, _ = Group.objects.get_or_create(name='empleado')
@@ -177,7 +178,7 @@ def crear_empleado(request):
 
             send_mail(
                 'Tu cuenta en Alquileres María',
-                f'Hola {usuario.nombre},\n\nTu cuenta fue creada.\nUsuario: {usuario.username}\nContraseña: {password}\n\nPor favor cambia tu contraseña luego de ingresar.',
+                f'Hola {usuario.nombre},\n\nTu cuenta fue creada.\nUsuario: {usuario.username}\nContraseña: {password}',
                 settings.DEFAULT_FROM_EMAIL,
                 [usuario.correo],
                 fail_silently=False,
@@ -201,6 +202,7 @@ def eliminar_empleado(request,correo):
             empleado.correo_original = empleado.usuario.correo
 
         empleado.usuario.correo = f"borrado_{get_random_string(8)}@gmail.com"
+        empleado.usuario.is_active = False
         empleado.usuario.save()
         empleado.activo = False
         empleado.save()
