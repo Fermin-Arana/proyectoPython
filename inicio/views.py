@@ -11,10 +11,13 @@ from django.http import HttpResponse
 
 def index(request):
     if request.user.is_authenticated and request.user.groups.filter(name='admin').exists():
-        return redirect('panel_admin') 
+        return redirect('panel_admin')
+    elif request.user.is_authenticated and request.user.groups.filter(name='empleado').exists():
+        return redirect('panel_empleado')
+
 
     sucursales = Sucursal.objects.all()
-    autos = Auto.objects.select_related('sucursal').all()
+    autos = Auto.objects.select_related('sucursal').filter(activo=True)
     buscar       = request.GET.get('buscar', '')
     fecha_desde  = request.GET.get('fecha_desde', '')
     fecha_hasta  = request.GET.get('fecha_hasta', '')
@@ -84,10 +87,10 @@ def detalle_auto(request, auto_id):
     })
 
 
-# Agrega esta importación al principio del archivo junto con las otras importaciones
+
 from usuarios.forms import UserEditForm
 
-# Agrega esta función al final del archivo
+
 @login_required
 def editar_perfil(request):
     """Vista para editar el perfil del usuario."""
@@ -129,12 +132,3 @@ def detalle_reserva(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id, usuario=request.user)
     return render(request, 'inicio/detalle_reserva.html', {'reserva': reserva})
 
-def prueba_envio_mail(request):
-    send_mail(
-        'Prueba de correo',
-        'Hola, este es un correo enviado desde Django.',
-        'topanelo2016@gmail.com',  # Desde
-        ['topanelo2016@gmail.com'],  # A (puede ser el mismo)
-        fail_silently=False,
-    )
-    return HttpResponse("Correo enviado correctamente.")

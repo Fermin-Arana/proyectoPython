@@ -5,11 +5,11 @@
 {% block content %}
     <h1>Cancelar Reserva</h1>
     <ul>
-        <li> Auto: {{ reserva.auto.marca }} {{ reserva.auto.modelo }} {{ reserva.auto.categoria}}</li>
-        <li> Cantidad a reembolsar: {{reserva.auto.politica_reembolso}}  </li>
+        <li> Auto: {{ reserva.vehiculo.marca }} {{ reserva.vehiculo.modelo }} {{ reserva.vehiculo.categoria}}</li>
+        <li> Cantidad a reembolsar: {{reserva.vehiculo.politica_reembolso}}  </li>
         <li> Estado de la reserva: {{ reserva.estado }}</li>
     </ul>
-    <img src="{{ reserva.auto.imagen.url }}" alt="Imagen del auto" style="width: 300px; height: 200px;">
+    <img src="{{ reserva.vehiculo.imagen.url }}" alt="Imagen del auto" style="width: 300px; height: 200px;">
 
     <form method="POST">
         {% csrf_token %}

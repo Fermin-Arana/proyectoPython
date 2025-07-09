@@ -17,8 +17,9 @@ from django.utils import timezone
 def crear_reserva(request, auto_id):
     if not request.user.is_authenticated:
         messages.warning(request, "Debés iniciar sesión o registrarte para poder reservar.")
-        return redirect('usuarios:login')
+        return redirect('login')
     auto = get_object_or_404(Auto, id=auto_id, activo=True)
+    return redirect('usuarios:login')
 
     auto = get_object_or_404(Auto, pk=auto_id)
     
@@ -175,35 +176,75 @@ def reserva_exitosa(request, reserva_id):
 @login_required
 def reserva_cancelar(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id, usuario=request.user)
-    
-    dias = (reserva.fecha_fin - reserva.fecha_inicio).days
-    monto = reserva.vehiculo.precio_por_dia * dias
+
+    if reserva.estado == 'cancelada':
+        messages.info(request, "Esta reserva ya fue cancelada.")
+        return redirect('historial_reservas')  
+
+    try:
+        pago = reserva.pagosimulado  
+    except PagoSimulado.DoesNotExist:
+        pago = None
+
+    # Calculamos monto original y porcentaje de reembolso
+    monto_pagado = pago.monto if pago else Decimal('0.00')
+    porcentaje = reserva.vehiculo.politica_reembolso or Decimal('0.00')
+    reembolso = (monto_pagado * porcentaje) / Decimal('100.00')
+
     if request.method == 'POST':
         reserva.estado = 'cancelada'
         reserva.save()
-        # Send cancellation email
+
+        if pago and pago.estado == 'exitoso' and pago.tarjeta:
+            tarjeta = pago.tarjeta
+            tarjeta.saldo += reembolso
+            tarjeta.save()
+
+            pago.estado = 'fallido'  
+            pago.save()
+
+        # 3) Enviar correo de confirmación de cancelación
         send_mail(
             subject='Reserva Cancelada - Alquileres María',
             message=f"""
-            Hola {request.user.nombre or request.user.username},
+Hola {request.user.nombre or request.user.username},
 
-            Tu reserva para el vehículo {reserva.vehiculo.marca} {reserva.vehiculo.modelo} ha sido cancelada.
-                        Detalles:
-                        - Fecha de inicio: {reserva.fecha_inicio}
-                        - Fecha de fin: {reserva.fecha_fin}
-                        - Monto pagado: ${monto:.2f}
-            Si tienes dudas, contáctanos.
+Tu reserva para el vehículo {reserva.vehiculo.marca} {reserva.vehiculo.modelo} ha sido cancelada.
 
-            Atentamente,
-            El equipo de Alquileres María
-            """,
+Detalles de la cancelación:
+- Fecha de inicio: {reserva.fecha_inicio}
+- Fecha de fin: {reserva.fecha_fin}
+- Monto pagado originalmente: ${monto_pagado:.2f}
+
+Según la política de reembolso del vehículo ({porcentaje:.2f}%), se te ha reintegrado:
+- Monto de reembolso: ${reembolso:.2f}
+
+El saldo reembolsado ya se acreditó a tu tarjeta terminada en {pago.tarjeta.numero_tarjeta[-4:] if pago and pago.tarjeta else '----'}.
+
+Si tienes dudas, no dudes en contactarnos.
+
+Atentamente,
+El equipo de Alquileres María
+""",
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[request.user.correo],
             fail_silently=False,
         )
-        messages.success(request, "Reserva cancelada exitosamente.")
-        return redirect('reservas:reserva_cancelada')
-    return render(request, 'reservas/reserva_cancelar.html', {'reserva': reserva})
+
+        messages.success(request, "Reserva cancelada exitosamente. Se ha aplicado el reembolso.")
+        return redirect('reservas:reserva_cancelada')  # o la vista que uses tras cancelar
+    else:
+        # Renderizamos un template de confirmación previo a cancelar
+        return render(
+            request,
+            'reservas/reserva_cancelar.html',
+            {
+                'reserva': reserva,
+                'monto_pagado': monto_pagado,
+                'porcentaje': porcentaje,
+                'reembolso': reembolso,
+            }
+        )
 
 def reserva_cancelada(request):
     return render(request, 'reservas/reserva_cancelada.html')

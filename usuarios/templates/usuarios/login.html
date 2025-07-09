@@ -15,7 +15,6 @@
     <form method="post" novalidate class="login-form"> {# clase nueva para estilos específicos #}
     {% csrf_token %} {# token de seguridad #}
 
-    {{ form.non_field_errors }} {# errores generales del formulario #}
 
     <div class="mb-3"> {# campo de usuario #}
       {{ form.username.label_tag }}

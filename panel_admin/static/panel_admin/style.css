@@ -3,9 +3,53 @@ body {
     background-color: #0c0a0a;
 }
 
+
 h1, h2, h3 {
     color: #cc0000;
 }
+
+tr.fila-activo > td {
+    background-color: #9de1c1;
+    color: #0f5132;
+    font-weight: 600;
+    
+    transition: background-color 0.3s ease;
+}
+
+tr.fila-activo:hover > td {
+    background-color: #92c8b0;
+}
+
+tr.fila-inactivo > td {
+    background-color: #f3a2a8;
+    color: #890813;
+    font-weight: 600;
+
+    transition: background-color 0.3s ease;
+}
+
+tr.fila-inactivo:hover > td {
+    background-color: #d88086;
+}
+
+table.table td {
+    padding: 0.75rem 1rem;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 0.95rem;
+}
+
+
+table.table td:first-child,
+table.table th:first-child {
+    width: 80px; 
+    text-align: center;
+}
+
+
+
+
+
+
 
 
 

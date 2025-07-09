@@ -1,7 +1,5 @@
 from django.db import models
-
 from django.conf import settings
-
 from vehiculos.models import Auto
 
 class Reserva(models.Model):
@@ -16,7 +14,7 @@ class Reserva(models.Model):
 
     def precio_total(self):
         if self.fecha_inicio and self.fecha_fin and self.vehiculo:
-            dias = (self.fecha_fin - self.fecha_inicio).days + 1
+            dias = (self.fecha_fin - self.fecha_inicio).days
             return dias * self.vehiculo.precio_por_dia
         return 0
 

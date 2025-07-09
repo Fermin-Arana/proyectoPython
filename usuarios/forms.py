@@ -3,6 +3,19 @@ from django.contrib.auth.forms import UserCreationForm, PasswordResetForm
 from .models import Usuario
 from datetime import date
 import re
+from django.contrib.auth.forms import AuthenticationForm, SetPasswordForm
+from django.core.exceptions import ValidationError
+from sucursales.models import Sucursal
+
+def validar_contrasena_alfanumerica(password):
+    errores = []
+    
+    if len(password) < 8 or not re.search(r'[A-Za-z]', password) or not re.search(r'[0-9]', password) :
+        errores.append("La contraseña debe tener al menos 8 caracteres.")
+        errores.append("La contraseña debe ser alfanumérica (letras y números).")
+    
+    if errores:
+        raise ValidationError(errores)
 
 class CustomPasswordResetForm(PasswordResetForm):
     def get_users(self, email):
@@ -86,23 +99,26 @@ class CustomUserCreationForm(UserCreationForm):
         password = self.cleaned_data.get('password1')
         errores = []
 
-        if len(password) < 8:
+        if not password:
+            raise forms.ValidationError("Debes ingresar una contraseña.")
+
+        if len(password) < 8 or not re.search(r'[A-Za-z]', password) or not re.search(r'[0-9]', password) :
             errores.append("La contraseña debe tener al menos 8 caracteres.")
-        if not re.search(r'[A-Za-z]', password) or not re.search(r'[0-9]', password):
             errores.append("La contraseña debe ser alfanumérica (letras y números).")
 
         if errores:
             raise forms.ValidationError(errores)
-        
+
+        # No llamamos a validate_password para evitar validadores por defecto
         return password
-    
+
     def clean_password2(self):
         password1 = self.cleaned_data.get('password1')
         password2 = self.cleaned_data.get('password2')
 
         if not password1:
             return password2
-            
+
         if password1 != password2:
             raise forms.ValidationError("Las contraseñas no coinciden.")
 
@@ -119,6 +135,10 @@ class CustomUserCreationForm(UserCreationForm):
         
         return fecha_nacimiento
     
+    def _post_clean(self):
+        # Evita validadores por defecto de Django
+        super(forms.ModelForm, self)._post_clean()
+
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -142,21 +162,73 @@ class UserEditForm(forms.ModelForm):
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Juan'}),
             'apellido': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: Pérez'}),
-            'correo': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Ej: juan@gmail.com'}),
+            'correo': forms.EmailInput(attrs={
+                'class': 'form-control bg-light text-muted',
+                'readonly': 'readonly'
+            }),
             'telefono': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ej: 2218974555'}),
-            'fecha_nacimiento': forms.DateInput(attrs={'class': 'form-control', 'type': 'fecha'}),
+            'fecha_nacimiento': forms.DateInput(attrs={
+                'class': 'form-control bg-light text-muted',
+                'readonly': 'readonly'
+            }),
         }
-    
+
     def clean_correo(self):
-        correo = self.cleaned_data.get('correo')
-        # Verificar si el correo ya existe, pero excluir el usuario actual
-        if Usuario.objects.filter(correo=correo).exclude(pk=self.instance.pk).exists():
-            raise forms.ValidationError("Este correo electrónico ya está en uso.")
-        return correo
-    
+        return self.instance.correo
+
+    def clean_fecha_nacimiento(self):
+        return self.instance.fecha_nacimiento
+
     def clean_telefono(self):
         telefono = self.cleaned_data.get('telefono')
-        # Verificar si el teléfono ya existe, pero excluir el usuario actual
         if Usuario.objects.filter(telefono=telefono).exclude(pk=self.instance.pk).exists():
             raise forms.ValidationError("Este teléfono ya está en uso.")
         return telefono
+    
+
+class CustomAuthenticationForm(AuthenticationForm):
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        return username.lower() if username else username
+    
+class CustomSetPasswordForm(SetPasswordForm):
+    def clean_new_password1(self):
+        password = self.cleaned_data.get('new_password1')
+        validar_contrasena_alfanumerica(password)
+        return password
+
+    def clean(self):
+        cleaned_data = self.cleaned_data  # No llamar a super().clean()
+        password1 = cleaned_data.get('new_password1')
+        password2 = cleaned_data.get('new_password2')
+
+        if password1 and password2 and password1 != password2:
+            self.add_error('new_password2', "Las contraseñas no coinciden.")
+
+        return cleaned_data
+
+    def _post_clean(self): 
+        pass
+
+class CrearEmpleadoForm(forms.ModelForm):
+    sucursal_asignada = forms.ModelChoiceField(
+        queryset=Sucursal.objects.all(),
+        label='Sucursal asignada',
+        required=True
+    )
+
+    class Meta:
+        model = Usuario
+        fields = ['username', 'correo', 'nombre', 'apellido', 'dni']
+
+    def clean_correo(self):
+        correo = self.cleaned_data['correo']
+        if Usuario.objects.filter(correo=correo).exists():
+            raise forms.ValidationError("Ya existe un usuario con ese correo.")
+        return correo
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        if Usuario.objects.filter(username=username).exists():
+            raise forms.ValidationError("Ya existe un usuario con ese nombre de usuario.")
+        return username

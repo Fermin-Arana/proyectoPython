@@ -109,7 +109,7 @@ def lista_autos_empleado(request):
             request.user.groups.filter(name='admin').exists()):
         return redirect('no_autorizado_empleado')
     
-    autos = Auto.objects.all().order_by('estado', 'marca', 'modelo')
+    autos = Auto.objects.filter(activo=True).order_by('estado', 'marca', 'modelo')
     return render(request, 'panel_empleado/lista_autos.html', {'autos': autos})
 
 @login_required
@@ -315,4 +315,54 @@ def crear_reserva_empleado(request, auto_id):
     return render(request, 'panel_empleado/crear_reserva_empleado.html', {
         'auto': auto,
         'clientes': clientes
+    })
+
+
+@login_required
+def registrar_devolucion_empleado(request):
+    if not (request.user.groups.filter(name='empleado').exists() or 
+            request.user.groups.filter(name='admin').exists()):
+        return redirect('no_autorizado_empleado')
+    
+    # Obtener reservas confirmadas (autos que están en uso)
+    reservas_activas = Reserva.objects.filter(
+        estado='confirmada'
+    ).select_related('vehiculo', 'usuario').order_by('fecha_fin')
+    
+    return render(request, 'panel_empleado/registrar_devolucion.html', {
+        'reservas_activas': reservas_activas
+    })
+
+@login_required
+def procesar_devolucion_empleado(request, reserva_id):
+    if not (request.user.groups.filter(name='empleado').exists() or 
+            request.user.groups.filter(name='admin').exists()):
+        return redirect('no_autorizado_empleado')
+    
+    reserva = get_object_or_404(Reserva, id=reserva_id)
+    
+    if request.method == 'POST':
+        # Obtener el estado del auto después de la devolución
+        estado_auto = request.POST.get('estado_auto', 'disponible')
+        observaciones = request.POST.get('observaciones', '').strip()
+        
+        # Finalizar la reserva
+        reserva.estado = 'finalizada'
+        reserva.save()
+        
+        # Cambiar estado del auto según la evaluación del empleado
+        auto = reserva.vehiculo
+        auto.estado = estado_auto
+        auto.save()
+        
+        # Mensaje de éxito con información del estado
+        if estado_auto == 'disponible':
+            messages.success(request, f'Vehículo {auto.patente} devuelto exitosamente y habilitado para nuevas reservas.')
+        else:
+            messages.warning(request, f'Vehículo {auto.patente} devuelto y marcado como {estado_auto}. {observaciones}')
+        
+        return redirect('registrar_devolucion_empleado')
+    
+    return render(request, 'panel_empleado/confirmar_devolucion.html', {
+        'reserva': reserva
     })

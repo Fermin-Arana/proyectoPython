@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="{% static 'panel_empleado/css/empleado.css' %}">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-danger">
         <div class="container">
             <a class="navbar-brand" href="{% url 'panel_empleado' %}">
                 <i class="fas fa-user-tie"></i> Panel Empleado
@@ -36,7 +36,7 @@
                             <i class="fas fa-user"></i> {{ user.username }}
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{% url 'inicio' %}">Ir al sitio principal</a></li>
+                            <li><a class="dropdown-item" href="{% url 'panel_empleado' %}">Ir al sitio principal</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
                         </ul>

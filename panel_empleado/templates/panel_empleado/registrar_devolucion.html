@@ -1,0 +1,79 @@
+{% extends 'panel_empleado/base.html' %}
+
+{% block title %}Registrar Devolución - Panel Empleado{% endblock %}
+
+{% block content %}
+<div class="row fade-in-up">
+    <div class="col-12">
+        <h1 class="page-title"><i class="fas fa-undo"></i> Registrar Devolución</h1>
+    </div>
+</div>
+
+<div class="row fade-in-up">
+    <div class="col-12">
+        <div class="card card-custom">
+            <div class="card-header" style="background: linear-gradient(135deg, var(--primary-black) 0%, var(--secondary-black) 100%); color: white;">
+                <h5 class="mb-0"><i class="fas fa-car-side"></i> Reservas Activas para Devolución</h5>
+            </div>
+            <div class="card-body">
+                {% if reservas_activas %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Vehículo</th>
+                                    <th>Cliente</th>
+                                    <th>Conductor</th>
+                                    <th>Fecha Inicio</th>
+                                    <th>Fecha Fin</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reserva in reservas_activas %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ reserva.vehiculo.marca }} {{ reserva.vehiculo.modelo }}</strong><br>
+                                        <small class="text-muted">{{ reserva.vehiculo.patente }}</small>
+                                    </td>
+                                    <td>
+                                        {{ reserva.usuario.nombre }} {{ reserva.usuario.apellido }}<br>
+                                        <small class="text-muted">{{ reserva.usuario.correo }}</small>
+                                    </td>
+                                    <td>
+                                        {{ reserva.conductor }}<br>
+                                        <small class="text-muted">DNI: {{ reserva.dni_conductor }}</small>
+                                    </td>
+                                    <td>{{ reserva.fecha_inicio|date:"d/m/Y" }}</td>
+                                    <td>{{ reserva.fecha_fin|date:"d/m/Y" }}</td>
+                                    <td>
+                                        <span class="badge bg-success">{{ reserva.estado|title }}</span>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'procesar_devolucion_empleado' reserva.id %}" 
+                                           class="btn btn-danger btn-sm" 
+                                           title="Procesar devolución">
+                                            <i class="fas fa-undo"></i> Devolver
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-info-circle fa-3x text-muted mb-3"></i>
+                        <h4 class="text-muted">No hay reservas activas</h4>
+                        <p class="text-muted">No hay vehículos en uso que requieran devolución en este momento.</p>
+                        <a href="{% url 'panel_empleado' %}" class="btn btn-custom-primary">
+                            <i class="fas fa-arrow-left"></i> Volver al Dashboard
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

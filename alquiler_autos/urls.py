@@ -9,11 +9,11 @@ urlpatterns = [
     path('', include('inicio.urls')),
     path('usuarios/', include('usuarios.urls')),
     path('vehiculos/', include('vehiculos.urls')),
-  
-    path('panel-admin/', include('panel_admin.urls')),
     path('reservas/', include('reservas.urls')),
+    path('panel-admin/', include('panel_admin.urls')),
+    path('reservar/', include('reservas.urls')),
     path('graficos/', include('vehiculos_graficos.urls')),
-    path('panel-empleado/', include('panel_empleado.urls')),  
+    path('panel-empleado/', include('panel_empleado.urls')),  # Nueva ruta
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:

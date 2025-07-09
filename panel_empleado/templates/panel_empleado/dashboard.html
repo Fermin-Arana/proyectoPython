@@ -3,70 +3,70 @@
 {% block title %}Dashboard - Panel Empleado{% endblock %}
 
 {% block content %}
-<div class="row">
+<div class="row fade-in-up">
     <div class="col-12">
-        <h1 class="mb-4"><i class="fas fa-tachometer-alt"></i> Dashboard Empleado</h1>
+        <h1 class="page-title"><i class="fas fa-tachometer-alt"></i> Dashboard Empleado</h1>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-md-4">
-        <div class="card bg-primary text-white">
+<div class="row fade-in-up">
+    <div class="col-md-4 mb-4">
+        <div class="card card-custom stats-card stats-card-primary">
             <div class="card-body">
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h4>{{ reservas_activas }}</h4>
                         <p>Reservas Activas</p>
                     </div>
                     <div class="align-self-center">
-                        <i class="fas fa-calendar-check fa-2x"></i>
+                        <i class="fas fa-calendar-check icon-large"></i>
                     </div>
                 </div>
             </div>
             <div class="card-footer">
-                <a href="{% url 'lista_reservas_empleado' %}" class="text-white text-decoration-none">
+                <a href="{% url 'lista_reservas_empleado' %}" class="text-decoration-none">
                     Ver todas <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
         </div>
     </div>
     
-    <div class="col-md-4">
-        <div class="card bg-success text-white">
+    <div class="col-md-4 mb-4">
+        <div class="card card-custom stats-card stats-card-danger">
             <div class="card-body">
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h4>{{ autos_disponibles }}</h4>
                         <p>Autos Disponibles</p>
                     </div>
                     <div class="align-self-center">
-                        <i class="fas fa-car fa-2x"></i>
+                        <i class="fas fa-car icon-large"></i>
                     </div>
                 </div>
             </div>
             <div class="card-footer">
-                <a href="{% url 'lista_autos_empleado' %}" class="text-white text-decoration-none">
+                <a href="{% url 'lista_autos_empleado' %}" class="text-decoration-none">
                     Ver todos <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
         </div>
     </div>
     
-    <div class="col-md-4">
-        <div class="card bg-warning text-white">
+    <div class="col-md-4 mb-4">
+        <div class="card card-custom stats-card stats-card-danger">
             <div class="card-body">
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <h4>{{ autos_reservados }}</h4>
                         <p>Autos Reservados</p>
                     </div>
                     <div class="align-self-center">
-                        <i class="fas fa-car-side fa-2x"></i>
+                        <i class="fas fa-car-side icon-large"></i>
                     </div>
                 </div>
             </div>
             <div class="card-footer">
-                <a href="{% url 'lista_autos_empleado' %}" class="text-white text-decoration-none">
+                <a href="{% url 'lista_autos_empleado' %}" class="text-decoration-none">
                     Ver todos <i class="fas fa-arrow-right"></i>
                 </a>
             </div>
@@ -74,22 +74,27 @@
     </div>
 </div>
 
-<div class="row mt-4">
+<div class="row mt-4 fade-in-up">
     <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5><i class="fas fa-tools"></i> Acciones Rápidas</h5>
+        <div class="card card-custom">
+            <div class="card-header" style="background: linear-gradient(135deg, var(--primary-black) 0%, var(--secondary-black) 100%); color: white;">
+                <h5 class="mb-0"><i class="fas fa-tools"></i> Acciones Rápidas</h5>
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-6">
-                        <a href="{% url 'lista_reservas_empleado' %}" class="btn btn-primary btn-lg w-100 mb-3">
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'lista_reservas_empleado' %}" class="btn btn-custom-primary w-100">
                             <i class="fas fa-list"></i> Gestionar Reservas
                         </a>
                     </div>
-                    <div class="col-md-6">
-                        <a href="{% url 'lista_autos_empleado' %}" class="btn btn-success btn-lg w-100 mb-3">
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'lista_autos_empleado' %}" class="btn btn-custom-danger w-100">
                             <i class="fas fa-car"></i> Gestionar Vehículos
+                        </a>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <a href="{% url 'registrar_devolucion_empleado' %}" class="btn btn-danger w-100">
+                            <i class="fas fa-undo"></i> Registrar Devolución
                         </a>
                     </div>
                 </div>

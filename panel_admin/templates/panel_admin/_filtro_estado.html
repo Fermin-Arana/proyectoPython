@@ -1,0 +1,16 @@
+<div class="dropdown mb-3">
+  <button class="btn btn-danger dropdown-toggle" type="button" id="dropdownEstado" data-bs-toggle="dropdown" aria-expanded="false">
+    {{ estado_nombre }}
+  </button>
+  <ul class="dropdown-menu" aria-labelledby="dropdownEstado">
+    <li>
+      <a class="dropdown-item" href="?estado=activos{% if busqueda %}&busqueda={{ busqueda }}{% endif %}">Activos</a>
+    </li>
+    <li>
+      <a class="dropdown-item" href="?estado=inactivos{% if busqueda %}&busqueda={{ busqueda }}{% endif %}">Eliminados</a>
+    </li>
+    <li>
+      <a class="dropdown-item" href="?estado=todo{% if busqueda %}&busqueda={{ busqueda }}{% endif %}">Todos</a>
+    </li>
+  </ul>
+</div>

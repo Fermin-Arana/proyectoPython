@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Autos más alquilados</h2>
+<form method="get">
+    {{ form.as_p }}
+    <button type="submit">Ver gráfico</button>
+</form>
+{% if mensaje %}
+    <p style="color:red;">{{ mensaje }}</p>
+{% endif %}
+{% if datos %}
+    <canvas id="graficoAutos" width="400" height="200"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('graficoAutos').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ datos.labels|safe }},
+                datasets: [{
+                    label: 'Cantidad de alquileres',
+                    data: {{ datos.data|safe }},
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    </script>
+{% endif %}
+{% endblock %}
