@@ -17,8 +17,10 @@
   {% endif %}
 </form>
 
-<table class="table table-bordered table-hover bg-white">
-  <thead class="table-light">
+<table class="table table-bordered table-hover align-middle text-center"
+       style="background: linear-gradient(135deg, var(--primary-black) 0%, var(--secondary-black) 100%); color: white;">
+  <thead class="table-dark">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <tr>
       <th>Estado</th>
       <th>Nombre y Apellido</th>
@@ -29,24 +31,28 @@
   </thead>
   <tbody>
     {% for empleado in empleados %}
-    <tr class="{% if empleado.activo %}fila-activo{% else %}fila-inactivo{% endif %}">
+    <tr>
+      <!-- Estado con ícono -->
       <td>
-      {% if empleado.activo %}
-        <span class="badge rounded-pill bg-success">Activo</span>
-      {% else %}
-        <span class="badge rounded-pill bg-danger">Inactivo</span>
-      {% endif %}
+        {% if empleado.activo %}
+          <span class="badge rounded-pill bg-success">
+            <i class="bi bi-check-circle-fill"></i> Activo
+          </span>
+        {% else %}
+          <span class="badge rounded-pill bg-danger">
+            <i class="bi bi-x-circle-fill"></i> Eliminado
+          </span>
+        {% endif %}
       </td>
       <td>{{ empleado.usuario.nombre }} {{ empleado.usuario.apellido }}</td>
       <td>{{ empleado.correo_original|default:empleado.usuario.correo }}</td>
       <td>{{ empleado.sucursal_asignada.nombre }}</td>
       <td>
-        <a href="{% url 'detalle_empleado' empleado.usuario.correo %}" class="btn btn-danger">Ver detalles</a>
+        <a href="{% url 'detalle_empleado' empleado.usuario.correo %}" class="btn btn-danger btn-sm">👁 Ver Detalle</a>
       </td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
-
 
 {% endblock %}

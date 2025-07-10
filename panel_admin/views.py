@@ -183,8 +183,8 @@ def crear_empleado(request):
                 [usuario.correo],
                 fail_silently=False,
             )
-
-            return redirect('panel_admin')
+            messages.success(request, f"Empleado registrado correctamente!. Se ha enviado un correo electrónico con la contraseña.")
+            return redirect('lista_empleados')
     
     else:
         form = CrearEmpleadoForm()

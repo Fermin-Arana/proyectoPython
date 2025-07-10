@@ -2,17 +2,18 @@
 
 {% block content %}
   <div class="container mt-4">
-    <h2>Modificar Auto</h2>
+    <h2 class="mb-4 text-danger">Modificar Auto</h2>
 
     <p><strong>Patente:</strong> {{ auto.patente }}</p>
     <p><strong>Sucursal:</strong> {{ auto.sucursal }}</p>
     <p><strong>Marca:</strong> {{ auto.marca }}</p>
     <p><strong>Modelo:</strong> {{ auto.modelo }}</p>
+    <p><strong>Año de fabricacion:</strong> {{ auto.anio_fabricacion }}</p>
 
     <form method="POST" enctype="multipart/form-data">
       {% csrf_token %}
       {{ form.as_p }}
-      <button type="submit" class="btn btn-success">Guardar cambios</button>
+      <button type="submit" class="btn btn-danger">Guardar cambios</button>
       <a href="{% url 'lista_autos' %}" class="btn btn-secondary">Cancelar</a>
     </form>
   </div>

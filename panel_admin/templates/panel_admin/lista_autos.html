@@ -18,37 +18,45 @@
   {% endif %}
 </form>
 
-
-<table class="table table-bordered table-hover bg-white">
-  <thead class="table-light">
+<table class="table table-bordered table-hover bg-white align-middle text-center" style="background: linear-gradient(135deg, var(--primary-black) 0%, var(--secondary-black) 100%); color: white;">
+  <thead class="table-dark">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <tr>
       <th>Estado</th>
-      <th>Marca</th>
-      <th>Modelo</th>
+      <th>Imagen</th>
+      <th>Marca/Modelo</th>
       <th>Patente</th>
       <th>Acciones</th>
     </tr>
   </thead>
   <tbody>
     {% for auto in autos %}
-    <tr class="{% if auto.activo %}fila-activo{% else %}fila-inactivo{% endif %}">
+    <tr class="">
       <td>
-      {% if auto.activo %}
-        <span class="badge rounded-pill bg-success">Activo</span>
-      {% else %}
-        <span class="badge rounded-pill bg-danger">Inactivo</span>
-      {% endif %}
+        {% if auto.activo %}
+          <span class="badge rounded-pill bg-success">
+            <i class="bi bi-check-circle-fill"></i> Activo
+          </span>
+        {% else %}
+          <span class="badge rounded-pill bg-danger">
+            <i class="bi bi-x-circle-fill"></i> Eliminado
+          </span>
+        {% endif %}
       </td>
-      <td>{{ auto.marca }}</td>
-      <td>{{ auto.modelo }}</td>
+      <td>
+        <img src="{{ auto.imagen.url }}" alt="Imagen del auto" style="width: 70px; height: auto;">
+      </td>
+      <td>
+        <strong>{{ auto.marca }}</strong><br>
+        <small>{{ auto.modelo }}</small>
+      </td>
       <td>{{ auto.patente }}</td>
       <td>
-        <a href="{% url 'detalle_auto_admin' auto.patente %}" class="btn btn-danger btn-sm">Ver detalles</a>
+        <a href="{% url 'detalle_auto_admin' auto.patente %}" class="btn btn-danger btn-sm">👁 Ver Detalle</a>
       </td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
-
 
 {% endblock %}
