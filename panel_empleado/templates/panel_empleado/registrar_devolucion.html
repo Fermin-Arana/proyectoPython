@@ -48,7 +48,16 @@
                                     <td>{{ reserva.fecha_inicio|date:"d/m/Y" }}</td>
                                     <td>{{ reserva.fecha_fin|date:"d/m/Y" }}</td>
                                     <td>
-                                        <span class="badge bg-success">{{ reserva.estado|title }}</span>
+                                        {% now "Y-m-d" as fecha_actual %}
+                                        {% if reserva.fecha_fin|date:"Y-m-d" < fecha_actual %}
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="fas fa-exclamation-triangle"></i> Tardía
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-clock"></i> A tiempo
+                                            </span>
+                                        {% endif %}
                                     </td>
                                     <td>
                                         <a href="{% url 'procesar_devolucion_empleado' reserva.id %}" 

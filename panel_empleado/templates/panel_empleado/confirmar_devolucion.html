@@ -16,6 +16,17 @@
                 <h5 class="mb-0"><i class="fas fa-car"></i> Detalles de la Devolución</h5>
             </div>
             <div class="card-body">
+                <!-- Alerta de devolución tardía -->
+                {% if es_tardia %}
+                <div class="alert alert-warning" role="alert">
+                    <h6><i class="fas fa-exclamation-triangle"></i> <strong>DEVOLUCIÓN TARDÍA DETECTADA</strong></h6>
+                    <p class="mb-1"><strong>Fecha límite de devolución:</strong> {{ reserva.fecha_fin|date:"d/m/Y" }}</p>
+                    <p class="mb-1"><strong>Fecha actual:</strong> {{ fecha_actual|date:"d/m/Y" }}</p>
+                    <p class="mb-1"><strong>Días de retraso:</strong> {{ dias_retraso }} día{{ dias_retraso|pluralize }}</p>
+                    <p class="mb-0"><strong>Multa por retraso:</strong> ${{ multa_retraso|floatformat:2 }}</p>
+                </div>
+                {% endif %}
+                
                 <div class="row mb-4">
                     <div class="col-md-6">
                         <h6><strong>Información del Vehículo:</strong></h6>
@@ -23,6 +34,7 @@
                         <p><strong>Modelo:</strong> {{ reserva.vehiculo.modelo }}</p>
                         <p><strong>Patente:</strong> {{ reserva.vehiculo.patente }}</p>
                         <p><strong>Color:</strong> {{ reserva.vehiculo.color }}</p>
+                        <p><strong>Precio por día:</strong> ${{ reserva.vehiculo.precio_por_dia|floatformat:2 }}</p>
                     </div>
                     <div class="col-md-6">
                         <h6><strong>Información de la Reserva:</strong></h6>
@@ -30,11 +42,23 @@
                         <p><strong>Conductor:</strong> {{ reserva.conductor }}</p>
                         <p><strong>DNI:</strong> {{ reserva.dni_conductor }}</p>
                         <p><strong>Período:</strong> {{ reserva.fecha_inicio|date:"d/m/Y" }} - {{ reserva.fecha_fin|date:"d/m/Y" }}</p>
+                        <p><strong>Precio original:</strong> ${{ reserva.precio_total|floatformat:2 }}</p>
+                        {% if es_tardia %}
+                        <p><strong>Total con multa:</strong> <span class="text-danger">${{ precio_total_con_multa|floatformat:2 }}</span></p>
+                        {% endif %}
                     </div>
                 </div>
 
                 <form method="post">
                     {% csrf_token %}
+                    
+                    <!-- Campo oculto para confirmar devolución tardía -->
+                    {% if es_tardia %}
+                    <input type="hidden" name="es_devolucion_tardia" value="true">
+                    <input type="hidden" name="dias_retraso" value="{{ dias_retraso }}">
+                    <input type="hidden" name="multa_retraso" value="{{ multa_retraso }}">
+                    {% endif %}
+                    
                     <div class="mb-3">
                         <label for="estado_auto" class="form-label"><strong>Estado del vehículo después de la devolución:</strong></label>
                         <select class="form-select" id="estado_auto" name="estado_auto" required>
@@ -54,7 +78,7 @@
                             <i class="fas fa-arrow-left"></i> Cancelar
                         </a>
                         <button type="submit" class="btn btn-danger">
-                            <i class="fas fa-check"></i> Confirmar Devolución
+                            <i class="fas fa-check"></i> Confirmar Devolución{% if es_tardia %} (con Multa){% endif %}
                         </button>
                     </div>
                 </form>

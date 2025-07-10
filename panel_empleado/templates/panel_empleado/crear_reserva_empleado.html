@@ -54,234 +54,240 @@
                             </div>
                         </div>
 
-                        <!-- Selección de cliente existente -->
+                       
                         <div id="cliente_existente_section" class="mb-4">
                             <label class="form-label">
                                 <i class="fas fa-user"></i> Seleccionar Cliente
                             </label>
                             
-                            <!-- Buscador de clientes -->
-                            <div class="mb-3">
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
-                                    <input type="text" id="buscar_cliente" class="form-control" 
-                                           placeholder="Buscar por DNI, nombre de usuario o email..." 
-                                           autocomplete="off">
-                                </div>
-                                <div id="resultados_busqueda" class="list-group mt-2" style="display: none; max-height: 200px; overflow-y: auto;"></div>
-                            </div>
-                            
-                            <!-- Campo oculto para el ID del cliente seleccionado -->
-                            <input type="hidden" name="cliente_id" id="cliente_id_selected">
-                            
-                            <!-- Mostrar cliente seleccionado -->
-                            <div id="cliente_seleccionado" class="alert alert-info" style="display: none;">
-                                <strong>Cliente seleccionado:</strong>
-                                <span id="cliente_info"></span>
-                                <button type="button" class="btn btn-sm btn-outline-secondary ms-2" onclick="limpiarSeleccion()">
-                                    <i class="fas fa-times"></i> Cambiar
-                                </button>
-                            </div>
-                            
-                            <!-- Selector tradicional como respaldo -->
-                            <div id="selector_tradicional">
-                                <label class="form-label text-muted">O seleccionar de la lista completa:</label>
-                                <select name="cliente_id_backup" class="form-select">
-                                    <option value="">Seleccionar cliente...</option>
+                            <!-- Selector único con búsqueda integrada -->
+                            <div class="position-relative mb-3">
+                                <input type="text" id="search_input" class="form-control" 
+                                       placeholder="Escriba nombre, DNI o email del cliente..." 
+                                       autocomplete="off">
+                                
+                                <select name="cliente_id" id="cliente_select" class="form-select" 
+                                        style="position: absolute; top: 100%; left: 0; right: 0; z-index: 1000; display: none; max-height: 200px; overflow-y: auto;" 
+                                        size="5" required>
                                     {% for cliente in clientes %}
-                                        <option value="{{ cliente.id }}">
-                                            {{ cliente.username }} - {{ cliente.nombre }} {{ cliente.apellido }}
-                                            ({{ cliente.correo }})
+                                        <option value="{{ cliente.id }}" 
+                                                data-nombre="{{ cliente.nombre|lower }} {{ cliente.apellido|lower }}"
+                                                data-dni="{{ cliente.dni|default:'' }}"
+                                                data-email="{{ cliente.correo|default:'' }}"
+                                                data-username="{{ cliente.username|lower }}">
+                                            {{ cliente.dni|default:'Sin DNI' }} - {{ cliente.nombre }} {{ cliente.apellido }} ({{ cliente.username }})
                                         </option>
+                                    {% empty %}
+                                        <option value="" disabled>No hay clientes registrados</option>
                                     {% endfor %}
                                 </select>
                             </div>
-                        </div>
-
-                        <!-- Formulario para nuevo cliente -->
-                        <div id="nuevo_cliente_section" class="mb-4" style="display: none;">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h5><i class="fas fa-user-plus"></i> Datos del Nuevo Cliente</h5>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label class="form-label">Nombre de usuario</label>
-                                                <input type="text" name="nuevo_username" class="form-control" placeholder="Ej: juan84551">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label class="form-label">Contraseña</label>
-                                                <input type="password" name="nuevo_password" class="form-control" placeholder="Mínimo 8 caracteres">
-                                            </div>
-                                        </div>
+                            
+                            <!-- Mostrar cliente seleccionado -->
+                            <div id="cliente_seleccionado" class="alert alert-success" style="display: none;">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong><i class="fas fa-check-circle"></i> Cliente seleccionado:</strong><br>
+                                        <span id="cliente_info"></span>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label class="form-label">Nombre</label>
-                                                <input type="text" name="nuevo_nombre" class="form-control" placeholder="Ej: Juan">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label class="form-label">Apellido</label>
-                                                <input type="text" name="nuevo_apellido" class="form-control" placeholder="Ej: Pérez">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label class="form-label">DNI</label>
-                                                <input type="text" name="nuevo_dni" class="form-control" placeholder="Ej: 40505968">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label class="form-label">Fecha de nacimiento</label>
-                                                <input type="date" name="nuevo_fecha_nacimiento" class="form-control">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label class="form-label">Correo electrónico</label>
-                                                <input type="email" name="nuevo_correo" class="form-control" placeholder="Ej: juan@gmail.com">
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="mb-3">
-                                                <label class="form-label">Teléfono</label>
-                                                <input type="text" name="nuevo_telefono" class="form-control" placeholder="Ej: 2218974555">
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="limpiarSeleccion()">
+                                        <i class="fas fa-times"></i> Cambiar
+                                    </button>
                                 </div>
                             </div>
+                            
+                            <!-- Mensaje cuando no hay resultados -->
+                            <div id="sin_resultados" class="alert alert-warning" style="display: none;">
+                                <i class="fas fa-exclamation-triangle"></i> 
+                                No se encontraron clientes con ese criterio de búsqueda.
+                            </div>
                         </div>
+                    </div>
 
-                        <!-- Datos de la reserva -->
-                        <div class="card mb-4">
+                    <!-- Formulario para nuevo cliente -->
+                    <div id="nuevo_cliente_section" class="mb-4" style="display: none;">
+                        <div class="card">
                             <div class="card-header">
-                                <h5><i class="fas fa-calendar-alt"></i> Datos de la Reserva</h5>
+                                <h5><i class="fas fa-user-plus"></i> Datos del Nuevo Cliente</h5>
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label">
-                                                <i class="fas fa-calendar-alt"></i> Fecha de inicio (Automática - Hoy en Argentina)
-                                            </label>
-                                            <input type="date" name="fecha_inicio" class="form-control" readonly disabled style="background-color: #e9ecef; cursor: not-allowed;" required>
-                                            <small class="form-text text-muted">Esta fecha se establece automáticamente con la fecha actual de Buenos Aires, Argentina</small>
+                                            <label class="form-label">Nombre de usuario</label>
+                                            <input type="text" name="nuevo_username" class="form-control" placeholder="Ej: juan84551">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label">
-                                                <i class="fas fa-calendar-alt"></i> Fecha de fin
-                                            </label>
-                                            <input type="date" name="fecha_fin" class="form-control" required>
+                                            <label class="form-label">Contraseña</label>
+                                            <input type="password" name="nuevo_password" class="form-control" placeholder="Mínimo 8 caracteres">
                                         </div>
                                     </div>
                                 </div>
-
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label">
-                                                <i class="fas fa-user-tie"></i> Nombre del conductor
-                                            </label>
-                                            <input type="text" name="conductor" class="form-control" required>
+                                            <label class="form-label">Nombre</label>
+                                            <input type="text" name="nuevo_nombre" class="form-control" placeholder="Ej: Juan">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="mb-3">
-                                            <label class="form-label">
-                                                <i class="fas fa-id-card"></i> DNI del conductor
-                                            </label>
-                                            <input type="text" name="dni_conductor" class="form-control" required>
+                                            <label class="form-label">Apellido</label>
+                                            <input type="text" name="nuevo_apellido" class="form-control" placeholder="Ej: Pérez">
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Seguros -->
-                                <div class="mb-3">
-                                    <label class="form-label">
-                                        <i class="fas fa-shield-alt"></i> Tipo de seguro
-                                    </label>
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input" type="radio" name="tipo_seguro" id="seguro_basico" value="basico" checked>
-                                                <label class="form-check-label" for="seguro_basico">
-                                                    Seguro Básico (Incluido)
-                                                </label>
-                                            </div>
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input" type="radio" name="tipo_seguro" id="seguro_completo" value="completo">
-                                                <label class="form-check-label" for="seguro_completo">
-                                                    Seguro Completo (+$500/día)
-                                                </label>
-                                            </div>
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input" type="radio" name="tipo_seguro" id="seguro_premium" value="premium">
-                                                <label class="form-check-label" for="seguro_premium">
-                                                    Seguro Premium (+$1000/día)
-                                                </label>
-                                            </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">DNI</label>
+                                            <input type="text" name="nuevo_dni" class="form-control" placeholder="Ej: 40505968">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Fecha de nacimiento</label>
+                                            <input type="date" name="nuevo_fecha_nacimiento" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Correo electrónico</label>
+                                            <input type="email" name="nuevo_correo" class="form-control" placeholder="Ej: juan@gmail.com">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Teléfono</label>
+                                            <input type="text" name="nuevo_telefono" class="form-control" placeholder="Ej: 2218974555">
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn bg-danger btn-lg">
-                                <i class="fas fa-check-circle"></i> Confirmar Reserva Instantánea
-                            </button>
-                            <a href="{% url 'panel_empleado' %}" class="btn btn-secondary">
-                                <i class="fas fa-arrow-left"></i> Volver al Panel
-                            </a>
+                    <!-- Datos de la reserva -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5><i class="fas fa-calendar-alt"></i> Datos de la Reserva</h5>
                         </div>
-                    </form>
-                </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            <i class="fas fa-calendar-alt"></i> Fecha de inicio (Automática - Hoy en Argentina)
+                                        </label>
+                                        <input type="date" name="fecha_inicio" class="form-control" readonly disabled style="background-color: #e9ecef; cursor: not-allowed;" required>
+                                        <small class="form-text text-muted">Esta fecha se establece automáticamente con la fecha actual de Buenos Aires, Argentina</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            <i class="fas fa-calendar-alt"></i> Fecha de fin
+                                        </label>
+                                        <input type="date" name="fecha_fin" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            <i class="fas fa-user-tie"></i> Nombre del conductor
+                                        </label>
+                                        <input type="text" name="conductor" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">
+                                            <i class="fas fa-id-card"></i> DNI del conductor
+                                        </label>
+                                        <input type="text" name="dni_conductor" class="form-control" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Seguros -->
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-shield-alt"></i> Tipo de seguro
+                                </label>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio" name="tipo_seguro" id="seguro_basico" value="basico" checked>
+                                            <label class="form-check-label" for="seguro_basico">
+                                                Seguro Básico (Incluido)
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio" name="tipo_seguro" id="seguro_completo" value="completo">
+                                            <label class="form-check-label" for="seguro_completo">
+                                                Seguro Completo (+$500/día)
+                                            </label>
+                                        </div>
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio" name="tipo_seguro" id="seguro_premium" value="premium">
+                                            <label class="form-check-label" for="seguro_premium">
+                                                Seguro Premium (+$1000/día)
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn bg-danger btn-lg">
+                            <i class="fas fa-check-circle"></i> Confirmar Reserva Instantánea
+                        </button>
+                        <a href="{% url 'panel_empleado' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver al Panel
+                        </a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Establecer fecha de inicio automáticamente (desde el servidor con zona horaria de Argentina)
-        const fechaHoy = '{{ fecha_hoy|date:"Y-m-d" }}';
-        const fechaInicioInput = document.querySelector('input[name="fecha_inicio"]');
-        
-        if (fechaInicioInput) {
-            fechaInicioInput.value = fechaHoy;
-            // Asegurar que no se pueda modificar
-            fechaInicioInput.setAttribute('readonly', true);
-            fechaInicioInput.setAttribute('disabled', true);
-        }
-        
-        // Establecer fecha mínima para fecha fin (mañana en Argentina)
-        const fechaFinInput = document.querySelector('input[name="fecha_fin"]');
-        if (fechaFinInput) {
-            // Crear fecha de mañana basada en la fecha del servidor (Argentina)
-            const fechaHoyObj = new Date(fechaHoy + 'T00:00:00');
-            const mañana = new Date(fechaHoyObj);
-            mañana.setDate(mañana.getDate() + 1);
-            fechaFinInput.min = mañana.toISOString().split('T')[0];
-        }
-    });
+<style>
+#cliente_select {
+    border: 1px solid #ced4da;
+    border-radius: 0.375rem;
+    background: white;
+    cursor: pointer;
+}
 
-// JavaScript para mostrar/ocultar secciones
+#cliente_select option {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+#cliente_select option:hover {
+    background-color: #f8f9fa;
+}
+
+#search_input:focus {
+    border-color: #86b7fe;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+</style>
+
+<script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Lógica existente de cliente existente/nuevo
     const clienteExistente = document.getElementById('cliente_existente');
     const clienteNuevo = document.getElementById('cliente_nuevo');
     const existenteSection = document.getElementById('cliente_existente_section');
@@ -291,9 +297,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (this.checked) {
             existenteSection.style.display = 'block';
             nuevoSection.style.display = 'none';
-            // Hacer campos de cliente existente requeridos
-            document.querySelector('select[name="cliente_id"]').required = true;
-            // Quitar requerido de campos de nuevo cliente
+            document.querySelector('input[name="cliente_id"]') && (document.querySelector('input[name="cliente_id"]').required = true);
             nuevoSection.querySelectorAll('input').forEach(input => input.required = false);
         }
     });
@@ -302,160 +306,129 @@ document.addEventListener('DOMContentLoaded', function() {
         if (this.checked) {
             existenteSection.style.display = 'none';
             nuevoSection.style.display = 'block';
-            // Quitar requerido de cliente existente
-            document.querySelector('select[name="cliente_id"]').required = false;
-            // Hacer campos de nuevo cliente requeridos
+            document.querySelector('input[name="cliente_id"]') && (document.querySelector('input[name="cliente_id"]').required = false);
             nuevoSection.querySelectorAll('input').forEach(input => {
-                if (input.name !== 'nuevo_telefono') { // teléfono opcional
+                if (input.name !== 'nuevo_telefono') {
                     input.required = true;
                 }
             });
         }
     });
+    
+    // Nueva funcionalidad de búsqueda unificada
+    initClientSearch();
 });
 
-// Funcionalidad de búsqueda de clientes
-document.addEventListener('DOMContentLoaded', function() {
-    const buscarInput = document.getElementById('buscar_cliente');
-    const resultadosDiv = document.getElementById('resultados_busqueda');
-    const clienteIdInput = document.getElementById('cliente_id_selected');
+function initClientSearch() {
+    const searchInput = document.getElementById('search_input');
+    const clienteSelect = document.getElementById('cliente_select');
     const clienteSeleccionado = document.getElementById('cliente_seleccionado');
     const clienteInfo = document.getElementById('cliente_info');
-    const selectorTradicional = document.getElementById('selector_tradicional');
+    const sinResultados = document.getElementById('sin_resultados');
+    // Eliminar esta línea: const selectorTradicional = document.getElementById('selector_tradicional');
     
-    let timeoutId;
+    let allOptions = Array.from(clienteSelect.options);
+    let selectedClientId = null;
     
-    buscarInput.addEventListener('input', function() {
-        const query = this.value.trim();
-        
-        clearTimeout(timeoutId);
-        
-        if (query.length < 2) {
-            resultadosDiv.style.display = 'none';
+    // Crear campo oculto para enviar el ID del cliente
+    const hiddenInput = document.createElement('input');
+    hiddenInput.type = 'hidden';
+    hiddenInput.name = 'cliente_id';
+    searchInput.parentNode.appendChild(hiddenInput);
+    
+    // Función para filtrar opciones
+    function filterOptions(searchTerm) {
+        if (!searchTerm.trim()) {
+            clienteSelect.style.display = 'none';
+            sinResultados.style.display = 'none';
             return;
         }
         
-        timeoutId = setTimeout(() => {
-            fetch(`/panel-empleado/buscar-clientes/?q=${encodeURIComponent(query)}`)
-                .then(response => response.json())
-                .then(data => {
-                    mostrarResultados(data.clientes);
-                })
-                .catch(error => {
-                    console.error('Error en la búsqueda:', error);
-                });
-        }, 300);
-    });
-    
-    function mostrarResultados(clientes) {
-        resultadosDiv.innerHTML = '';
+        const filteredOptions = allOptions.filter(option => {
+            if (!option.value) return false;
+            
+            const nombre = option.dataset.nombre || '';
+            const dni = option.dataset.dni || '';
+            const email = option.dataset.email || '';
+            const username = option.dataset.username || '';
+            const searchLower = searchTerm.toLowerCase();
+            
+            return nombre.includes(searchLower) || 
+                   dni.includes(searchLower) || 
+                   email.toLowerCase().includes(searchLower) ||
+                   username.includes(searchLower);
+        });
         
-        if (clientes.length === 0) {
-            resultadosDiv.innerHTML = '<div class="list-group-item text-muted">No se encontraron clientes</div>';
+        // Limpiar y llenar el select
+        clienteSelect.innerHTML = '';
+        
+        if (filteredOptions.length > 0) {
+            filteredOptions.forEach(option => {
+                clienteSelect.appendChild(option.cloneNode(true));
+            });
+            clienteSelect.style.display = 'block';
+            sinResultados.style.display = 'none';
         } else {
-            clientes.forEach(cliente => {
-                const item = document.createElement('a');
-                item.href = '#';
-                item.className = 'list-group-item list-group-item-action';
-                item.innerHTML = `
-                    <div class="d-flex w-100 justify-content-between">
-                        <h6 class="mb-1">${cliente.username} - ${cliente.nombre} ${cliente.apellido}</h6>
-                        <small>DNI: ${cliente.dni}</small>
-                    </div>
-                    <p class="mb-1">${cliente.correo}</p>
-                `;
-                
-                item.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    seleccionarCliente(cliente);
-                });
-                
-                resultadosDiv.appendChild(item);
-            });
+            clienteSelect.style.display = 'none';
+            sinResultados.style.display = 'block';
         }
-        
-        resultadosDiv.style.display = 'block';
     }
     
-    function seleccionarCliente(cliente) {
-        clienteIdInput.value = cliente.id;
-        clienteInfo.textContent = cliente.display;
-        clienteSeleccionado.style.display = 'block';
-        selectorTradicional.style.display = 'none';
-        resultadosDiv.style.display = 'none';
-        buscarInput.value = '';
-        
-        // Hacer el campo requerido
-        clienteIdInput.required = true;
-        document.querySelector('select[name="cliente_id_backup"]').required = false;
-    }
+    // Event listener para el campo de búsqueda
+    searchInput.addEventListener('input', function() {
+        filterOptions(this.value);
+    });
     
-    // Función global para limpiar selección
-    window.limpiarSeleccion = function() {
-        clienteIdInput.value = '';
-        clienteSeleccionado.style.display = 'none';
-        selectorTradicional.style.display = 'block';
-        buscarInput.value = '';
-        
-        // Restaurar requerimientos
-        clienteIdInput.required = false;
-        if (document.getElementById('cliente_existente').checked) {
-            document.querySelector('select[name="cliente_id_backup"]').required = true;
+    // Event listener para selección
+    clienteSelect.addEventListener('click', function(e) {
+        if (e.target.tagName === 'OPTION' && e.target.value) {
+            const selectedOption = e.target;
+            selectedClientId = selectedOption.value;
+            
+            // Actualizar campo oculto
+            hiddenInput.value = selectedClientId;
+            
+            // Mostrar información del cliente seleccionado
+            clienteInfo.innerHTML = `
+                <strong>${selectedOption.textContent}</strong><br>
+                <small>Email: ${selectedOption.dataset.email || 'No especificado'}</small>
+            `;
+            
+            // Actualizar interfaz
+            searchInput.value = selectedOption.textContent;
+            clienteSeleccionado.style.display = 'block';
+            clienteSelect.style.display = 'none';
+            sinResultados.style.display = 'none';
         }
-    };
+    });
     
-    // Ocultar resultados al hacer clic fuera
+    // Ocultar dropdown al hacer clic fuera
     document.addEventListener('click', function(e) {
-        if (!buscarInput.contains(e.target) && !resultadosDiv.contains(e.target)) {
-            resultadosDiv.style.display = 'none';
+        if (!searchInput.contains(e.target) && !clienteSelect.contains(e.target)) {
+            clienteSelect.style.display = 'none';
         }
     });
-});
+}
 
-// Modificar la lógica existente de cliente existente/nuevo
-document.addEventListener('DOMContentLoaded', function() {
-    const clienteExistente = document.getElementById('cliente_existente');
-    const clienteNuevo = document.getElementById('cliente_nuevo');
-    const existenteSection = document.getElementById('cliente_existente_section');
-    const nuevoSection = document.getElementById('nuevo_cliente_section');
+// Función para limpiar la selección
+function limpiarSeleccion() {
+    const searchInput = document.getElementById('search_input');
+    const clienteSelect = document.getElementById('cliente_select');
+    const clienteSeleccionado = document.getElementById('cliente_seleccionado');
+    const sinResultados = document.getElementById('sin_resultados');
+    const hiddenInput = document.querySelector('input[name="cliente_id"]');
     
-    clienteExistente.addEventListener('change', function() {
-        if (this.checked) {
-            existenteSection.style.display = 'block';
-            nuevoSection.style.display = 'none';
-            
-            // Verificar si hay cliente seleccionado por búsqueda
-            const clienteSeleccionadoId = document.getElementById('cliente_id_selected').value;
-            if (clienteSeleccionadoId) {
-                document.getElementById('cliente_id_selected').required = true;
-                document.querySelector('select[name="cliente_id_backup"]').required = false;
-            } else {
-                document.querySelector('select[name="cliente_id_backup"]').required = true;
-                document.getElementById('cliente_id_selected').required = false;
-            }
-            
-            // Quitar requerido de campos de nuevo cliente
-            nuevoSection.querySelectorAll('input').forEach(input => input.required = false);
-        }
-    });
+    // Limpiar valores
+    searchInput.value = '';
+    if (hiddenInput) hiddenInput.value = '';
     
-    clienteNuevo.addEventListener('change', function() {
-        if (this.checked) {
-            existenteSection.style.display = 'none';
-            nuevoSection.style.display = 'block';
-            
-            // Quitar requerido de cliente existente
-            document.querySelector('select[name="cliente_id_backup"]').required = false;
-            document.getElementById('cliente_id_selected').required = false;
-            
-            // Hacer campos de nuevo cliente requeridos
-            nuevoSection.querySelectorAll('input').forEach(input => {
-                if (input.name !== 'nuevo_telefono') { // teléfono opcional
-                    input.required = true;
-                }
-            });
-        }
-    });
-});
+    // Ocultar elementos
+    clienteSeleccionado.style.display = 'none';
+    clienteSelect.style.display = 'none';
+    sinResultados.style.display = 'none';
+    
+    // Focus en el campo de búsqueda
+    searchInput.focus();
+}
 </script>
 {% endblock %}

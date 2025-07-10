@@ -283,7 +283,17 @@ def crear_reserva_empleado(request, auto_id):
     argentina_tz = pytz.timezone('America/Argentina/Buenos_Aires')
     fecha_hoy = timezone.now().astimezone(argentina_tz).date()
     
+    
     clientes = Usuario.objects.filter(groups__name='cliente', is_active=True)
+    
+    # Por esta (mostrar todos los usuarios activos que no sean empleados/admins):
+   
+    clientes = Usuario.objects.filter(
+        is_active=True
+    ).exclude(
+        groups__name__in=['empleado', 'admin']
+    )
+    print(f"Clientes encontrados: {clientes.count()}")  # Para debug
     
     if request.method == 'POST':
         errors = {}
@@ -312,7 +322,7 @@ def crear_reserva_empleado(request, auto_id):
                 
             # Verificar disponibilidad del auto en las fechas seleccionadas
             reservas_conflicto = Reserva.objects.filter(
-                auto=auto,
+                vehiculo=auto,  # ✅ CAMBIAR 'auto=auto' por 'vehiculo=auto'
                 estado__in=['pendiente', 'confirmada'],
                 fecha_inicio__lte=fecha_fin,
                 fecha_fin__gte=fecha_inicio
@@ -324,9 +334,10 @@ def crear_reserva_empleado(request, auto_id):
         except ValueError:
             errors['fechas'] = 'Formato de fecha inválido.'
             
-            if not fecha_inicio_str:
+            # Corregir: usar request.POST.get en lugar de variables no definidas
+            if not request.POST.get('fecha_inicio'):
                 errors['fecha_inicio'] = "La fecha de inicio es obligatoria."
-            if not fecha_fin_str:
+            if not request.POST.get('fecha_fin'):
                 errors['fecha_fin'] = "La fecha de fin es obligatoria."
             fecha_inicio = fecha_fin = None
         
@@ -386,25 +397,18 @@ def crear_reserva_empleado(request, auto_id):
                 if reservas_dni.exists():
                     errors['dni_conductor'] = "Este DNI ya está asociado a otra reserva en las mismas fechas."
         
-        # Si hay errores, mostrarlos y volver al formulario
-        if errors:
-            for field, error in errors.items():
-                messages.error(request, f"{error}")
-            return render(request, 'panel_empleado/crear_reserva_empleado.html', {
-                'auto': auto,
-                'clientes': clientes,
-                'form_data': request.POST,
-                'errors': errors
-            })
-        
         # Procesar cliente (existente o nuevo)
+        cliente = None  # ✅ INICIALIZAR VARIABLE CLIENTE
         if cliente_tipo == 'existente':
             # Priorizar cliente seleccionado por búsqueda
             cliente_id = request.POST.get('cliente_id') or request.POST.get('cliente_id_backup')
             if not cliente_id:
                 errors['cliente'] = "Debe seleccionar un cliente."
             else:
-                cliente = get_object_or_404(Usuario, id=cliente_id)
+                try:
+                    cliente = get_object_or_404(Usuario, id=cliente_id)
+                except:
+                    errors['cliente'] = "Cliente no encontrado."
         else:
             # Crear nuevo cliente (código existente)
             try:
@@ -448,6 +452,21 @@ def crear_reserva_empleado(request, auto_id):
                     'form_data': request.POST
                 })
         
+        # ✅ VALIDAR QUE CLIENTE EXISTA ANTES DE CONTINUAR
+        if not cliente:
+            errors['cliente'] = "Debe seleccionar un cliente o crear uno nuevo."
+        
+        # Si hay errores, mostrarlos y volver al formulario
+        if errors:
+            for field, error in errors.items():
+                messages.error(request, f"{error}")
+            return render(request, 'panel_empleado/crear_reserva_empleado.html', {
+                'auto': auto,
+                'clientes': clientes,
+                'form_data': request.POST,
+                'errors': errors
+            })
+        
         # Crear reserva con todas las validaciones aplicadas
         try:
             reserva = Reserva(
@@ -476,7 +495,7 @@ def crear_reserva_empleado(request, auto_id):
             # Guardar la reserva
             reserva.save()
             
-            # ✅ AGREGAR: Cambiar estado del auto a 'reservado' al crear la reserva
+            # ✅ CAMBIAR ESTADO DEL AUTO A 'RESERVADO' (esta línea ya existe pero puede no ejecutarse por errores anteriores)
             auto.estado = 'reservado'
             auto.save()
             
@@ -489,6 +508,11 @@ def crear_reserva_empleado(request, auto_id):
             
         except Exception as e:
             messages.error(request, f"Error al crear la reserva: {str(e)}")
+            return render(request, 'panel_empleado/crear_reserva_empleado.html', {
+                'auto': auto,
+                'clientes': clientes,
+                'form_data': request.POST
+            })
     
     context = {
         'auto': auto,
@@ -521,20 +545,45 @@ def procesar_devolucion_empleado(request, reserva_id):
     
     reserva = get_object_or_404(Reserva, id=reserva_id)
     
+    # Calcular si es devolución tardía
+    from django.utils import timezone
+    fecha_actual = timezone.now()
+    dias_retraso, multa_retraso = reserva.calcular_multa_retraso(fecha_actual)
+    es_tardia = dias_retraso > 0
+    precio_total_con_multa = reserva.precio_total() + multa_retraso
+    
     if request.method == 'POST':
         # Obtener el estado del auto después de la devolución
         estado_auto = request.POST.get('estado_auto', 'disponible')
         observaciones = request.POST.get('observaciones', '').strip()
         
+        # Obtener datos de devolución tardía del formulario
+        es_devolucion_tardia = request.POST.get('es_devolucion_tardia') == 'true'
+        dias_retraso_form = int(request.POST.get('dias_retraso', 0))
+        multa_retraso_form = float(request.POST.get('multa_retraso', 0))
+        
         # ✅ VALIDAR: Solo permitir estados válidos para devolución
         if estado_auto not in ['disponible', 'mantenimiento']:
             messages.error(request, 'Estado de auto no válido para devolución.')
             return render(request, 'panel_empleado/confirmar_devolucion.html', {
-                'reserva': reserva
+                'reserva': reserva,
+                'es_tardia': es_tardia,
+                'dias_retraso': dias_retraso,
+                'multa_retraso': multa_retraso,
+                'precio_total_con_multa': precio_total_con_multa,
+                'fecha_actual': fecha_actual
             })
         
-        # Finalizar la reserva
+        # Actualizar campos de la reserva
         reserva.estado = 'finalizada'
+        reserva.fecha_devolucion_real = fecha_actual
+        
+        # Si es devolución tardía, actualizar campos correspondientes
+        if es_devolucion_tardia:
+            reserva.es_devolucion_tardia = True
+            reserva.dias_retraso = dias_retraso_form
+            reserva.multa_por_retraso = multa_retraso_form
+        
         reserva.save()
         
         # Actualizar el estado del auto según la selección del empleado
@@ -542,11 +591,17 @@ def procesar_devolucion_empleado(request, reserva_id):
         auto.estado = estado_auto
         auto.save()
         
-        # Mensaje de confirmación
+        # Mensajes de confirmación
         estado_mensaje = 'disponible' if estado_auto == 'disponible' else 'en mantenimiento'
-        messages.success(request, 
-            f'Devolución procesada exitosamente. '
-            f'Vehículo {auto.patente} marcado como {estado_mensaje}.')
+        
+        if es_devolucion_tardia:
+            messages.warning(request, 
+                f'Devolución tardía procesada. Vehículo {auto.patente} marcado como {estado_mensaje}. '
+                f'Multa aplicada: ${multa_retraso_form:.2f} por {dias_retraso_form} día(s) de retraso.')
+        else:
+            messages.success(request, 
+                f'Devolución procesada exitosamente. '
+                f'Vehículo {auto.patente} marcado como {estado_mensaje}.')
         
         if observaciones:
             messages.info(request, f'Observaciones registradas: {observaciones}')
@@ -554,7 +609,12 @@ def procesar_devolucion_empleado(request, reserva_id):
         return redirect('registrar_devolucion_empleado')
     
     return render(request, 'panel_empleado/confirmar_devolucion.html', {
-        'reserva': reserva
+        'reserva': reserva,
+        'es_tardia': es_tardia,
+        'dias_retraso': dias_retraso,
+        'multa_retraso': multa_retraso,
+        'precio_total_con_multa': precio_total_con_multa,
+        'fecha_actual': fecha_actual
     })
 
 

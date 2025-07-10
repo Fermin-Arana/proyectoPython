@@ -53,7 +53,7 @@
 
           <!-- Botones de acción -->
           <div class="d-flex justify-content-center gap-3 mt-4">
-            <a href="{% url 'index' %}{% if request.session.fecha_desde and request.session.fecha_hasta %}?fecha_desde={{ request.session.fecha_desde }}&fecha_hasta={{ request.session.fecha_hasta }}{% endif %}"
+            <a href="{% url 'lista_autos_empleado' %}"
                class="btn btn-danger btn-lg text-white shadow">
               <i class="bi bi-arrow-left-circle me-2 fs-5"></i>
               Volver
