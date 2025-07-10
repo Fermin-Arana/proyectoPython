@@ -21,7 +21,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'panel_empleado' %}">Dashboard</a>
+                        <a class="nav-link" href="{% url 'panel_empleado' %}">PANEL EMPLEADO</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'lista_reservas_empleado' %}">Reservas</a>
@@ -38,7 +38,7 @@
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{% url 'panel_empleado' %}">Ir al sitio principal</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
+                            <li><a class="dropdown-item" href="{% url 'usuarios:logout' %}">Cerrar sesión</a></li>
                         </ul>
                     </li>
                 </ul>

@@ -66,8 +66,8 @@
                                             {% if reserva.estado == 'pendiente' or reserva.estado == 'confirmada' %}
                                                 <a href="{% url 'cambiar_estado_reserva_empleado' reserva.id %}" 
                                                    class="btn btn-sm btn-custom-primary" 
-                                                   title="Cambiar Estado">
-                                                    <i class="fas fa-edit"></i>
+                                                   title="Ver detalle de reserva">
+                                                    <i class="fas fa-eye"></i>
                                                 </a>
                                             {% endif %}
                                             
@@ -112,7 +112,7 @@
                     </div>
                     <div class="col-md-6 mb-3">
                         <a href="{% url 'panel_empleado' %}" class="btn btn-custom-danger w-100">
-                            <i class="fas fa-tachometer-alt"></i> Volver al Dashboard
+                            <i class="fas fa-tachometer-alt"></i> Volver al Inicio
                         </a>
                     </div>
                 </div>

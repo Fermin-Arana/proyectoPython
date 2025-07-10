@@ -9,92 +9,36 @@
     </div>
 </div>
 
-<div class="row fade-in-up">
-    <div class="col-md-4 mb-4">
-        <div class="card card-custom stats-card stats-card-primary">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h4>{{ reservas_activas }}</h4>
-                        <p>Reservas Activas</p>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fas fa-calendar-check icon-large"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="card-footer">
-                <a href="{% url 'lista_reservas_empleado' %}" class="text-decoration-none">
-                    Ver todas <i class="fas fa-arrow-right"></i>
-                </a>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-4 mb-4">
-        <div class="card card-custom stats-card stats-card-danger">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h4>{{ autos_disponibles }}</h4>
-                        <p>Autos Disponibles</p>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fas fa-car icon-large"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="card-footer">
-                <a href="{% url 'lista_autos_empleado' %}" class="text-decoration-none">
-                    Ver todos <i class="fas fa-arrow-right"></i>
-                </a>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-4 mb-4">
-        <div class="card card-custom stats-card stats-card-danger">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h4>{{ autos_reservados }}</h4>
-                        <p>Autos Reservados</p>
-                    </div>
-                    <div class="align-self-center">
-                        <i class="fas fa-car-side icon-large"></i>
-                    </div>
-                </div>
-            </div>
-            <div class="card-footer">
-                <a href="{% url 'lista_autos_empleado' %}" class="text-decoration-none">
-                    Ver todos <i class="fas fa-arrow-right"></i>
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
 <div class="row mt-4 fade-in-up">
     <div class="col-12">
         <div class="card card-custom">
             <div class="card-header" style="background: linear-gradient(135deg, var(--primary-black) 0%, var(--secondary-black) 100%); color: white;">
-                <h5 class="mb-0"><i class="fas fa-tools"></i> Acciones Rápidas</h5>
+                <h5 class="mb-0"><i class="fas fa-tools"></i> Opciones Principales</h5>
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <a href="{% url 'lista_reservas_empleado' %}" class="btn btn-custom-primary w-100">
-                            <i class="fas fa-list"></i> Gestionar Reservas
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <a href="{% url 'lista_autos_empleado' %}" class="btn btn-custom-primary w-100 py-3">
+                            <i class="fas fa-plus-circle mb-2" style="font-size: 1.5rem;"></i><br>
+                            <strong>REALIZAR RESERVA<br>EN EL MOMENTO</strong>
                         </a>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <a href="{% url 'lista_autos_empleado' %}" class="btn btn-custom-danger w-100">
-                            <i class="fas fa-car"></i> Gestionar Vehículos
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <a href="{% url 'lista_autos_empleado' %}" class="btn btn-custom-danger w-100 py-3">
+                            <i class="fas fa-car mb-2" style="font-size: 1.5rem;"></i><br>
+                            <strong>LISTADO DE AUTOS</strong>
                         </a>
                     </div>
-                    <div class="col-md-4 mb-3">
-                        <a href="{% url 'registrar_devolucion_empleado' %}" class="btn btn-danger w-100">
-                            <i class="fas fa-undo"></i> Registrar Devolución
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <a href="{% url 'lista_reservas_empleado' %}" class="btn btn-custom-primary w-100 py-3">
+                            <i class="fas fa-calendar-check mb-2" style="font-size: 1.5rem;"></i><br>
+                            <strong>LISTADO DE<br>RESERVAS ACTIVAS</strong>
+                        </a>
+                    </div>
+                    <div class="col-md-6 col-lg-3 mb-3">
+                        <a href="{% url 'registrar_devolucion_empleado' %}" class="btn btn-danger w-100 py-3">
+                            <i class="fas fa-undo mb-2" style="font-size: 1.5rem;"></i><br>
+                            <strong>REALIZAR DEVOLUCIÓN<br>DE AUTO</strong>
                         </a>
                     </div>
                 </div>

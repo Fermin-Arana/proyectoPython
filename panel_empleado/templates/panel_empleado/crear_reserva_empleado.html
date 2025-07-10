@@ -1,4 +1,4 @@
-{% extends 'panel_admin/base.html' %}
+{% extends 'panel_empleado/base.html' %}
 {% load static %}
 
 {% block title %}Crear Reserva - Empleado{% endblock %}
@@ -59,15 +59,43 @@
                             <label class="form-label">
                                 <i class="fas fa-user"></i> Seleccionar Cliente
                             </label>
-                            <select name="cliente_id" class="form-select">
-                                <option value="">Seleccionar cliente...</option>
-                                {% for cliente in clientes %}
-                                    <option value="{{ cliente.id }}">
-                                        {{ cliente.username }} - {{ cliente.nombre }} {{ cliente.apellido }}
-                                        ({{ cliente.correo }})
-                                    </option>
-                                {% endfor %}
-                            </select>
+                            
+                            <!-- Buscador de clientes -->
+                            <div class="mb-3">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                    <input type="text" id="buscar_cliente" class="form-control" 
+                                           placeholder="Buscar por DNI, nombre de usuario o email..." 
+                                           autocomplete="off">
+                                </div>
+                                <div id="resultados_busqueda" class="list-group mt-2" style="display: none; max-height: 200px; overflow-y: auto;"></div>
+                            </div>
+                            
+                            <!-- Campo oculto para el ID del cliente seleccionado -->
+                            <input type="hidden" name="cliente_id" id="cliente_id_selected">
+                            
+                            <!-- Mostrar cliente seleccionado -->
+                            <div id="cliente_seleccionado" class="alert alert-info" style="display: none;">
+                                <strong>Cliente seleccionado:</strong>
+                                <span id="cliente_info"></span>
+                                <button type="button" class="btn btn-sm btn-outline-secondary ms-2" onclick="limpiarSeleccion()">
+                                    <i class="fas fa-times"></i> Cambiar
+                                </button>
+                            </div>
+                            
+                            <!-- Selector tradicional como respaldo -->
+                            <div id="selector_tradicional">
+                                <label class="form-label text-muted">O seleccionar de la lista completa:</label>
+                                <select name="cliente_id_backup" class="form-select">
+                                    <option value="">Seleccionar cliente...</option>
+                                    {% for cliente in clientes %}
+                                        <option value="{{ cliente.id }}">
+                                            {{ cliente.username }} - {{ cliente.nombre }} {{ cliente.apellido }}
+                                            ({{ cliente.correo }})
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
                         </div>
 
                         <!-- Formulario para nuevo cliente -->
@@ -147,9 +175,10 @@
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label class="form-label">
-                                                <i class="fas fa-calendar-alt"></i> Fecha de inicio
+                                                <i class="fas fa-calendar-alt"></i> Fecha de inicio (Automática - Hoy en Argentina)
                                             </label>
-                                            <input type="date" name="fecha_inicio" class="form-control" required>
+                                            <input type="date" name="fecha_inicio" class="form-control" readonly disabled style="background-color: #e9ecef; cursor: not-allowed;" required>
+                                            <small class="form-text text-muted">Esta fecha se establece automáticamente con la fecha actual de Buenos Aires, Argentina</small>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -216,7 +245,7 @@
                             <button type="submit" class="btn bg-danger btn-lg">
                                 <i class="fas fa-check-circle"></i> Confirmar Reserva Instantánea
                             </button>
-                            <a href="{% url 'panel_admin' %}" class="btn btn-secondary">
+                            <a href="{% url 'panel_empleado' %}" class="btn btn-secondary">
                                 <i class="fas fa-arrow-left"></i> Volver al Panel
                             </a>
                         </div>
@@ -228,6 +257,29 @@
 </div>
 
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Establecer fecha de inicio automáticamente (desde el servidor con zona horaria de Argentina)
+        const fechaHoy = '{{ fecha_hoy|date:"Y-m-d" }}';
+        const fechaInicioInput = document.querySelector('input[name="fecha_inicio"]');
+        
+        if (fechaInicioInput) {
+            fechaInicioInput.value = fechaHoy;
+            // Asegurar que no se pueda modificar
+            fechaInicioInput.setAttribute('readonly', true);
+            fechaInicioInput.setAttribute('disabled', true);
+        }
+        
+        // Establecer fecha mínima para fecha fin (mañana en Argentina)
+        const fechaFinInput = document.querySelector('input[name="fecha_fin"]');
+        if (fechaFinInput) {
+            // Crear fecha de mañana basada en la fecha del servidor (Argentina)
+            const fechaHoyObj = new Date(fechaHoy + 'T00:00:00');
+            const mañana = new Date(fechaHoyObj);
+            mañana.setDate(mañana.getDate() + 1);
+            fechaFinInput.min = mañana.toISOString().split('T')[0];
+        }
+    });
+
 // JavaScript para mostrar/ocultar secciones
 document.addEventListener('DOMContentLoaded', function() {
     const clienteExistente = document.getElementById('cliente_existente');
@@ -252,6 +304,150 @@ document.addEventListener('DOMContentLoaded', function() {
             nuevoSection.style.display = 'block';
             // Quitar requerido de cliente existente
             document.querySelector('select[name="cliente_id"]').required = false;
+            // Hacer campos de nuevo cliente requeridos
+            nuevoSection.querySelectorAll('input').forEach(input => {
+                if (input.name !== 'nuevo_telefono') { // teléfono opcional
+                    input.required = true;
+                }
+            });
+        }
+    });
+});
+
+// Funcionalidad de búsqueda de clientes
+document.addEventListener('DOMContentLoaded', function() {
+    const buscarInput = document.getElementById('buscar_cliente');
+    const resultadosDiv = document.getElementById('resultados_busqueda');
+    const clienteIdInput = document.getElementById('cliente_id_selected');
+    const clienteSeleccionado = document.getElementById('cliente_seleccionado');
+    const clienteInfo = document.getElementById('cliente_info');
+    const selectorTradicional = document.getElementById('selector_tradicional');
+    
+    let timeoutId;
+    
+    buscarInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        clearTimeout(timeoutId);
+        
+        if (query.length < 2) {
+            resultadosDiv.style.display = 'none';
+            return;
+        }
+        
+        timeoutId = setTimeout(() => {
+            fetch(`/panel-empleado/buscar-clientes/?q=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    mostrarResultados(data.clientes);
+                })
+                .catch(error => {
+                    console.error('Error en la búsqueda:', error);
+                });
+        }, 300);
+    });
+    
+    function mostrarResultados(clientes) {
+        resultadosDiv.innerHTML = '';
+        
+        if (clientes.length === 0) {
+            resultadosDiv.innerHTML = '<div class="list-group-item text-muted">No se encontraron clientes</div>';
+        } else {
+            clientes.forEach(cliente => {
+                const item = document.createElement('a');
+                item.href = '#';
+                item.className = 'list-group-item list-group-item-action';
+                item.innerHTML = `
+                    <div class="d-flex w-100 justify-content-between">
+                        <h6 class="mb-1">${cliente.username} - ${cliente.nombre} ${cliente.apellido}</h6>
+                        <small>DNI: ${cliente.dni}</small>
+                    </div>
+                    <p class="mb-1">${cliente.correo}</p>
+                `;
+                
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    seleccionarCliente(cliente);
+                });
+                
+                resultadosDiv.appendChild(item);
+            });
+        }
+        
+        resultadosDiv.style.display = 'block';
+    }
+    
+    function seleccionarCliente(cliente) {
+        clienteIdInput.value = cliente.id;
+        clienteInfo.textContent = cliente.display;
+        clienteSeleccionado.style.display = 'block';
+        selectorTradicional.style.display = 'none';
+        resultadosDiv.style.display = 'none';
+        buscarInput.value = '';
+        
+        // Hacer el campo requerido
+        clienteIdInput.required = true;
+        document.querySelector('select[name="cliente_id_backup"]').required = false;
+    }
+    
+    // Función global para limpiar selección
+    window.limpiarSeleccion = function() {
+        clienteIdInput.value = '';
+        clienteSeleccionado.style.display = 'none';
+        selectorTradicional.style.display = 'block';
+        buscarInput.value = '';
+        
+        // Restaurar requerimientos
+        clienteIdInput.required = false;
+        if (document.getElementById('cliente_existente').checked) {
+            document.querySelector('select[name="cliente_id_backup"]').required = true;
+        }
+    };
+    
+    // Ocultar resultados al hacer clic fuera
+    document.addEventListener('click', function(e) {
+        if (!buscarInput.contains(e.target) && !resultadosDiv.contains(e.target)) {
+            resultadosDiv.style.display = 'none';
+        }
+    });
+});
+
+// Modificar la lógica existente de cliente existente/nuevo
+document.addEventListener('DOMContentLoaded', function() {
+    const clienteExistente = document.getElementById('cliente_existente');
+    const clienteNuevo = document.getElementById('cliente_nuevo');
+    const existenteSection = document.getElementById('cliente_existente_section');
+    const nuevoSection = document.getElementById('nuevo_cliente_section');
+    
+    clienteExistente.addEventListener('change', function() {
+        if (this.checked) {
+            existenteSection.style.display = 'block';
+            nuevoSection.style.display = 'none';
+            
+            // Verificar si hay cliente seleccionado por búsqueda
+            const clienteSeleccionadoId = document.getElementById('cliente_id_selected').value;
+            if (clienteSeleccionadoId) {
+                document.getElementById('cliente_id_selected').required = true;
+                document.querySelector('select[name="cliente_id_backup"]').required = false;
+            } else {
+                document.querySelector('select[name="cliente_id_backup"]').required = true;
+                document.getElementById('cliente_id_selected').required = false;
+            }
+            
+            // Quitar requerido de campos de nuevo cliente
+            nuevoSection.querySelectorAll('input').forEach(input => input.required = false);
+        }
+    });
+    
+    clienteNuevo.addEventListener('change', function() {
+        if (this.checked) {
+            existenteSection.style.display = 'none';
+            nuevoSection.style.display = 'block';
+            
+            // Quitar requerido de cliente existente
+            document.querySelector('select[name="cliente_id_backup"]').required = false;
+            document.getElementById('cliente_id_selected').required = false;
+            
             // Hacer campos de nuevo cliente requeridos
             nuevoSection.querySelectorAll('input').forEach(input => {
                 if (input.name !== 'nuevo_telefono') { // teléfono opcional

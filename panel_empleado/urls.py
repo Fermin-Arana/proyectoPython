@@ -10,6 +10,7 @@ urlpatterns = [
     path('reservas/crear/<int:auto_id>/', views.crear_reserva_empleado, name='crear_reserva_empleado'),
     path('reservas/cambiar-estado/<int:reserva_id>/', views.cambiar_estado_reserva, name='cambiar_estado_reserva_empleado'),
     path('reservas/devolver/<int:reserva_id>/', views.devolver_auto, name='devolver_auto_empleado'),
+    path('buscar-clientes/', views.buscar_clientes_ajax, name='buscar_clientes_ajax'),
     
     # Gestión de devoluciones
     path('devoluciones/', views.registrar_devolucion_empleado, name='registrar_devolucion_empleado'),
@@ -18,4 +19,5 @@ urlpatterns = [
     # Gestión de autos
     path('autos/', views.lista_autos_empleado, name='lista_autos_empleado'),
     path('autos/cambiar-estado/<str:patente>/', views.cambiar_estado_auto_empleado, name='cambiar_estado_auto_empleado'),
+    path('autos/cambiar-estado-rapido/<int:auto_id>/', views.cambiar_estado_rapido, name='cambiar_estado_rapido'),
 ]
