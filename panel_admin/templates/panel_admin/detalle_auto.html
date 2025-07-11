@@ -2,7 +2,7 @@
 
 {% block content %}
   <div class="container mt-5">
-    <<h2 class="mb-4 text-danger">Detalles del Auto</h2>
+    <h2 class="mb-4 text-danger">Detalles del Auto</h2>
     <p><strong>Marca:</strong> {{ auto.marca }}</p>
     <p><strong>Modelo:</strong> {{ auto.modelo }}</p>
     <p><strong>Patente:</strong> {{ auto.patente }}</p>
@@ -12,8 +12,10 @@
     <p><strong>Categoría:</strong> {{ auto.get_categoria_display }}</p>
     <p><strong>Sucursal:</strong> {{ auto.sucursal.nombre }}</p>
 
-    <a href="{% url 'modificar_auto' auto.patente %}" class="btn btn-danger" >📝 Modificar</a>
-    <a href="{% url 'eliminar_auto' auto.patente %}" class="btn btn-danger">🗑️ Eliminar</a>
+    {% if auto.activo %}
+      <a href="{% url 'modificar_auto' auto.patente %}" class="btn btn-danger" >📝 Modificar</a>
+      <a href="{% url 'eliminar_auto' auto.patente %}" class="btn btn-danger">🗑️ Eliminar</a>
+    {% endif %}
     <a href="{% url 'lista_autos' %}" class="btn btn-secondary">← Volver al listado</a>
   </div>
 {% endblock %}
