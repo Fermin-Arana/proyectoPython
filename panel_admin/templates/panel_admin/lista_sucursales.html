@@ -1,0 +1,30 @@
+{% extends 'panel_admin/base.html' %}
+{% block title %}Lista de Sucursales{% endblock %}
+
+
+{% block content %}
+<h2 class="mb-4 text-danger">Sucursales registradas</h2>
+<table class="table table-bordered table-hover align-middle text-center"
+       style="background: linear-gradient(135deg, var(--primary-black) 0%, var(--secondary-black) 100%); color: white;">
+  <thead class="table-dark">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <tr>
+      <th style="width: auto;">Sucursal</th>
+      <th>Direccion</th>
+      <th>Telefono</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for sucursal in sucursales %}
+    <tr>
+      <td style="width: auto;">{{ sucursal.nombre }}</td>
+      <td>{{ sucursal.direccion }}</td>
+      <td>{{ sucursal.telefono }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
+
+

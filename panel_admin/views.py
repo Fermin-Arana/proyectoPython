@@ -17,6 +17,8 @@ from usuarios.models import Usuario
 from usuarios.forms import CustomUserCreationForm, UserEditForm
 from usuarios.utils import generar_password_temporal, enviar_email_activacion
 from django.db.models import Q
+from sucursales.forms import SucursalForm
+from sucursales.models import Sucursal
 
 
 
@@ -210,3 +212,26 @@ def eliminar_empleado(request,correo):
         return redirect('lista_empleados')
     
     return render(request, 'panel_admin/confirmar_eliminar_empleado.html', {'empleado': empleado})
+
+def registrar_sucursal(request):
+    if not request.user.groups.filter(name='admin').exists():
+        return redirect('no_autorizado')
+    
+    if request.method == 'POST':
+        form = SucursalForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Sucursal registrada correctamente.")
+            return redirect('lista_sucursales')
+    else:
+        form = SucursalForm()
+
+    return render(request, 'panel_admin/registrar_sucursal.html', {'form': form})
+
+@login_required
+def lista_sucursales(request):
+    if not request.user.groups.filter(name='admin').exists():
+        return redirect('inicio')
+    
+    sucursales = Sucursal.objects.all()
+    return render(request, 'panel_admin/lista_sucursales.html', {'sucursales': sucursales})

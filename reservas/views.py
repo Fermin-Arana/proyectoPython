@@ -17,11 +17,8 @@ from django.utils import timezone
 def crear_reserva(request, auto_id):
     if not request.user.is_authenticated:
         messages.warning(request, "Debés iniciar sesión o registrarte para poder reservar.")
-        return redirect('login')
+        return redirect('usuarios:login')
     auto = get_object_or_404(Auto, id=auto_id, activo=True)
-    return redirect('usuarios:login')
-
-    auto = get_object_or_404(Auto, pk=auto_id)
     
     # Leer fechas desde parámetros GET primero, luego desde sesión
     fecha_desde = request.GET.get('fecha_desde') or request.session.get('fecha_desde')
@@ -249,7 +246,7 @@ El equipo de Alquileres María
 def reserva_cancelada(request):
     return render(request, 'reservas/reserva_cancelada.html')
 
-@login_required
+@login_required#creo q esto no va
 def reserva_modificar(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id, usuario=request.user)
     auto = reserva.vehiculo
