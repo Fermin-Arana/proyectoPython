@@ -232,3 +232,29 @@ class CrearEmpleadoForm(forms.ModelForm):
         if Usuario.objects.filter(username=username).exists():
             raise forms.ValidationError("Ya existe un usuario con ese nombre de usuario.")
         return username
+    
+from django.contrib.auth.forms import PasswordChangeForm
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    def clean_new_password1(self):
+        password = self.cleaned_data.get('new_password1')
+        validar_contrasena_alfanumerica(password)
+        return password
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        password1 = cleaned_data.get("new_password1")
+        password2 = cleaned_data.get("new_password2")
+        old_password = cleaned_data.get("old_password")
+
+        if password1 and password2 and password1 != password2:
+            self.add_error("new_password2", "Las contraseñas no coinciden.")
+
+        if old_password and password1 and old_password == password1:
+            self.add_error("new_password1", "La nueva contraseña no puede ser igual a la actual.")
+        
+        return cleaned_data
+
+    def _post_clean(self): 
+        """Evita las validaciones adicionales de Django por defecto."""
+        pass

@@ -14,6 +14,12 @@ from django.urls import reverse_lazy
 from .utils import generar_codigo_otp
 from decouple import config
 import time
+from django.contrib.auth.views import PasswordChangeDoneView, PasswordChangeView
+from .forms import CustomPasswordChangeForm
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+
+
 
 User = get_user_model()
 def registrarse(request):
@@ -224,3 +230,19 @@ def cambiar_password_inicial(request):
             return redirect('inicio')
     
     return render(request, 'usuarios/cambiar_password_inicial.html')
+
+class CambiarPasswordView(LoginRequiredMixin, PasswordChangeView):
+    login_url = '/usuarios/login/'  # fuerza el login correcto
+    form_class = CustomPasswordChangeForm
+    template_name = 'usuarios/cambiar_password.html'
+    success_url = reverse_lazy('usuarios:cambiar_password_done')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        usuario = self.request.user
+        context['es_admin'] = usuario.groups.filter(name='admin').exists()
+        context['es_empleado'] = usuario.groups.filter(name='empleado').exists()
+        return context
+
+class CambiarPasswordHechoView(PasswordChangeDoneView):
+    template_name = 'usuarios/cambiar_password_done.html'

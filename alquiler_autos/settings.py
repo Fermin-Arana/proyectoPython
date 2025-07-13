@@ -153,3 +153,5 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = 'Maria Alquileres <mariaalquileres.lp@gmail.com>'
 DEFAULT_DOMAIN = 'localhost:8000'
+
+LOGIN_URL = '/usuarios/login/'
