@@ -1,37 +1,47 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Autos más alquilados</h2>
+<h2>Gráficos de Vehículos y Reservas</h2>
 <form method="get">
     {{ form.as_p }}
-    <button type="submit">Ver gráfico</button>
+    <button type="submit" class="btn btn-danger">Ver gráficos</button>
 </form>
 {% if mensaje %}
     <p style="color:red;">{{ mensaje }}</p>
 {% endif %}
 {% if datos %}
-    <canvas id="graficoAutos" width="400" height="200"></canvas>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const ctx = document.getElementById('graficoAutos').getContext('2d');
-        const chart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: {{ datos.labels|safe }},
-                datasets: [{
-                    label: 'Cantidad de alquileres',
-                    data: {{ datos.data|safe }},
-                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: { beginAtZero: true }
+    {% for key, value in datos.items %}
+        <h4>
+            {% if key == 'vehiculos_mas_alquilados' %}Vehículos más alquilados{% endif %}
+            {% if key == 'dinero_por_vehiculo' %}Dinero recaudado por vehículo{% endif %}
+            {% if key == 'vehiculos_por_sucursal' %}Cantidad de vehículos alquilados por sucursal{% endif %}
+            {% if key == 'dinero_por_sucursal' %}Dinero recaudado por sucursal{% endif %}
+            {% if key == 'vehiculos_por_usuario' %}Cantidad de vehículos alquilados por usuario{% endif %}
+            {% if key == 'dinero_por_usuario' %}Dinero recaudado por usuario{% endif %}
+        </h4>
+        <canvas id="grafico_{{ key }}" width="400" height="200"></canvas>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            const ctx_{{ key }} = document.getElementById('grafico_{{ key }}').getContext('2d');
+            new Chart(ctx_{{ key }}, {
+                type: 'bar',
+                data: {
+                    labels: {{ value.labels|safe }},
+                    datasets: [{
+                        label: 'Datos',
+                        data: {{ value.data|safe }},
+                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
                 }
-            }
-        });
-    </script>
+            });
+        </script>
+    {% endfor %}
 {% endif %}
 {% endblock %}
