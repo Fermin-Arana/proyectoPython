@@ -13,7 +13,7 @@
     <div class="col-12">
         <div class="card card-custom">
             <div class="card-header" style="background: linear-gradient(135deg, var(--primary-black) 0%, var(--secondary-black) 100%); color: white;">
-                <h5 class="mb-0"><i class="fas fa-list"></i> Reservas Activas</h5>
+                <h5 class="mb-0"><i class="fas fa-list"></i> Todas las Reservas</h5>
             </div>
             <div class="card-body">
                 {% if reservas %}
@@ -21,14 +21,15 @@
                         <table class="table table-custom table-hover">
                             <thead>
                                 <tr>
-                                    <th><i class="fas fa-hashtag"></i> ID</th>
-                                    <th><i class="fas fa-user"></i> Cliente</th>
-                                    <th><i class="fas fa-car"></i> Vehículo</th>
-                                    <th><i class="fas fa-calendar-alt"></i> Fecha Inicio</th>
-                                    <th><i class="fas fa-calendar-alt"></i> Fecha Fin</th>
-                                    <th><i class="fas fa-info-circle"></i> Estado</th>
-                                    <th><i class="fas fa-dollar-sign"></i> Total</th>
-                                    <th><i class="fas fa-tools"></i> Acciones</th>
+                                    <th># ID</th>
+                                    <th>Cliente</th>
+                                    <th>Vehículo</th>
+                                    <th>Fecha Inicio</th>
+                                    <th>Fecha Fin</th>
+                                    <th>Estado</th>
+                                    <th>Total</th>
+                                    <th>Multas</th> <!-- Nueva columna -->
+                                    <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -36,16 +37,12 @@
                                 <tr>
                                     <td><strong>#{{ reserva.id }}</strong></td>
                                     <td>
-                                        <div>
-                                            <strong>{{ reserva.usuario.get_full_name|default:reserva.usuario.username }}</strong><br>
-                                            <small class="text-muted">{{ reserva.usuario.email }}</small>
-                                        </div>
+                                        <strong>{{ reserva.usuario.get_full_name|default:reserva.usuario.username }}</strong><br>
+                                        <small class="text-muted">{{ reserva.usuario.email }}</small>
                                     </td>
                                     <td>
-                                        <div>
-                                            <strong>{{ reserva.vehiculo.marca }} {{ reserva.vehiculo.modelo }}</strong><br>
-                                            <small class="text-muted">Patente: {{ reserva.vehiculo.patente }}</small>
-                                        </div>
+                                        <strong>{{ reserva.vehiculo.marca }} {{ reserva.vehiculo.modelo }}</strong><br>
+                                        <small class="text-muted">Patente: {{ reserva.vehiculo.patente }}</small>
                                     </td>
                                     <td>{{ reserva.fecha_inicio|date:"d/m/Y" }}</td>
                                     <td>{{ reserva.fecha_fin|date:"d/m/Y" }}</td>
@@ -56,25 +53,46 @@
                                             <span class="badge bg-success"><i class="fas fa-check"></i> Confirmada</span>
                                         {% elif reserva.estado == 'cancelada' %}
                                             <span class="badge bg-danger"><i class="fas fa-times"></i> Cancelada</span>
+                                        {% elif reserva.estado == 'en_curso' %}
+                                            <span class="badge bg-secondary text-white">En curso</span>
                                         {% elif reserva.estado == 'finalizada' %}
                                             <span class="badge bg-secondary"><i class="fas fa-flag-checkered"></i> Finalizada</span>
                                         {% endif %}
                                     </td>
-                                    <td><strong>${{ reserva.precio_total|floatformat:2 }}</strong></td>
+                                    <td>
+                                        <td>
+                                            <strong>${{ reserva.precio_total|floatformat:2 }}</strong>
+                                            {% if reserva.es_devolucion_tardia %}
+                                                <br><span class="text-success">+ ${{ reserva.multa_por_retraso|floatformat:2 }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if reserva.es_devolucion_tardia %}
+                                                <span class="badge bg-warning text-dark">
+                                                    <i class="fas fa-exclamation-triangle"></i> 
+                                                    {{ reserva.dias_retraso }} día{{ reserva.dias_retraso|pluralize }} 
+                                                    (${{ reserva.multa_por_retraso|floatformat:2 }})
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-success">
+                                                    <i class="fas fa-check"></i> Sin multa
+                                                </span>
+                                            {% endif %}
+                                        </td>
                                     <td>
                                         <div class="btn-group" role="group">
-                                            {% if reserva.estado == 'pendiente' or reserva.estado == 'confirmada' %}
-                                                <a href="{% url 'cambiar_estado_reserva_empleado' reserva.id %}" 
-                                                   class="btn btn-sm btn-custom-primary" 
-                                                   title="Ver detalle de reserva">
-                                                    <i class="fas fa-eye"></i>
+                                            <a href="{% url 'cambiar_estado_reserva_empleado' reserva.id %}" class="btn btn-sm btn-custom-primary" title="Ver detalles">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+
+                                            {% if reserva.estado == 'confirmada' %}
+                                                <a href="{% url 'registrar_entrega_empleado' reserva.id %}" class="btn btn-sm btn-custom-info" title="Registrar entrega">
+                                                    <i class="fas fa-car-side"></i>
                                                 </a>
                                             {% endif %}
-                                            
-                                            {% if reserva.estado == 'confirmada' %}
-                                                <a href="{% url 'devolver_auto_empleado' reserva.id %}" 
-                                                   class="btn btn-sm btn-custom-danger" 
-                                                   title="Devolver Vehículo">
+
+                                            {% if reserva.estado == 'en_curso' %}
+                                                <a href="{% url 'devolver_auto_empleado' reserva.id %}" class="btn btn-sm btn-custom-danger" title="Registrar devolución">
                                                     <i class="fas fa-undo"></i>
                                                 </a>
                                             {% endif %}
@@ -88,8 +106,8 @@
                 {% else %}
                     <div class="text-center py-5">
                         <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
-                        <h4 class="text-muted">No hay reservas activas</h4>
-                        <p class="text-muted">No se encontraron reservas pendientes o confirmadas en el sistema.</p>
+                        <h4 class="text-muted">No se encontraron reservas</h4>
+                        <p class="text-muted">Aún no hay reservas cargadas en el sistema.</p>
                     </div>
                 {% endif %}
             </div>
@@ -107,12 +125,12 @@
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <a href="{% url 'lista_autos_empleado' %}" class="btn btn-custom-primary w-100">
-                            <i class="fas fa-car"></i> Ver Vehículos Disponibles
+                            <i class="fas fa-car"></i> Ver Vehículos
                         </a>
                     </div>
                     <div class="col-md-6 mb-3">
                         <a href="{% url 'panel_empleado' %}" class="btn btn-custom-danger w-100">
-                            <i class="fas fa-tachometer-alt"></i> Volver al Inicio
+                            <i class="fas fa-home"></i> Volver al Inicio
                         </a>
                     </div>
                 </div>
@@ -120,6 +138,7 @@
         </div>
     </div>
 </div>
+
 
 <style>
 .badge {

@@ -11,7 +11,7 @@ urlpatterns = [
     path('reservas/cambiar-estado/<int:reserva_id>/', views.cambiar_estado_reserva, name='cambiar_estado_reserva_empleado'),
     path('reservas/devolver/<int:reserva_id>/', views.devolver_auto, name='devolver_auto_empleado'),
     path('buscar-clientes/', views.buscar_clientes_ajax, name='buscar_clientes_ajax'),
-    
+    path('reservas/entregar/<int:reserva_id>/', views.registrar_entrega_empleado, name='registrar_entrega_empleado'),
     # Gestión de devoluciones
     path('devoluciones/', views.registrar_devolucion_empleado, name='registrar_devolucion_empleado'),
     path('devoluciones/procesar/<int:reserva_id>/', views.procesar_devolucion_empleado, name='procesar_devolucion_empleado'),

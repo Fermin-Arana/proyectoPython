@@ -247,6 +247,63 @@
                         </div>
                     </div>
 
+                    <!-- Servicios Adicionales - MOVER DENTRO DEL FORMULARIO -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5><i class="fas fa-plus-circle"></i> Servicios Adicionales</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" name="gps" id="gps">
+                                        <label class="form-check-label" for="gps">
+                                            <i class="fas fa-map-marked-alt text-primary"></i>
+                                            GPS (+$200/día)
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" name="conductor_adicional" id="conductor_adicional">
+                                        <label class="form-check-label" for="conductor_adicional">
+                                            <i class="fas fa-user-plus text-success"></i>
+                                            Conductor adicional (+$300/día)
+                                        </label>
+                                    </div>
+                                    
+                                    <!-- Campos del conductor adicional -->
+                                    <div id="conductor_adicional_fields" style="display: none;" class="mt-3 p-3 border rounded bg-light">
+                                        <h6 class="mb-3"><i class="fas fa-user-plus text-success"></i> Datos del Conductor Adicional</h6>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="nombre_conductor_adicional" class="form-label">Nombre completo</label>
+                                                    <input type="text" class="form-control" name="nombre_conductor_adicional" id="nombre_conductor_adicional" placeholder="Nombre y apellido del conductor adicional">
+                                                    <div class="invalid-feedback" id="error_nombre_conductor_adicional"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="dni_conductor_adicional" class="form-label">DNI</label>
+                                                    <input type="text" class="form-control" name="dni_conductor_adicional" id="dni_conductor_adicional" placeholder="DNI del conductor adicional" maxlength="8">
+                                                    <div class="invalid-feedback" id="error_dni_conductor_adicional"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="checkbox" name="silla_bebe" id="silla_bebe">
+                                        <label class="form-check-label" for="silla_bebe">
+                                            <i class="fas fa-baby text-warning"></i>
+                                            Silla de bebé (+$150/día)
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="d-grid gap-2">
                         <button type="submit" class="btn bg-danger btn-lg">
                             <i class="fas fa-check-circle"></i> Confirmar Reserva Instantánea
@@ -317,6 +374,29 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Nueva funcionalidad de búsqueda unificada
     initClientSearch();
+    
+    // Funcionalidad para mostrar/ocultar campos del conductor adicional
+    const conductorAdicionalCheckbox = document.getElementById('conductor_adicional');
+    const conductorAdicionalFields = document.getElementById('conductor_adicional_fields');
+    
+    conductorAdicionalCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            conductorAdicionalFields.style.display = 'block';
+            // Hacer campos requeridos cuando se selecciona
+            document.getElementById('nombre_conductor_adicional').required = true;
+            document.getElementById('dni_conductor_adicional').required = true;
+        } else {
+            conductorAdicionalFields.style.display = 'none';
+            // Limpiar campos y quitar requerimiento
+            document.getElementById('nombre_conductor_adicional').value = '';
+            document.getElementById('dni_conductor_adicional').value = '';
+            document.getElementById('nombre_conductor_adicional').required = false;
+            document.getElementById('dni_conductor_adicional').required = false;
+            // Limpiar errores
+            document.getElementById('nombre_conductor_adicional').classList.remove('is-invalid');
+            document.getElementById('dni_conductor_adicional').classList.remove('is-invalid');
+        }
+    });
 });
 
 function initClientSearch() {

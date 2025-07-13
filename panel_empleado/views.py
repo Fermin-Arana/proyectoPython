@@ -22,20 +22,35 @@ def panel_empleado(request):
             request.user.groups.filter(name='admin').exists()):
         return redirect('no_autorizado_empleado')
     
-    # Estadísticas para el dashboard
-    reservas_activas = Reserva.objects.filter(estado__in=['pendiente', 'confirmada']).count()
-    autos_disponibles = Auto.objects.filter(estado='disponible').count()
-    autos_reservados = Auto.objects.filter(estado='reservado').count()
-    
     context = {
-        'reservas_activas': reservas_activas,
-        'autos_disponibles': autos_disponibles,
-        'autos_reservados': autos_reservados,
+        'es_admin': request.user.groups.filter(name='admin').exists(),
     }
     return render(request, 'panel_empleado/dashboard.html', context)
 
 def no_autorizado_empleado(request):
     return render(request, 'panel_empleado/no_autorizado.html')
+@login_required
+def registrar_entrega_empleado(request, reserva_id):
+    if not (request.user.groups.filter(name='empleado').exists() or 
+            request.user.groups.filter(name='admin').exists()):
+        return redirect('no_autorizado_empleado')
+
+    reserva = get_object_or_404(Reserva, id=reserva_id)
+
+    if reserva.estado != 'confirmada':
+        messages.error(request, "Solo se pueden entregar autos con reservas confirmadas.")
+        return redirect('cambiar_estado_reserva_empleado', reserva_id=reserva.id)
+
+    # Cambiar estado de la reserva a en_curso
+    reserva.estado = 'en_curso'
+    reserva.save()
+
+    # El auto mantiene su estado físico (disponible/mantenimiento/inhabilitado)
+    # No se cambia el estado del auto ya que se maneja por reservas
+    auto = reserva.vehiculo
+    
+    messages.success(request, f'Vehículo {auto.patente} entregado exitosamente. .')
+    return redirect('cambiar_estado_reserva_empleado', reserva_id=reserva.id)
 
 @login_required
 def lista_reservas_empleado(request):
@@ -43,13 +58,11 @@ def lista_reservas_empleado(request):
             request.user.groups.filter(name='admin').exists()):
         return redirect('no_autorizado_empleado')
     
-    # Mostrar reservas activas (pendientes y confirmadas)
-    reservas_activas = Reserva.objects.filter(
-        estado__in=['pendiente', 'confirmada']
-    ).order_by('-fecha_reserva')
+    # Mostrar TODAS las reservas, no solo las activas
+    reservas = Reserva.objects.all().select_related('usuario', 'vehiculo').order_by('-fecha_reserva')
     
     return render(request, 'panel_empleado/lista_reservas.html', {
-        'reservas': reservas_activas
+        'reservas': reservas
     })
 
 @login_required
@@ -96,8 +109,10 @@ def lista_autos_empleado(request):
     from django.db.models import Q
     from datetime import datetime
     
-    # Obtener todos los autos activos
+    # Obtener todos los autos activos, excluyendo inhabilitados para empleados
     autos = Auto.objects.filter(activo=True)
+    if not request.user.groups.filter(name='admin').exists():
+        autos = autos.exclude(estado='inhabilitado')
     
     # Filtros
     marca_filtro = request.GET.get('marca')
@@ -118,21 +133,35 @@ def lista_autos_empleado(request):
                 autos_con_reserva = Reserva.objects.filter(
                     fecha_inicio__lte=fecha_obj,
                     fecha_fin__gte=fecha_obj,
-                    estado__in=['pendiente', 'confirmada']
+                    estado__in=['pendiente', 'confirmada', 'en_curso']
                 ).values_list('vehiculo_id', flat=True)
                 
                 if estado_filtro == 'disponible':
-                    autos = autos.exclude(id__in=autos_con_reserva).filter(
-                        Q(estado='disponible') | Q(estado='mantenimiento')
-                    )
+                    # Solo autos disponibles SIN reservas
+                    autos = autos.exclude(id__in=autos_con_reserva).filter(estado='disponible')
                 elif estado_filtro == 'reservado':
+                    # Autos que tienen reservas activas
                     autos = autos.filter(id__in=autos_con_reserva)
+                elif estado_filtro == 'mantenimiento':
+                    # Solo autos en mantenimiento
+                    autos = autos.filter(estado='mantenimiento')
                 else:
                     autos = autos.filter(estado=estado_filtro)
             except ValueError:
                 pass  # Fecha inválida, ignorar filtro de fecha
         else:
-            autos = autos.filter(estado=estado_filtro)
+            # Sin fecha de consulta, usar fecha actual
+            if estado_filtro == 'reservado':
+                from django.utils import timezone
+                fecha_actual = timezone.now().date()
+                autos_con_reserva = Reserva.objects.filter(
+                    fecha_inicio__lte=fecha_actual,
+                    fecha_fin__gte=fecha_actual,
+                    estado__in=['pendiente', 'confirmada', 'en_curso']
+                ).values_list('vehiculo_id', flat=True)
+                autos = autos.filter(id__in=autos_con_reserva)
+            else:
+                autos = autos.filter(estado=estado_filtro)
     
     if sucursal_filtro:
         autos = autos.filter(sucursal_id=sucursal_filtro)
@@ -143,41 +172,16 @@ def lista_autos_empleado(request):
     # Obtener sucursales para el filtro
     sucursales = Sucursal.objects.all().order_by('nombre')
     
-    # Estadísticas
-    if fecha_consulta:
-        try:
-            fecha_obj = datetime.strptime(fecha_consulta, '%Y-%m-%d').date()
-            autos_con_reserva = Reserva.objects.filter(
-                fecha_inicio__lte=fecha_obj,
-                fecha_fin__gte=fecha_obj,
-                estado__in=['pendiente', 'confirmada']
-            ).values_list('vehiculo_id', flat=True)
-            
-            total_disponibles = autos.exclude(id__in=autos_con_reserva).filter(
-                Q(estado='disponible') | Q(estado='mantenimiento')
-            ).count()
-            total_reservados = autos.filter(id__in=autos_con_reserva).count()
-        except ValueError:
-            total_disponibles = autos.filter(estado='disponible').count()
-            total_reservados = autos.filter(estado='reservado').count()
-    else:
-        total_disponibles = autos.filter(estado='disponible').count()
-        total_reservados = autos.filter(estado='reservado').count()
-    
-    total_mantenimiento = autos.filter(estado='mantenimiento').count()
-    total_autos = autos.count()
+
     
     context = {
         'autos': autos,
         'sucursales': sucursales,
-        'total_disponibles': total_disponibles,
-        'total_reservados': total_reservados,
-        'total_mantenimiento': total_mantenimiento,
-        'total_autos': total_autos,
         'marca_actual': marca_filtro,
         'estado_actual': estado_filtro,
         'sucursal_actual': sucursal_filtro,
         'fecha_consulta': fecha_consulta,
+        'es_admin': request.user.groups.filter(name='admin').exists(),
     }
     
     return render(request, 'panel_empleado/lista_autos.html', context)
@@ -193,24 +197,36 @@ def cambiar_estado_auto_empleado(request, patente):
     if request.method == 'POST':
         nuevo_estado = request.POST.get('estado')
         
-        # ✅ MEJORAR: Validar que no se pueda cambiar a 'reservado' si hay reservas activas
+        # Validar que no se pueda cambiar a 'disponible' si hay reservas activas
         if nuevo_estado == 'disponible':
             # Verificar que no tenga reservas activas
+            from django.utils import timezone
+            fecha_actual = timezone.now().date()
             reservas_activas = Reserva.objects.filter(
                 vehiculo=auto,
-                estado__in=['pendiente', 'confirmada']
+                estado__in=['pendiente', 'confirmada', 'en_curso'],
+                fecha_inicio__lte=fecha_actual,
+                fecha_fin__gte=fecha_actual
             )
             if reservas_activas.exists():
                 messages.error(request, f'No se puede cambiar a disponible. El auto tiene reservas activas.')
                 return redirect('lista_autos_empleado')
         
-        # Los empleados pueden cambiar entre disponible, inhabilitado y mantenimiento
-        if nuevo_estado in ['disponible', 'inhabilitado', 'mantenimiento']:
+        # Los empleados pueden cambiar entre disponible y mantenimiento
+        # Solo los administradores pueden cambiar a inhabilitado
+        estados_permitidos = ['disponible', 'mantenimiento']
+        if request.user.groups.filter(name='admin').exists():
+            estados_permitidos.append('inhabilitado')
+        
+        if nuevo_estado in estados_permitidos:
             auto.estado = nuevo_estado
             auto.save()
             messages.success(request, f'Estado del vehículo {auto.patente} cambiado a {nuevo_estado}.')
         else:
-            messages.error(request, 'Estado no válido.')
+            if nuevo_estado == 'inhabilitado':
+                messages.error(request, 'Solo los administradores pueden inhabilitar vehículos.')
+            else:
+                messages.error(request, 'Estado no válido.')
             
         return redirect('lista_autos_empleado')
     
@@ -227,8 +243,13 @@ def cambiar_estado_rapido(request, auto_id):
         auto = get_object_or_404(Auto, id=auto_id)
         nuevo_estado = request.POST.get('estado')
         
-        # Solo permitir cambio entre disponible y mantenimiento
-        if nuevo_estado in ['disponible', 'mantenimiento']:
+        # Los empleados pueden cambiar entre disponible y mantenimiento
+        # Solo los administradores pueden cambiar a inhabilitado
+        estados_permitidos = ['disponible', 'mantenimiento']
+        if request.user.groups.filter(name='admin').exists():
+            estados_permitidos.append('inhabilitado')
+        
+        if nuevo_estado in estados_permitidos:
             # Verificar que no tenga reservas activas si se cambia a mantenimiento
             if nuevo_estado == 'mantenimiento':
                 reservas_activas = Reserva.objects.filter(
@@ -238,7 +259,7 @@ def cambiar_estado_rapido(request, auto_id):
                 if reservas_activas.exists():
                     return JsonResponse({
                         'success': False, 
-                        'error': 'No se puede cambiar a mantenimiento. El auto tiene reservas activas.'
+                        'error': 'No se puede cambiar a mantenimiento. El auto tiene reservas activas.'#aca habria que enviar un mensaje al usuario de la reserva para q cambie el auto
                     })
             
             auto.estado = nuevo_estado
@@ -247,8 +268,10 @@ def cambiar_estado_rapido(request, auto_id):
             # Determinar el badge HTML según el estado
             if nuevo_estado == 'disponible':
                 badge_html = '<span class="badge bg-success"><i class="fas fa-check"></i> Disponible</span>'
-            else:
+            elif nuevo_estado == 'mantenimiento':
                 badge_html = '<span class="badge bg-warning"><i class="fas fa-tools"></i> Mantenimiento</span>'
+            else:  # inhabilitado
+                badge_html = '<span class="badge bg-danger"><i class="fas fa-ban"></i> Inhabilitado</span>'
             
             return JsonResponse({
                 'success': True, 
@@ -256,7 +279,10 @@ def cambiar_estado_rapido(request, auto_id):
                 'badge_html': badge_html
             })
         else:
-            return JsonResponse({'success': False, 'error': 'Estado no válido'})
+            if nuevo_estado == 'inhabilitado':
+                return JsonResponse({'success': False, 'error': 'Solo los administradores pueden inhabilitar vehículos.'})
+            else:
+                return JsonResponse({'success': False, 'error': 'Estado no válido'})
     
     return JsonResponse({'success': False, 'error': 'Método no permitido'})
 
@@ -272,7 +298,6 @@ def crear_reserva_empleado(request, auto_id):
     
     if auto.estado != 'disponible':
         estado_display = {
-            'reservado': 'reservado',
             'mantenimiento': 'en mantenimiento', 
             'inhabilitado': 'inhabilitado'
         }.get(auto.estado, auto.estado)
@@ -322,8 +347,8 @@ def crear_reserva_empleado(request, auto_id):
                 
             # Verificar disponibilidad del auto en las fechas seleccionadas
             reservas_conflicto = Reserva.objects.filter(
-                vehiculo=auto,  # ✅ CAMBIAR 'auto=auto' por 'vehiculo=auto'
-                estado__in=['pendiente', 'confirmada'],
+                vehiculo=auto,
+                estado__in=['pendiente', 'confirmada', 'en_curso'],
                 fecha_inicio__lte=fecha_fin,
                 fecha_fin__gte=fecha_inicio
             )
@@ -396,6 +421,55 @@ def crear_reserva_empleado(request, auto_id):
                 
                 if reservas_dni.exists():
                     errors['dni_conductor'] = "Este DNI ya está asociado a otra reserva en las mismas fechas."
+            
+            # 4. Validaciones de Conductor Adicional
+            conductor_adicional_seleccionado = 'conductor_adicional' in request.POST
+            if conductor_adicional_seleccionado:
+                nombre_conductor_adicional = request.POST.get('nombre_conductor_adicional', '').strip()
+                dni_conductor_adicional = request.POST.get('dni_conductor_adicional', '').strip()
+                
+                # Validar que se ingresen los datos del conductor adicional
+                if not nombre_conductor_adicional:
+                    errors['nombre_conductor_adicional'] = "Debes ingresar el nombre del conductor adicional."
+                if not dni_conductor_adicional:
+                    errors['dni_conductor_adicional'] = "Debes ingresar el DNI del conductor adicional."
+                
+                # Validar que el DNI del conductor adicional no sea igual al principal
+                if dni_conductor_adicional and dni_conductor and dni_conductor_adicional == dni_conductor:
+                    errors['dni_conductor_adicional'] = "El DNI del conductor adicional no puede ser igual al del conductor principal."
+                
+                # Validar disponibilidad del conductor adicional por nombre
+                if nombre_conductor_adicional:
+                    reservas_conductor_adicional = Reserva.objects.filter(
+                        nombre_conductor_adicional=nombre_conductor_adicional,
+                        estado__in=['pendiente', 'confirmada'],
+                        fecha_inicio__lt=fecha_fin,
+                        fecha_fin__gt=fecha_inicio
+                    )
+                    if reservas_conductor_adicional.exists():
+                        errors['nombre_conductor_adicional'] = "Este conductor adicional ya tiene una reserva en esas fechas."
+                
+                # Validar disponibilidad del DNI del conductor adicional
+                if dni_conductor_adicional:
+                    # Verificar como conductor adicional
+                    reservas_dni_adicional = Reserva.objects.filter(
+                        dni_conductor_adicional=dni_conductor_adicional,
+                        estado__in=['pendiente', 'confirmada'],
+                        fecha_inicio__lt=fecha_fin,
+                        fecha_fin__gt=fecha_inicio
+                    )
+                    if reservas_dni_adicional.exists():
+                        errors['dni_conductor_adicional'] = "Este DNI ya está asociado a otra reserva como conductor adicional en las mismas fechas."
+                    
+                    # Verificar como conductor principal
+                    reservas_dni_principal = Reserva.objects.filter(
+                        dni_conductor=dni_conductor_adicional,
+                        estado__in=['pendiente', 'confirmada'],
+                        fecha_inicio__lt=fecha_fin,
+                        fecha_fin__gt=fecha_inicio
+                    )
+                    if reservas_dni_principal.exists():
+                        errors['dni_conductor_adicional'] = "Este DNI ya está asociado a otra reserva como conductor principal en las mismas fechas."
         
         # Procesar cliente (existente o nuevo)
         cliente = None  # ✅ INICIALIZAR VARIABLE CLIENTE
@@ -469,35 +543,40 @@ def crear_reserva_empleado(request, auto_id):
         
         # Crear reserva con todas las validaciones aplicadas
         try:
+            # Crear la reserva
             reserva = Reserva(
                 usuario=cliente,
                 vehiculo=auto,
                 fecha_inicio=fecha_inicio,
                 fecha_fin=fecha_fin,
-                tipo_seguro=tipo_seguro,
                 conductor=conductor,
                 dni_conductor=dni_conductor,
                 estado='confirmada'
             )
             
-            # Aplicar configuración de seguros
-            reserva.seguro_basico = False
-            reserva.seguro_completo = False
-            reserva.seguro_premium = False
+            # Configurar tipo de seguro
+            reserva.tipo_seguro = tipo_seguro
             
-            if tipo_seguro == 'basico':
-                reserva.seguro_basico = True
-            elif tipo_seguro == 'completo':
-                reserva.seguro_completo = True
-            elif tipo_seguro == 'premium':
-                reserva.seguro_premium = True
+            # Configurar seguros (mantener compatibilidad)
+            reserva.seguro_basico = (tipo_seguro == 'basico')
+            reserva.seguro_completo = (tipo_seguro == 'completo')
+            reserva.seguro_premium = (tipo_seguro == 'premium')
             
-            # Guardar la reserva
+            # Configurar adicionales
+            reserva.gps = 'gps' in request.POST
+            reserva.silla_bebe = 'silla_bebe' in request.POST
+            reserva.conductor_adicional = 'conductor_adicional' in request.POST
+
+            
+            # Si se seleccionó conductor adicional, obtener sus datos
+            if reserva.conductor_adicional:
+                reserva.nombre_conductor_adicional = request.POST.get('nombre_conductor_adicional', '').strip()
+                reserva.dni_conductor_adicional = request.POST.get('dni_conductor_adicional', '').strip()
+            
             reserva.save()
             
-            # ✅ CAMBIAR ESTADO DEL AUTO A 'RESERVADO' (esta línea ya existe pero puede no ejecutarse por errores anteriores)
-            auto.estado = 'reservado'
-            auto.save()
+            # El auto mantiene su estado físico (disponible/mantenimiento)
+            # No se cambia el estado del auto ya que se maneja por reservas
             
             if cliente_tipo == 'nuevo':
                 messages.info(request, 
@@ -530,7 +609,7 @@ def registrar_devolucion_empleado(request):
     
     # Obtener reservas confirmadas (autos que están en uso)
     reservas_activas = Reserva.objects.filter(
-        estado='confirmada'
+        estado='en_curso'
     ).select_related('vehiculo', 'usuario').order_by('fecha_fin')
     
     return render(request, 'panel_empleado/registrar_devolucion.html', {

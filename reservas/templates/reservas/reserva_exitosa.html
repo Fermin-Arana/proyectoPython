@@ -1,15 +1,15 @@
 {% extends 'reservas/base.html' %}
-
 {% load static %}
 
 {% block title %}¡Reserva Confirmada!{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'crear_reserva.css' %}">
+<link rel="stylesheet" href="{% static 'reservas/reserva_exitosa.css' %}">
+
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-10">
-            <!-- Header de confirmación exitosa -->
+            <!-- Header de confirmación -->
             <div class="success-header mb-4">
                 <div class="success-icon">
                     <i class="fas fa-check-circle"></i>
@@ -18,49 +18,40 @@
                 <p class="success-subtitle">Tu reserva ha sido procesada exitosamente</p>
             </div>
 
-            <!-- Información del vehículo reservado -->
-            <div class="vehicle-confirmation-card mb-4">
-                <div class="row g-0">
-                    <div class="col-md-5">
-                        {% if reserva.vehiculo.imagen %}
-                            <img src="{{ reserva.vehiculo.imagen.url }}" class="vehicle-image-confirmed" alt="{{ reserva.vehiculo.marca }} {{ reserva.vehiculo.modelo }}">
-                        {% else %}
-                            <div class="no-image-placeholder-confirmed">
-                                <i class="fas fa-car fa-5x text-muted"></i>
-                                <p class="text-muted mt-2">Sin imagen disponible</p>
+            <!-- Información del vehículo -->
+            <div class="card-custom">
+                <div class="card-header-custom">
+                    <h3><i class="fas fa-car"></i> Vehículo Reservado</h3>
+                </div>
+                <div class="card-body-custom">
+                    <div class="row align-items-start">
+                        <div class="col-md-3">
+                            {% if reserva.vehiculo.imagen %}
+                                <img src="{{ reserva.vehiculo.imagen.url }}" alt="{{ reserva.vehiculo.marca }} {{ reserva.vehiculo.modelo }}" class="vehicle-image-small">
+                            {% else %}
+                                <div class="no-image-placeholder-small">
+                                    <i class="fas fa-car"></i>
+                                    <span>Sin imagen</span>
+                                </div>
+                            {% endif %}
+                            <div class="vehicle-badge-small">
+                                <i class="fas fa-star"></i> {{ reserva.vehiculo.get_categoria_display }}
                             </div>
-                        {% endif %}
-                        <div class="vehicle-badge">
-                            <i class="fas fa-star"></i>
-                            RESERVADO
                         </div>
-                    </div>
-                    <div class="col-md-7">
-                        <div class="vehicle-confirmation-info">
-                            <h2 class="vehicle-confirmed-title">
-                                <i class="fas fa-car text-success"></i>
-                                {{ reserva.vehiculo.marca }} {{ reserva.vehiculo.modelo }}
-                            </h2>
-                            <div class="vehicle-confirmed-details">
-                                <div class="confirmed-detail-item">
-                                    <i class="fas fa-calendar-alt text-info"></i>
-                                    <span class="detail-label">Año:</span>
-                                    <span class="detail-value">{{ reserva.vehiculo.anio_fabricacion }}</span>
+                        <div class="col-md-9">
+                            <h2><i class="fas fa-car text-success"></i> {{ reserva.vehiculo.marca }} {{ reserva.vehiculo.modelo }}</h2>
+                            <div class="detail-grid">
+                                <div class="detail-row">
+                                    <span class="label"><i class="fas fa-calendar-alt"></i> Año:</span>
+                                    <span class="value">{{ reserva.vehiculo.anio_fabricacion }}</span>
                                 </div>
-                                <div class="confirmed-detail-item">
-                                    <i class="fas fa-users text-primary"></i>
-                                    <span class="detail-label">Capacidad:</span>
-                                    <span class="detail-value">{{ reserva.vehiculo.capacidad_pasajeros }} pasajeros</span>
+                                <div class="detail-row">
+                                    <span class="label"><i class="fas fa-users"></i> Capacidad:</span>
+                                    <span class="value">{{ reserva.vehiculo.capacidad_pasajeros }} pasajeros</span>
                                 </div>
-                                <div class="confirmed-detail-item">
-                                    <i class="fas fa-tag text-warning"></i>
-                                    <span class="detail-label">Categoría:</span>
-                                    <span class="detail-value">{{ reserva.vehiculo.get_categoria_display }}</span>
-                                </div>
-                                <div class="confirmed-detail-item">
-                                    <i class="fas fa-id-card text-secondary"></i>
-                                    <span class="detail-label">Patente:</span>
-                                    <span class="detail-value">{{ reserva.vehiculo.patente }}</span>
+                                <div class="detail-row">
+                                    <span class="label"><i class="fas fa-id-card"></i> Patente:</span>
+                                    <span class="value">{{ reserva.vehiculo.patente }}</span>
                                 </div>
                             </div>
                         </div>
@@ -69,33 +60,29 @@
             </div>
 
             <!-- Detalles de la reserva -->
-            <div class="reservation-details-card mb-4">
+            <div class="card-custom">
                 <div class="card-header-custom">
-                    <h3>
-                        <i class="fas fa-clipboard-list text-white"></i>
-                        Detalles de tu Reserva
-                    </h3>
+                    <h3><i class="fas fa-clipboard-list"></i> Detalles de tu Reserva</h3>
                 </div>
                 <div class="card-body-custom">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="detail-section">
                                 <h5 class="section-title-small">
-                                    <i class="fas fa-user text-primary"></i>
-                                    Información Personal
+                                    <i class="fas fa-user"></i> Información del Cliente
                                 </h5>
                                 <div class="detail-grid">
                                     <div class="detail-row">
                                         <span class="label">Cliente:</span>
-                                        <span class="value">{{ reserva.usuario.username }}</span>
+                                        <span class="value">{{ reserva.usuario.nombre }} {{ reserva.usuario.apellido }}</span>
                                     </div>
                                     <div class="detail-row">
-                                        <span class="label">Conductor:</span>
-                                        <span class="value">{{ reserva.conductor }}</span>
+                                        <span class="label">Email:</span>
+                                        <span class="value">{{ reserva.usuario.correo }}</span>
                                     </div>
                                     <div class="detail-row">
-                                        <span class="label">DNI Conductor:</span>
-                                        <span class="value">{{ reserva.dni_conductor }}</span>
+                                        <span class="label">Teléfono:</span>
+                                        <span class="value">{{ reserva.usuario.telefono }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -103,8 +90,49 @@
                         <div class="col-md-6">
                             <div class="detail-section">
                                 <h5 class="section-title-small">
-                                    <i class="fas fa-calendar-check text-success"></i>
-                                    Fechas y Duración
+                                    <i class="fas fa-id-card"></i> Información del Conductor
+                                </h5>
+                                <div class="detail-grid">
+                                    <div class="detail-row">
+                                        <span class="label">Conductor:</span>
+                                        <span class="value">{{ reserva.conductor }}</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="label">DNI:</span>
+                                        <span class="value">{{ reserva.dni_conductor }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if reserva.conductor_adicional and reserva.nombre_conductor_adicional %}
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="detail-section">
+                                <h5 class="section-title-small">
+                                    <i class="fas fa-user-plus"></i> Conductor Adicional
+                                </h5>
+                                <div class="detail-grid">
+                                    <div class="detail-row">
+                                        <span class="label">Nombre:</span>
+                                        <span class="value">{{ reserva.nombre_conductor_adicional }}</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="label">DNI:</span>
+                                        <span class="value">{{ reserva.dni_conductor_adicional }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="detail-section">
+                                <h5 class="section-title-small">
+                                    <i class="fas fa-calendar-check"></i> Fechas y Duración
                                 </h5>
                                 <div class="detail-grid">
                                     <div class="detail-row">
@@ -117,74 +145,156 @@
                                     </div>
                                     <div class="detail-row">
                                         <span class="label">Duración:</span>
-                                        <span class="value">{{ reserva.fecha_fin|timeuntil:reserva.fecha_inicio }}</span>
+                                        <span class="value">{{ dias }} días</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="row mt-4">
                         <div class="col-md-6">
                             <div class="detail-section">
                                 <h5 class="section-title-small">
-                                    <i class="fas fa-shield-alt text-info"></i>
-                                    Seguro Seleccionado
+                                    <i class="fas fa-shield-alt"></i> Seguro Seleccionado
                                 </h5>
-                                <div class="insurance-selected">
-                                    {% if reserva.tipo_seguro == 'basico' %}
-                                        <div class="insurance-badge basic">
-                                            <i class="fas fa-shield"></i>
-                                            <span>Seguro Básico</span>
-                                            <small>Cobertura básica incluida</small>
-                                        </div>
-                                    {% elif reserva.tipo_seguro == 'completo' %}
-                                        <div class="insurance-badge complete">
-                                            <i class="fas fa-shield-alt"></i>
-                                            <span>Seguro Completo</span>
-                                            <small>Cobertura ampliada contra terceros</small>
-                                        </div>
-                                    {% elif reserva.tipo_seguro == 'premium' %}
-                                        <div class="insurance-badge premium">
-                                            <i class="fas fa-shield-check"></i>
-                                            <span>Seguro Premium</span>
-                                            <small>Cobertura total + asistencia 24hs</small>
-                                        </div>
+                                {% if reserva.seguro_basico %}
+                                    <div class="insurance-badge basic">
+                                        <i class="fas fa-shield"></i>
+                                        <span>Seguro Básico</span>
+                                        <small>Cobertura básica incluida</small>
+                                    </div>
+                                {% elif reserva.seguro_completo %}
+                                    <div class="insurance-badge complete">
+                                        <i class="fas fa-shield-alt"></i>
+                                        <span>Seguro Completo</span>
+                                        <small>Cobertura ampliada</small>
+                                    </div>
+                                {% elif reserva.seguro_premium %}
+                                    <div class="insurance-badge premium">
+                                        <i class="fas fa-shield-check"></i>
+                                        <span>Seguro Premium</span>
+                                        <small>Cobertura total</small>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Servicios adicionales -->
+                    {% if reserva.gps or reserva.silla_bebe or reserva.conductor_adicional %}
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="detail-section">
+                                <h5 class="section-title-small">
+                                    <i class="fas fa-plus-circle"></i> Servicios Adicionales
+                                </h5>
+                                <div class="additional-services">
+                                    {% if reserva.gps %}
+                                        <span class="service-badge">
+                                            <i class="fas fa-map-marked-alt"></i> GPS Navegador
+                                        </span>
+                                    {% endif %}
+                                    {% if reserva.silla_bebe %}
+                                        <span class="service-badge">
+                                            <i class="fas fa-baby"></i> Silla para Bebé
+                                        </span>
+                                    {% endif %}
+                                    {% if reserva.conductor_adicional %}
+                                        <span class="service-badge">
+                                            <i class="fas fa-user-plus"></i> Conductor Adicional
+                                        </span>
                                     {% endif %}
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="detail-section">
-                                <h5 class="section-title-small">
-                                    <i class="fas fa-dollar-sign text-success"></i>
-                                    Información de Pago
-                                </h5>
-                                <div class="payment-info">
-                                    <div class="detail-row">
-                                        <span class="label">Precio por día:</span>
-                                        <span class="value">${{ reserva.vehiculo.precio_por_dia }}</span>
-                                    </div>
-                                    <div class="detail-row">
-                                        <span class="label">Estado del pago:</span>
-                                        <span class="value payment-status">
-                                            <i class="fas fa-check-circle text-success"></i>
-                                            Confirmado
-                                        </span>
-                                    </div>
-                                    <div class="detail-row total-row">
-                                        <span class="label">Total pagado:</span>
-                                        <span class="value total-amount">${{ reserva.costo_total }}</span>
-                                    </div>
-                                </div>
-                            </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Desglose de precios -->
+            <div class="card-custom">
+                <div class="card-header-custom">
+                    <h3><i class="fas fa-calculator"></i> Desglose de Precios</h3>
+                </div>
+                <div class="card-body-custom">
+                    <div class="price-breakdown">
+                        <div class="price-item">
+                            <span class="price-label">
+                                <i class="fas fa-car"></i>
+                                Alquiler del vehículo ({{ dias }} días × ${{ reserva.vehiculo.precio_por_dia|floatformat:0 }})
+                            </span>
+                            <span class="price-value">${{ precio_vehiculo_total|floatformat:0 }}</span>
+                        </div>
+                        
+                        {% if reserva.seguro_completo %}
+                        <div class="price-item">
+                            <span class="price-label">
+                                <i class="fas fa-shield-alt"></i>
+                                Seguro Completo ({{ dias }} días × $500)
+                            </span>
+                            <span class="price-value">${{ precio_seguro_total|floatformat:0 }}</span>
+                        </div>
+                        {% elif reserva.seguro_premium %}
+                        <div class="price-item">
+                            <span class="price-label">
+                                <i class="fas fa-shield-check"></i>
+                                Seguro Premium ({{ dias }} días × $1000)
+                            </span>
+                            <span class="price-value">${{ precio_seguro_total|floatformat:0 }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if reserva.gps %}
+                        <div class="price-item">
+                            <span class="price-label">
+                                <i class="fas fa-map-marked-alt"></i>
+                                GPS Navegador ({{ dias }} días × $200)
+                            </span>
+                            <span class="price-value">${{ precio_gps_total|floatformat:0 }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if reserva.silla_bebe %}
+                        <div class="price-item">
+                            <span class="price-label">
+                                <i class="fas fa-baby"></i>
+                                Silla para Bebé ({{ dias }} días × $150)
+                            </span>
+                            <span class="price-value">${{ precio_silla_total|floatformat:0 }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if reserva.conductor_adicional %}
+                        <div class="price-item">
+                            <span class="price-label">
+                                <i class="fas fa-user-plus"></i>
+                                Conductor Adicional ({{ dias }} días × $300)
+                            </span>
+                            <span class="price-value">${{ precio_conductor_total|floatformat:0 }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="price-item total-item">
+                            <span class="price-label total-label">
+                                <i class="fas fa-dollar-sign"></i>
+                                <strong>TOTAL DE LA RESERVA</strong>
+                            </span>
+                            <span class="price-value total-value">
+                                <strong>${{ reserva.precio_total|floatformat:0 }}</strong>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-status mt-3">
+                        <div class="status-badge confirmed">
+                            <i class="fas fa-check-circle"></i>
+                            <span>PAGO CONFIRMADO</span>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- Información adicional -->
-            <div class="additional-info-card mb-4">
+            <div class="card-custom">
                 <div class="info-content">
                     <div class="info-icon">
                         <i class="fas fa-info-circle"></i>
@@ -192,7 +302,7 @@
                     <div class="info-text">
                         <h4>¿Qué sigue ahora?</h4>
                         <ul>
-                            <li><i class="fas fa-envelope"></i> Recibirás un correo electrónico con todos los detalles de tu reserva</li>
+                            <li><i class="fas fa-envelope"></i> Recibirás un correo electrónico con todos los detalles</li>
                             <li><i class="fas fa-phone"></i> Te contactaremos 24 horas antes para coordinar la entrega</li>
                             <li><i class="fas fa-map-marker-alt"></i> Deberás presentarte en nuestra sucursal en la fecha indicada</li>
                             <li><i class="fas fa-id-card"></i> No olvides traer tu DNI y licencia de conducir vigente</li>
@@ -202,7 +312,7 @@
             </div>
 
             <!-- Número de reserva -->
-            <div class="reservation-number-card mb-4">
+            <div class="card-custom">
                 <div class="reservation-number-content">
                     <h4>Número de Reserva</h4>
                     <div class="reservation-code">
@@ -214,17 +324,14 @@
 
             <!-- Botones de acción -->
             <div class="confirmation-actions">
-                <a href="{% url 'index' %}" class="btn-home">
-                    <i class="fas fa-home"></i>
-                    Volver al Inicio
+                <a href="{% url 'panel_empleado' %}" class="btn-action">
+                    <i class="fas fa-arrow-left"></i> Volver al Panel
                 </a>
-                <a href="#" onclick="window.print()" class="btn-print">
-                    <i class="fas fa-print"></i>
-                    Imprimir Confirmación
+                <a href="#" onclick="window.print()" class="btn-action">
+                    <i class="fas fa-print"></i> Imprimir Confirmación
                 </a>
-                <a href="mailto:info@mariaalquileres.com?subject=Consulta sobre Reserva #{{ reserva.id }}" class="btn-contact">
-                    <i class="fas fa-envelope"></i>
-                    Contactar Soporte
+                <a href="{% url 'lista_reservas_empleado' %}" class="btn-action">
+                    <i class="fas fa-list"></i> Ver Todas las Reservas
                 </a>
             </div>
         </div>

@@ -1,0 +1,357 @@
+/* Sobrescribir el fondo del body para esta página */
+body {
+    background: #ffffff !important;
+    color: #000000 !important;
+}
+
+/* Estilos para la página de confirmación */
+.container {
+    background: #ffffff;
+    color: #000000;
+}
+
+/* Header de confirmación */
+.success-header {
+    text-align: center;
+    padding: 30px 0;
+    background: #ffffff;
+    color: #000000;
+}
+
+.success-icon i {
+    font-size: 4rem;
+    color: #dc3545;
+    margin-bottom: 20px;
+}
+
+.success-title {
+    color: #000000 !important;
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.success-subtitle {
+    color: #000000 !important;
+    font-size: 1.2rem;
+}
+
+/* Tarjetas principales */
+.card-custom {
+    background: #ffffff !important;
+    border: 2px solid #000000 !important;
+    border-radius: 15px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-header-custom {
+    background: #dc3545 !important;
+    color: #ffffff !important;
+    padding: 20px;
+    border-radius: 13px 13px 0 0;
+    border-bottom: 2px solid #000000;
+}
+
+.card-header-custom h3 {
+    color: #ffffff !important;
+    margin: 0;
+    font-weight: bold;
+}
+
+.card-body-custom {
+    background: #ffffff !important;
+    padding: 25px;
+    color: #000000 !important;
+}
+
+/* Imagen del vehículo optimizada */
+.vehicle-image-small {
+    width: 100%;
+    max-width: 200px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid #000000;
+}
+
+.no-image-placeholder-small {
+    width: 100%;
+    max-width: 200px;
+    height: 120px;
+    background: #f8f9fa;
+    border: 2px solid #000000;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+}
+
+.vehicle-badge-small {
+    background: #dc3545;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    margin-top: 10px;
+    text-align: center;
+}
+
+/* Detalles de la reserva */
+.detail-section {
+    margin-bottom: 20px;
+}
+
+.section-title-small {
+    color: #000000 !important;
+    font-weight: bold;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.detail-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.detail-row .label {
+    font-weight: 600;
+    color: #000000;
+}
+
+.detail-row .value {
+    color: #000000;
+}
+
+/* Seguros */
+.insurance-badge {
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    border: 2px solid #000000;
+}
+
+.insurance-badge.basic {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.insurance-badge.complete {
+    background: #e8f5e8;
+    color: #388e3c;
+}
+
+.insurance-badge.premium {
+    background: #fff3e0;
+    color: #f57c00;
+}
+
+/* Servicios adicionales */
+.additional-services {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.service-badge {
+    background: #dc3545;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Desglose de precios */
+.price-breakdown {
+    background: #ffffff;
+    border: 2px solid #000000;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.price-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #000000;
+}
+
+.price-item:last-child {
+    border-bottom: none;
+}
+
+.price-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #000000 !important;
+}
+
+.price-label i {
+    color: #dc3545 !important;
+}
+
+.price-value {
+    font-weight: 600;
+    color: #dc3545 !important;
+}
+
+.total-item {
+    background: #ffffff;
+    margin: 15px -20px -20px -20px;
+    padding: 20px;
+    border-radius: 0 0 8px 8px;
+    border: 2px solid #000000;
+    border-top: 3px solid #dc3545;
+}
+
+.total-label {
+    color: #000000 !important;
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+.total-value {
+    color: #dc3545 !important;
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+/* Estado de pago */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+}
+
+.status-badge.confirmed {
+    background: #ffffff;
+    color: #dc3545 !important;
+    border: 2px solid #dc3545;
+}
+
+/* Información adicional */
+.info-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 25px;
+    background: #ffffff;
+    color: #000000;
+}
+
+.info-icon i {
+    color: #dc3545 !important;
+    font-size: 2rem;
+}
+
+.info-text h4 {
+    color: #000000 !important;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.info-text ul {
+    list-style: none;
+    padding: 0;
+}
+
+.info-text li {
+    color: #000000 !important;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.info-text li i {
+    color: #dc3545 !important;
+    width: 20px;
+}
+
+/* Número de reserva */
+.reservation-number-content {
+    text-align: center;
+    padding: 30px;
+    background: #ffffff;
+    color: #000000;
+}
+
+.reservation-code {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #dc3545 !important;
+    background: #ffffff;
+    border: 3px solid #000000;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    letter-spacing: 2px;
+}
+
+/* Botones de acción */
+.confirmation-actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 30px;
+}
+
+.btn-action {
+    background: #dc3545 !important;
+    color: #ffffff !important;
+    text-decoration: none;
+    padding: 15px 25px;
+    border-radius: 10px;
+    font-weight: bold;
+    border: 2px solid #000000;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-action:hover {
+    background: #000000 !important;
+    color: #ffffff !important;
+    text-decoration: none;
+    transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .confirmation-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn-action {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .detail-row {
+        flex-direction: column;
+        gap: 4px;
+    }
+}
