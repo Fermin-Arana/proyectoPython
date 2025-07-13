@@ -5,9 +5,11 @@
     {{ form.as_p }}
     <button type="submit" class="btn btn-danger">Ver gráficos</button>
 </form>
+
 {% if mensaje %}
     <p style="color:red;">{{ mensaje }}</p>
 {% endif %}
+
 {% if datos %}
     {% for key, value in datos.items %}
         <h4>
@@ -18,29 +20,65 @@
             {% if key == 'vehiculos_por_usuario' %}Cantidad de vehículos alquilados por usuario{% endif %}
             {% if key == 'dinero_por_usuario' %}Dinero recaudado por usuario{% endif %}
         </h4>
+        
         <canvas id="grafico_{{ key }}" width="400" height="200"></canvas>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
             const ctx_{{ key }} = document.getElementById('grafico_{{ key }}').getContext('2d');
-            new Chart(ctx_{{ key }}, {
-                type: 'bar',
-                data: {
-                    labels: {{ value.labels|safe }},
-                    datasets: [{
-                        label: 'Datos',
-                        data: {{ value.data|safe }},
-                        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: { beginAtZero: true }
+            const labels_{{ key }} = {{ value.labels|safe }};
+            const data_{{ key }} = {{ value.data|safe }};
+            
+            if (labels_{{ key }}.length > 0) {
+                new Chart(ctx_{{ key }}, {
+                    type: 'bar',
+                    data: {
+                        labels: labels_{{ key }},
+                        datasets: [{
+                            label: {% if key == 'vehiculos_mas_alquilados' %}'Vehículos más alquilados'{% endif %}
+                                  {% if key == 'dinero_por_vehiculo' %}'Dinero recaudado por vehículo'{% endif %}
+                                  {% if key == 'vehiculos_por_sucursal' %}'Cantidad de vehículos por sucursal'{% endif %}
+                                  {% if key == 'dinero_por_sucursal' %}'Dinero recaudado por sucursal'{% endif %}
+                                  {% if key == 'vehiculos_por_usuario' %}'Cantidad de vehículos por usuario'{% endif %}
+                                  {% if key == 'dinero_por_usuario' %}'Dinero recaudado por usuario'{% endif %},
+                            data: data_{{ key }},
+                            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: { beginAtZero: true }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    title: function(tooltipItems) {
+                                        return tooltipItems[0].label;
+                                    },
+                                    label: function(context) {
+                                        if ('{{ key }}' === 'dinero_por_usuario' || 
+                                            '{{ key }}' === 'dinero_por_vehiculo' || 
+                                            '{{ key }}' === 'dinero_por_sucursal') {
+                                            return `$${context.parsed.y}`;
+                                        } else {
+                                            return context.parsed.y;
+                                        }
+                                    }
+                                }
+                            },
+                            legend: {
+                                display: false
+                            }
+                        }
                     }
-                }
-            });
+                });
+            } else {
+                document.getElementById('grafico_{{ key }}').insertAdjacentHTML('afterend', 
+                    '<p style="color:red;">No hay datos disponibles para este gráfico.</p>'
+                );
+            }
         </script>
     {% endfor %}
 {% endif %}
