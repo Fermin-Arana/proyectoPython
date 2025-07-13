@@ -22,7 +22,7 @@ def registrarse(request):
         if form.is_valid():
             form.save()
             messages.success(request, "Usuario registrado exitosamente")
-            return redirect('login')  
+            return redirect('usuarios:login')  
     else:
         form = CustomUserCreationForm()
 
@@ -53,7 +53,7 @@ def login_view(request):
                         [user.correo],
                         fail_silently=False,
                     )
-                    return redirect('validar_codigo_2fa')
+                    return redirect('usuarios:validar_codigo_2fa')
                 
                 else: 
                     auth_login(request, user)
@@ -100,7 +100,7 @@ El equipo de Alquileres María
             )
 
             messages.success(request, "📬 Revisa tu correo para continuar con el cambio de contraseña.")
-            return redirect('login')
+            return redirect('usuarios:login')
 
         except Usuario.DoesNotExist:
             messages.error(request, "❌ No se encontró ningún usuario con ese correo.")
@@ -112,7 +112,7 @@ class PswrdResetView(PasswordResetView):
     template_name = 'usuarios/password_reset_form.html'
     email_template_name = 'usuarios/password_reset_email.html'
     subject_template_name = 'usuarios/password_reset_subject.txt'
-    success_url = reverse_lazy('password_reset_done')
+    success_url = reverse_lazy('usuarios:password_reset_done')
     form_class = CustomPasswordResetForm
 
     def form_valid(self, form):
@@ -124,7 +124,7 @@ class PswrdResetDoneView(PasswordResetDoneView):
 
 class PswrdResetConfirmView(PasswordResetConfirmView):
     template_name = 'usuarios/password_reset_confirm.html'
-    success_url = reverse_lazy('password_reset_complete')
+    success_url = reverse_lazy('usuarios:password_reset_complete')
     form_class = CustomSetPasswordForm
 
 class PswrdResetCompleteView(PasswordResetCompleteView):
@@ -152,7 +152,7 @@ def validar_codigo_2fa(request):
             messages.error(request, "El código expiró. Por favor, inicia sesión de nuevo.")
             # Limpiar sesión para que intente login de nuevo
             request.session.flush()
-            return redirect('login')  # o la url de login que uses
+            return redirect('usuarios:login')  # o la url de login que uses
 
         if codigo_ingresado == codigo_guardado and user_id:
             user = User.objects.get(id=user_id)
@@ -168,7 +168,7 @@ def validar_codigo_2fa(request):
 
         else:
             messages.error(request, "Código inválido")
-            return redirect('validar_codigo_2fa')
+            return redirect('usuarios:validar_codigo_2fa')
 
     return render(request, 'usuarios/validar_codigo.html')
 
@@ -182,16 +182,16 @@ def activar_cuenta(request, token):
         
         messages.success(request, 
             f"¡Cuenta activada exitosamente! Ahora puedes iniciar sesión con tu usuario: {usuario.username}")
-        return redirect('login')
+        return redirect('usuarios:login')
         
     except Usuario.DoesNotExist:
         messages.error(request, "Token de activación inválido o cuenta ya activada.")
-        return redirect('login')
+        return redirect('usuarios:login')
 
 def cambiar_password_inicial(request):
     """Permite al usuario cambiar su contraseña temporal"""
     if not request.user.is_authenticated:
-        return redirect('login')
+        return redirect('usuarios:login')
     
     if not request.user.created_by_employee:
         messages.error(request, "Esta función es solo para cuentas creadas por empleados.")

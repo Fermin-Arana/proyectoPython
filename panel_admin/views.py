@@ -121,7 +121,7 @@ def eliminar_auto(request, patente):
     
     auto = get_object_or_404(Auto, patente=patente)
 
-    reservas_activas = auto.reserva_set.filter(estado__in=['confirmada'])
+    reservas_activas = auto.reserva_set.filter(estado__in=['confirmada', 'en_curso'])
 
     if (reservas_activas.exists()):
         messages.error(request, "No se puede eliminar este auto porque tiene reservas activas")
