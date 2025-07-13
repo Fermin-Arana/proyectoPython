@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import recuperar_contrasena, registrarse, login_view, cerrar_sesion, PswrdResetView, PswrdResetDoneView, PswrdResetConfirmView, PswrdResetCompleteView, validar_codigo_2fa, activar_cuenta, cambiar_password_inicial
+from .views import recuperar_contrasena, registrarse, login_view, cerrar_sesion, PswrdResetView, PswrdResetDoneView, PswrdResetConfirmView, PswrdResetCompleteView, validar_codigo_2fa, activar_cuenta, cambiar_password_inicial, CambiarPasswordView, CambiarPasswordHechoView
 
 app_name = 'usuarios' 
 
@@ -15,5 +15,7 @@ urlpatterns = [
     path('validar-codigo-2fa/', validar_codigo_2fa, name='validar_codigo_2fa'),
     path('activar/<uuid:token>/', activar_cuenta, name='activar_cuenta'),
     path('cambiar-password-inicial/', cambiar_password_inicial, name='cambiar_password_inicial'),
+    path('cambiar-password/', CambiarPasswordView.as_view(), name='cambiar_password'),
+    path('cambiar-password/done/', CambiarPasswordHechoView.as_view(), name='cambiar_password_done'),
 ]
 

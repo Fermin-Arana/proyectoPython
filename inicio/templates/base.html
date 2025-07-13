@@ -33,9 +33,10 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                 <li><a class="dropdown-item" href="{% url 'perfil' %}">Ver perfil</a></li>
-                                {% if not es_admin %}
+                                {% if not es_admin and not es_empleado %}
                                 <li><a class="dropdown-item" href="{% url 'historial_reservas' %}">Ver historial</a></li>
                                 {% endif %}
+                                <li><a class="dropdown-item" href="{% url 'usuarios:cambiar_password' %}">Cambiar contraseña</a></li>
                                 <li><a class="dropdown-item" href="{% url 'usuarios:logout' %}">Cerrar Sesión</a></li>
                             </ul>
                         </li>

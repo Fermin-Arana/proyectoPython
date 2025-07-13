@@ -113,9 +113,11 @@ def editar_perfil(request):
 def perfil(request):
     """Vista para mostrar el perfil del usuario."""
     es_admin = request.user.groups.filter(name='admin').exists()
+    es_empleado = request.user.groups.filter(name='empleado').exists()
     return render(request, 'inicio/perfil.html', {
         'user': request.user,
-        'es_admin': es_admin
+        'es_admin': es_admin,
+        'es_empleado': es_empleado
     })
 
 @login_required
