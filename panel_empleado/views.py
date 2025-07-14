@@ -58,8 +58,28 @@ def lista_reservas_empleado(request):
             request.user.groups.filter(name='admin').exists()):
         return redirect('no_autorizado_empleado')
     
-    # Mostrar TODAS las reservas, no solo las activas
-    reservas = Reserva.objects.all().select_related('usuario', 'vehiculo').order_by('-fecha_reserva')
+    # Los administradores pueden ver todas las reservas
+    if request.user.groups.filter(name='admin').exists():
+        reservas = Reserva.objects.all().select_related('usuario', 'vehiculo').order_by('-fecha_reserva')
+    else:
+        # Los empleados solo ven reservas de su sucursal asignada
+        try:
+            empleado_extra = request.user.empleadoextra
+            sucursal_empleado = empleado_extra.sucursal_asignada
+            
+            if sucursal_empleado:
+                # Filtrar reservas por autos de la sucursal del empleado
+                reservas = Reserva.objects.filter(
+                    vehiculo__sucursal=sucursal_empleado
+                ).select_related('usuario', 'vehiculo').order_by('-fecha_reserva')
+            else:
+                # Si el empleado no tiene sucursal asignada, no ve ninguna reserva
+                reservas = Reserva.objects.none()
+                messages.warning(request, 'No tienes una sucursal asignada. Contacta al administrador.')
+        except:
+            # Si no existe EmpleadoExtra para este usuario, no ve reservas
+            reservas = Reserva.objects.none()
+            messages.error(request, 'Error al obtener información del empleado. Contacta al administrador.')
     
     return render(request, 'panel_empleado/lista_reservas.html', {
         'reservas': reservas
@@ -341,7 +361,7 @@ def crear_reserva_empleado(request, auto_id):
         request.POST = request.POST.copy()
         request.POST['fecha_inicio'] = fecha_hoy.strftime('%Y-%m-%d')
         
-        cliente_tipo = request.POST.get('cliente_tipo')
+        # Solo se permite seleccionar clientes existentes
         
         # VALIDACIONES PERSONALIZADAS PARA EMPLEADOS
         errors = {}
@@ -485,64 +505,20 @@ def crear_reserva_empleado(request, auto_id):
                     if reservas_dni_principal.exists():
                         errors['dni_conductor_adicional'] = "Este DNI ya está asociado a otra reserva como conductor principal en las mismas fechas."
         
-        # Procesar cliente (existente o nuevo)
-        cliente = None  # ✅ INICIALIZAR VARIABLE CLIENTE
-        if cliente_tipo == 'existente':
-            # Priorizar cliente seleccionado por búsqueda
-            cliente_id = request.POST.get('cliente_id') or request.POST.get('cliente_id_backup')
-            if not cliente_id:
-                errors['cliente'] = "Debe seleccionar un cliente."
-            else:
-                try:
-                    cliente = get_object_or_404(Usuario, id=cliente_id)
-                except:
-                    errors['cliente'] = "Cliente no encontrado."
+        # Procesar cliente existente únicamente
+        cliente = None
+        cliente_id = request.POST.get('cliente_id') or request.POST.get('cliente_id_backup')
+        if not cliente_id:
+            errors['cliente'] = "Debe seleccionar un cliente."
         else:
-            # Crear nuevo cliente (código existente)
             try:
-                from usuarios.utils import generar_password_temporal, enviar_email_activacion
-                password_temporal = generar_password_temporal()
-                
-                cliente = Usuario.objects.create_user(
-                    username=request.POST.get('nuevo_username'),
-                    password=password_temporal,
-                    nombre=request.POST.get('nuevo_nombre'),
-                    apellido=request.POST.get('nuevo_apellido'),
-                    dni=request.POST.get('nuevo_dni'),
-                    correo=request.POST.get('nuevo_correo'),
-                    telefono=request.POST.get('nuevo_telefono'),
-                    fecha_nacimiento=request.POST.get('nuevo_fecha_nacimiento'),
-                    is_active=False,
-                    created_by_employee=True
-                )
-                
-                cliente.password_temp = password_temporal
-                cliente.save()
-                
-                from django.contrib.auth.models import Group
-                cliente_group, created = Group.objects.get_or_create(name='cliente')
-                cliente.groups.add(cliente_group)
-                
-                if enviar_email_activacion(cliente, password_temporal):
-                    messages.success(request, 
-                        f"Cliente {cliente.nombre} {cliente.apellido} creado exitosamente. "
-                        f"Se ha enviado un email de activación a {cliente.correo}.")
-                else:
-                    messages.warning(request, 
-                        f"Cliente creado pero hubo un error enviando el email. "
-                        f"Contraseña temporal: {password_temporal}")
-                
-            except Exception as e:
-                messages.error(request, f"Error al crear el cliente: {str(e)}")
-                return render(request, 'panel_empleado/crear_reserva_empleado.html', {
-                    'auto': auto,
-                    'clientes': clientes,
-                    'form_data': request.POST
-                })
+                cliente = get_object_or_404(Usuario, id=cliente_id)
+            except:
+                errors['cliente'] = "Cliente no encontrado."
         
-        # ✅ VALIDAR QUE CLIENTE EXISTA ANTES DE CONTINUAR
+        # Validar que cliente exista antes de continuar
         if not cliente:
-            errors['cliente'] = "Debe seleccionar un cliente o crear uno nuevo."
+            errors['cliente'] = "Debe seleccionar un cliente."
         
         # Si hay errores, mostrarlos y volver al formulario
         if errors:
@@ -624,9 +600,7 @@ El equipo de Alquileres María
             except Exception as e:
                 messages.warning(request, f"Reserva creada exitosamente, pero no se pudo enviar el email de confirmación: {str(e)}")
             
-            if cliente_tipo == 'nuevo':
-                messages.info(request, 
-                    f"IMPORTANTE: El cliente debe activar su cuenta antes de poder gestionar la reserva.")
+            # Reserva creada exitosamente
                 
             messages.success(request, f"Reserva creada exitosamente para {cliente.nombre} {cliente.apellido}")
             return redirect('reservas:reserva_exitosa', reserva_id=reserva.id)
