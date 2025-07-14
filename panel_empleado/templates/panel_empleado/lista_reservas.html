@@ -60,25 +60,24 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <td>
-                                            <strong>${{ reserva.precio_total|floatformat:2 }}</strong>
-                                            {% if reserva.es_devolucion_tardia %}
-                                                <br><span class="text-success">+ ${{ reserva.multa_por_retraso|floatformat:2 }}</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            {% if reserva.es_devolucion_tardia %}
-                                                <span class="badge bg-warning text-dark">
-                                                    <i class="fas fa-exclamation-triangle"></i> 
-                                                    {{ reserva.dias_retraso }} día{{ reserva.dias_retraso|pluralize }} 
-                                                    (${{ reserva.multa_por_retraso|floatformat:2 }})
-                                                </span>
-                                            {% else %}
-                                                <span class="badge bg-success">
-                                                    <i class="fas fa-check"></i> Sin multa
-                                                </span>
-                                            {% endif %}
-                                        </td>
+                                        <strong>${{ reserva.precio_total|floatformat:2 }}</strong>
+                                        {% if reserva.es_devolucion_tardia %}
+                                            <br><span class="text-success">+ ${{ reserva.multa_por_retraso|floatformat:2 }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if reserva.es_devolucion_tardia %}
+                                            <span class="badge bg-warning text-dark">
+                                                <i class="fas fa-exclamation-triangle"></i> 
+                                                {{ reserva.dias_retraso }} día{{ reserva.dias_retraso|pluralize }} 
+                                                (${{ reserva.multa_por_retraso|floatformat:2 }})
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check"></i> Sin multa
+                                            </span>
+                                        {% endif %}
+                                    </td>
                                     <td>
                                         <div class="btn-group" role="group">
                                             <a href="{% url 'cambiar_estado_reserva_empleado' reserva.id %}" class="btn btn-sm btn-custom-primary" title="Ver detalles">

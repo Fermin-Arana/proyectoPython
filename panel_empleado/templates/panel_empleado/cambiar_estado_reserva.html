@@ -209,13 +209,9 @@
                     <a href="{% url 'lista_reservas_empleado' %}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Volver a Lista de Reservas
                     </a>
-                    {% if reserva.estado == 'confirmada' %}
-                    <a href="{% url 'devolver_auto_empleado' reserva.id %}" class="btn btn-custom-danger">
-                        <i class="fas fa-undo"></i> Procesar Devolución
-                    </a>
-                    {% elif reserva.estado == 'en_curso' %}
+                    
                     <!-- Badge duplicado eliminado - solo aparece en Estado Actual -->
-                    {% endif %}
+                    
                 </div>
             </div>
         </div>

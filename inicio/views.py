@@ -43,7 +43,8 @@ def index(request):
     if fecha_desde and fecha_hasta:
         autos = autos.exclude(
             reserva__fecha_inicio__lte=fecha_hasta,
-            reserva__fecha_fin__gte=fecha_desde
+            reserva__fecha_fin__gte=fecha_desde,
+            reserva__estado__in=['confirmada', 'en_curso']
         )
 
     # Ordenar por precio

@@ -47,7 +47,7 @@
                                         <a href="{% url 'detalle_reserva' reserva.id %}" class="btn btn-sm btn-danger">Ver detalles</a>
                                         {% if not reserva.estado == 'cancelada' %}
                                             <a href="{% url 'reservas:reserva_cancelar' reserva.id %}" class="btn btn-sm btn-danger">Cancelar Reserva</a>
-                                            <a href="{% url 'reservas:reserva_modificar' reserva.id %}" class= "btn btn-sm btn-danger"> Modificar Reserva </a>
+        
                                         {% endif %}
                                 </tr>
                                 {% endfor %}

@@ -20,7 +20,7 @@ from django.db.models import Q
 def panel_empleado(request):
     if not (request.user.groups.filter(name='empleado').exists() or 
             request.user.groups.filter(name='admin').exists()):
-        return redirect('no_autorizado_empleado')
+        return redirect('no_autorizado')
     
     context = {
         'es_admin': request.user.groups.filter(name='admin').exists(),
@@ -29,34 +29,146 @@ def panel_empleado(request):
 
 def no_autorizado_empleado(request):
     return render(request, 'panel_empleado/no_autorizado.html')
+
 @login_required
 def registrar_entrega_empleado(request, reserva_id):
     if not (request.user.groups.filter(name='empleado').exists() or 
             request.user.groups.filter(name='admin').exists()):
-        return redirect('no_autorizado_empleado')
+        return redirect('no_autorizado')
 
     reserva = get_object_or_404(Reserva, id=reserva_id)
-
+    auto = reserva.vehiculo
+    
     if reserva.estado != 'confirmada':
         messages.error(request, "Solo se pueden entregar autos con reservas confirmadas.")
         return redirect('cambiar_estado_reserva_empleado', reserva_id=reserva.id)
 
-    # Cambiar estado de la reserva a en_curso
-    reserva.estado = 'en_curso'
+    en_mantenimiento = auto.estado == 'mantenimiento'
+    en_uso = Reserva.objects.filter(vehiculo=auto, estado='en_curso').exists()
+    if en_mantenimiento or en_uso:
+        reemplazo = buscar_auto_reemplazo(
+            sucursal=reserva.vehiculo.sucursal,
+            categoria=auto.categoria,
+            precio_original=auto.precio_por_dia,
+            fecha_inicio=reserva.fecha_inicio,
+            fecha_fin=reserva.fecha_fin
+        )
+
+        if reemplazo:
+            reserva.vehiculo = reemplazo
+            reserva.estado = 'en_curso'
+            reserva.save()
+            notificar_reemplazo(reserva)
+            messages.success(request, f"Auto original no disponible, se asignó {reemplazo.marca} {reemplazo.modelo} ({reemplazo.patente}). Cliente notificado.")
+        else:
+            cancelar_con_reembolso_total(reserva)
+            messages.error(request, "No hay reemplazo disponible. Reserva cancelada, reembolso realizado y cliente notificado.")
+    else:
+        reserva.estado = 'en_curso'
+        reserva.save()
+        messages.success(request, "Reserva puesta en curso correctamente.")
+
+    return redirect('lista_reservas_empleado')
+
+from decimal import Decimal
+
+def cancelar_con_reembolso_total(reserva):
+    try:
+        pago = reserva.pagosimulado
+    except PagoSimulado.DoesNotExist:
+        pago = None
+
+    monto_pagado = pago.monto if pago else Decimal('0.00')
+    porcentaje = Decimal('100.00')  # Reembolso total
+    reembolso = monto_pagado  # Reembolso del 100%
+
+    reserva.estado = 'cancelada'
     reserva.save()
 
-    # El auto mantiene su estado físico (disponible/mantenimiento/inhabilitado)
-    # No se cambia el estado del auto ya que se maneja por reservas
+    if pago and pago.estado == 'exitoso' and pago.tarjeta:
+        tarjeta = pago.tarjeta
+        tarjeta.saldo += reembolso
+        tarjeta.save()
+
+        pago.estado = 'fallido'
+        pago.save()
+
+    # Enviar correo
+    send_mail(
+        subject='Cancelación de tu reserva y reembolso',
+        message=f"""
+Hola {reserva.usuario.nombre},
+
+Tu reserva para el vehículo {reserva.vehiculo.marca} {reserva.vehiculo.modelo} fue cancelada.
+
+Monto reembolsado: ${reembolso:.2f}
+
+Ya fue acreditado a tu tarjeta terminada en {pago.tarjeta.numero_tarjeta[-4:] if pago and pago.tarjeta else '----'}.
+
+Lamentamos las molestias.
+
+El equipo de Alquileres María
+""",
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[reserva.usuario.correo],
+        fail_silently=False,
+    )
+
+def buscar_auto_reemplazo(sucursal, categoria, precio_original, fecha_inicio, fecha_fin):
+    autos_disponibles = Auto.objects.filter(
+        activo=True,
+        sucursal=sucursal,
+        estado='disponible',
+        categoria=categoria,
+        precio_por_dia__gte=precio_original
+    ).exclude(
+        reserva__estado='en_curso'
+    )
+
+    if autos_disponibles.exists():
+        return autos_disponibles.first()
+
+    autos_alternativos = Auto.objects.filter(
+        activo=True,
+        sucursal=sucursal,
+        estado='disponible',
+        precio_por_dia__gte=precio_original
+    ).exclude(
+       reserva__estado='en_curso'
+    )
+
+    if autos_alternativos.exists():
+        return autos_alternativos.first()
+
+    return None
+
+def notificar_reemplazo(reserva):
+    usuario = reserva.usuario
     auto = reserva.vehiculo
-    
-    messages.success(request, f'Vehículo {auto.patente} entregado exitosamente. .')
-    return redirect('cambiar_estado_reserva_empleado', reserva_id=reserva.id)
+
+    send_mail(
+        'Actualización de tu reserva en Alquileres María',
+        f'''Hola {usuario.nombre},
+
+Te informamos que el vehículo originalmente asignado a tu reserva #{reserva.id} no estaba disponible al momento de la entrega.
+
+Hemos asignado un nuevo vehículo para que puedas continuar con tu reserva sin inconvenientes.
+
+Nuevo vehículo: {auto.marca} {auto.modelo} - Patente: {auto.patente}
+
+Gracias por tu comprensión,
+El equipo de Alquileres María''',
+        settings.DEFAULT_FROM_EMAIL,
+        [usuario.correo],
+        fail_silently=False,
+    )
+
 
 @login_required
 def lista_reservas_empleado(request):
     if not (request.user.groups.filter(name='empleado').exists() or 
             request.user.groups.filter(name='admin').exists()):
-        return redirect('no_autorizado_empleado')
+        return redirect('no_autorizado')
     
     # Mostrar TODAS las reservas, no solo las activas
     reservas = Reserva.objects.all().select_related('usuario', 'vehiculo').order_by('-fecha_reserva')
@@ -69,7 +181,7 @@ def lista_reservas_empleado(request):
 def devolver_auto(request, reserva_id):
     if not (request.user.groups.filter(name='empleado').exists() or 
             request.user.groups.filter(name='admin').exists()):
-        return redirect('no_autorizado_empleado')
+        return redirect('no_autorizado')
     
     reserva = get_object_or_404(Reserva, id=reserva_id)
     
@@ -92,7 +204,7 @@ def devolver_auto(request, reserva_id):
 def cambiar_estado_reserva(request, reserva_id):
     if not (request.user.groups.filter(name='empleado').exists() or 
             request.user.groups.filter(name='admin').exists()):
-        return redirect('no_autorizado_empleado')
+        return redirect('no_autorizado')
     
     reserva = get_object_or_404(Reserva, id=reserva_id)
     
@@ -103,7 +215,7 @@ def cambiar_estado_reserva(request, reserva_id):
 def lista_autos_empleado(request):
     if not (request.user.groups.filter(name='empleado').exists() or 
             request.user.groups.filter(name='admin').exists()):
-        return redirect('no_autorizado_empleado')
+        return redirect('no_autorizado')
     
     from sucursales.models import Sucursal
     from django.db.models import Q
@@ -190,7 +302,7 @@ def lista_autos_empleado(request):
 def cambiar_estado_auto_empleado(request, patente):
     if not (request.user.groups.filter(name='empleado').exists() or 
             request.user.groups.filter(name='admin').exists()):
-        return redirect('no_autorizado_empleado')
+        return redirect('no_autorizado')
     
     auto = get_object_or_404(Auto, patente=patente)
     
@@ -291,7 +403,7 @@ def cambiar_estado_rapido(request, auto_id):
 def crear_reserva_empleado(request, auto_id):
     if not (request.user.groups.filter(name='empleado').exists() or 
             request.user.groups.filter(name='admin').exists()):
-        return redirect('no_autorizado_empleado')
+        return redirect('no_autorizado')
     
     auto = get_object_or_404(Auto, id=auto_id)
     
@@ -576,6 +688,13 @@ def crear_reserva_empleado(request, auto_id):
             # En la función crear_reserva_empleado, después de reserva.save() (línea ~580)
             reserva.save()
             
+            adicionales = ""
+            if reserva.gps:
+                adicionales += "- GPS\n"
+            if reserva.silla_bebe:
+                adicionales += "- Silla para bebé\n"
+            if reserva.conductor_adicional:
+                adicionales += f"- Conductor adicional: {reserva.nombre_conductor_adicional}\n"
             # Enviar email de confirmación de reserva
             try:
                 from django.conf import settings
@@ -595,7 +714,7 @@ Detalles de la reserva:
 - Tipo de seguro: {tipo_seguro.title()}
 
 Adicionales incluidos:
-{('- GPS\n' if reserva.gps else '')}{('- Silla para bebé\n' if reserva.silla_bebe else '')}{('- Conductor adicional: ' + reserva.nombre_conductor_adicional + '\n' if reserva.conductor_adicional else '')}
+{adicionales}
 
 ¡Gracias por confiar en nosotros!
 
@@ -615,7 +734,7 @@ El equipo de Alquileres María
                     f"IMPORTANTE: El cliente debe activar su cuenta antes de poder gestionar la reserva.")
                 
             messages.success(request, f"Reserva creada exitosamente para {cliente.nombre} {cliente.apellido}")
-            return redirect('reservas:reserva_exitosa', reserva_id=reserva.id)
+            return redirect('panel_empleado/reserva_exitosa', reserva_id=reserva.id)
             
         except Exception as e:
             messages.error(request, f"Error al crear la reserva: {str(e)}")
@@ -637,7 +756,7 @@ El equipo de Alquileres María
 def registrar_devolucion_empleado(request):
     if not (request.user.groups.filter(name='empleado').exists() or 
             request.user.groups.filter(name='admin').exists()):
-        return redirect('no_autorizado_empleado')
+        return redirect('no_autorizado')
     
     # Obtener reservas confirmadas (autos que están en uso)
     reservas_activas = Reserva.objects.filter(
@@ -652,7 +771,7 @@ def registrar_devolucion_empleado(request):
 def procesar_devolucion_empleado(request, reserva_id):
     if not (request.user.groups.filter(name='empleado').exists() or 
             request.user.groups.filter(name='admin').exists()):
-        return redirect('no_autorizado_empleado')
+        return redirect('no_autorizado')
     
     reserva = get_object_or_404(Reserva, id=reserva_id)
     
@@ -770,7 +889,7 @@ def buscar_clientes_ajax(request):
 def crear_cliente_empleado(request):
     if not (request.user.groups.filter(name='empleado').exists() or 
             request.user.groups.filter(name='admin').exists()):
-        return redirect('no_autorizado_empleado')
+        return redirect('no_autorizado')
     
     if request.method == 'POST':
         errors = {}
@@ -870,7 +989,7 @@ def crear_cliente_empleado(request):
 def lista_clientes_empleado(request):
     if not (request.user.groups.filter(name='empleado').exists() or 
             request.user.groups.filter(name='admin').exists()):
-        return redirect('no_autorizado_empleado')
+        return redirect('no_autorizado')
     
     # Obtener todos los clientes (usuarios que no son empleados ni admins)
     clientes = Usuario.objects.filter(

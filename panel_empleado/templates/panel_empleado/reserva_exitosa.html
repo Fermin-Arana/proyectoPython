@@ -324,8 +324,14 @@
 
             <!-- Botones de acción -->
             <div class="confirmation-actions">
-                <a href="{% url 'index' %}" class="btn-action">
-                    <i class="fas fa-arrow-left"></i> Volver al inicio
+                <a href="{% url 'panel_empleado' %}" class="btn-action">
+                    <i class="fas fa-arrow-left"></i> Volver al Panel
+                </a>
+                <a href="#" onclick="window.print()" class="btn-action">
+                    <i class="fas fa-print"></i> Imprimir Confirmación
+                </a>
+                <a href="{% url 'lista_reservas_empleado' %}" class="btn-action">
+                    <i class="fas fa-list"></i> Ver Todas las Reservas
                 </a>
             </div>
         </div>

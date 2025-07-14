@@ -89,8 +89,7 @@ def pagar_reserva(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id, usuario=request.user)
 
     # Monto calculado
-    dias = (reserva.fecha_fin - reserva.fecha_inicio).days
-    monto = reserva.vehiculo.precio_por_dia * dias
+    monto = reserva.precio_total()
     
     
 
@@ -151,7 +150,7 @@ def pagar_reserva(request, reserva_id):
                             recipient_list=[request.user.correo],
                             fail_silently=False,
                     )
-                    if not request.user.email:
+                    if not request.user.correo:
                         messages.warning(request, "No se pudo enviar el correo porque no tenés un email registrado.")
                     return redirect('reservas:reserva_exitosa', reserva_id=reserva.id)
     else:
