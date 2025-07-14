@@ -573,10 +573,42 @@ def crear_reserva_empleado(request, auto_id):
                 reserva.nombre_conductor_adicional = request.POST.get('nombre_conductor_adicional', '').strip()
                 reserva.dni_conductor_adicional = request.POST.get('dni_conductor_adicional', '').strip()
             
+            # En la función crear_reserva_empleado, después de reserva.save() (línea ~580)
             reserva.save()
             
-            # El auto mantiene su estado físico (disponible/mantenimiento)
-            # No se cambia el estado del auto ya que se maneja por reservas
+            # Enviar email de confirmación de reserva
+            try:
+                from django.conf import settings
+                send_mail(
+                    subject='Reserva Confirmada - Alquileres María',
+                    message=f"""
+Hola {cliente.nombre} {cliente.apellido},
+
+Tu reserva para el vehículo {auto.marca} {auto.modelo} ha sido confirmada exitosamente por nuestro personal.
+
+Detalles de la reserva:
+- Número de reserva: #{reserva.id:05d}
+- Fecha de inicio: {fecha_inicio}
+- Fecha de fin: {fecha_fin}
+- Conductor: {conductor}
+- DNI del conductor: {dni_conductor}
+- Tipo de seguro: {tipo_seguro.title()}
+
+Adicionales incluidos:
+{('- GPS\n' if reserva.gps else '')}{('- Silla para bebé\n' if reserva.silla_bebe else '')}{('- Conductor adicional: ' + reserva.nombre_conductor_adicional + '\n' if reserva.conductor_adicional else '')}
+
+¡Gracias por confiar en nosotros!
+
+Atentamente,
+El equipo de Alquileres María
+                    """,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[cliente.correo],
+                    fail_silently=False,
+                )
+                messages.success(request, f"Email de confirmación enviado a {cliente.correo}")
+            except Exception as e:
+                messages.warning(request, f"Reserva creada exitosamente, pero no se pudo enviar el email de confirmación: {str(e)}")
             
             if cliente_tipo == 'nuevo':
                 messages.info(request, 
