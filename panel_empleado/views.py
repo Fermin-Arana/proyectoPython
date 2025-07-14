@@ -488,7 +488,7 @@ def crear_reserva_empleado(request, auto_id):
             if fecha_inicio != fecha_hoy:
                 errors['fecha_inicio'] = 'La fecha de inicio debe ser hoy.'
             
-            # Validar que fecha fin sea posterior a fecha inicio
+            # Validar tiempo mínimo de reserva (1 día)
             if fecha_fin <= fecha_inicio:
                 errors['fecha_fin'] = 'La fecha de fin debe ser posterior a la fecha de inicio.'
                 
@@ -535,21 +535,21 @@ def crear_reserva_empleado(request, auto_id):
             
             # 2. Validaciones de Disponibilidad del Vehículo
             reservas_conflicto = Reserva.objects.filter(
-                vehiculo=auto,  # ✅ CAMBIAR 'auto=auto' por 'vehiculo=auto'
-                estado__in=['pendiente', 'confirmada'],
+                vehiculo=auto,
+                estado__in=['pendiente', 'confirmada', 'en_curso'],
                 fecha_inicio__lte=fecha_fin,
                 fecha_fin__gte=fecha_inicio
             )
             
             if reservas_conflicto.exists():
-                errors['vehiculo'] = "El vehículo no está disponible en las fechas seleccionadas."
+                errors['vehiculo'] = "El vehículo ya está reservado en esas fechas."
             
             # 3. Validaciones de Conductor
             if conductor:
                 # Verificar que el conductor no tenga otra reserva en las mismas fechas
                 reservas_conductor = Reserva.objects.filter(
                     conductor=conductor,
-                    estado__in=['pendiente', 'confirmada'],
+                    estado__in=['pendiente', 'confirmada', 'en_curso'],
                     fecha_inicio__lt=fecha_fin,
                     fecha_fin__gt=fecha_inicio
                 )
@@ -561,13 +561,13 @@ def crear_reserva_empleado(request, auto_id):
                 # Verificar que el DNI no esté en otra reserva en las mismas fechas
                 reservas_dni = Reserva.objects.filter(
                     dni_conductor=dni_conductor,
-                    estado__in=['pendiente', 'confirmada'],
+                    estado__in=['pendiente', 'confirmada', 'en_curso'],
                     fecha_inicio__lt=fecha_fin,
                     fecha_fin__gt=fecha_inicio
                 )
                 
                 if reservas_dni.exists():
-                    errors['dni_conductor'] = "Este DNI ya está asociado a otra reserva en las mismas fechas."
+                    errors['dni_conductor'] = "El conductor ya tiene una reserva en esas fechas."
             
             # 4. Validaciones de Conductor Adicional
             conductor_adicional_seleccionado = 'conductor_adicional' in request.POST
@@ -589,49 +589,49 @@ def crear_reserva_empleado(request, auto_id):
                 if nombre_conductor_adicional:
                     reservas_conductor_adicional = Reserva.objects.filter(
                         nombre_conductor_adicional=nombre_conductor_adicional,
-                        estado__in=['pendiente', 'confirmada'],
+                        estado__in=['pendiente', 'confirmada', 'en_curso'],
                         fecha_inicio__lt=fecha_fin,
                         fecha_fin__gt=fecha_inicio
                     )
                     if reservas_conductor_adicional.exists():
-                        errors['nombre_conductor_adicional'] = "Este conductor adicional ya tiene una reserva en esas fechas."
+                        errors['nombre_conductor_adicional'] = "El conductor ya tiene una reserva en esas fechas."
                 
                 # Validar disponibilidad del DNI del conductor adicional
                 if dni_conductor_adicional:
                     # Verificar como conductor adicional
                     reservas_dni_adicional = Reserva.objects.filter(
                         dni_conductor_adicional=dni_conductor_adicional,
-                        estado__in=['pendiente', 'confirmada'],
+                        estado__in=['pendiente', 'confirmada', 'en_curso'],
                         fecha_inicio__lt=fecha_fin,
                         fecha_fin__gt=fecha_inicio
                     )
                     if reservas_dni_adicional.exists():
-                        errors['dni_conductor_adicional'] = "Este DNI ya está asociado a otra reserva como conductor adicional en las mismas fechas."
+                        errors['dni_conductor_adicional'] = "El conductor ya tiene una reserva en esas fechas."
                     
                     # Verificar como conductor principal
                     reservas_dni_principal = Reserva.objects.filter(
                         dni_conductor=dni_conductor_adicional,
-                        estado__in=['pendiente', 'confirmada'],
+                        estado__in=['pendiente', 'confirmada', 'en_curso'],
                         fecha_inicio__lt=fecha_fin,
                         fecha_fin__gt=fecha_inicio
                     )
                     if reservas_dni_principal.exists():
-                        errors['dni_conductor_adicional'] = "Este DNI ya está asociado a otra reserva como conductor principal en las mismas fechas."
+                        errors['dni_conductor_adicional'] = "El conductor ya tiene una reserva en esas fechas."
         
         # Procesar cliente existente únicamente
         cliente = None
         cliente_id = request.POST.get('cliente_id') or request.POST.get('cliente_id_backup')
         if not cliente_id:
-            errors['cliente'] = "Debe seleccionar un cliente."
+            errors['cliente'] = "No se encontraron clientes con ese criterio de búsqueda."
         else:
             try:
                 cliente = get_object_or_404(Usuario, id=cliente_id)
             except:
-                errors['cliente'] = "Cliente no encontrado."
+                errors['cliente'] = "No se encontraron clientes con ese criterio de búsqueda."
         
         # Validar que cliente exista antes de continuar
         if not cliente:
-            errors['cliente'] = "Debe seleccionar un cliente."
+            errors['cliente'] = "No se encontraron clientes con ese criterio de búsqueda."
         
         # Si hay errores, mostrarlos y volver al formulario
         if errors:
@@ -723,7 +723,7 @@ El equipo de Alquileres María
             # Reserva creada exitosamente
                 
             messages.success(request, f"Reserva creada exitosamente para {cliente.nombre} {cliente.apellido}")
-            return redirect('panel_empleado/reserva_exitosa', reserva_id=reserva.id)
+            return redirect('reserva_exitosa_empleado', reserva_id=reserva.id)
             
         except Exception as e:
             messages.error(request, f"Error al crear la reserva: {str(e)}")
@@ -1018,6 +1018,23 @@ def detalle_auto_empleado(request, patente):
             pass
     
     auto = get_object_or_404(Auto, patente=patente)
-    return render(request, 'panel_empleado/detalle_auto_empleado.html', {'auto': auto})
+    
+    # Generar URL para reservar con el auto preseleccionado
+    from django.urls import reverse
+    reservar_url = reverse('crear_reserva_empleado', args=[auto.id])
+    
+    return render(request, 'panel_empleado/detalle_auto_empleado.html', {
+        'auto': auto,
+        'reservar_url': reservar_url
+    })
+
+@login_required
+def reserva_exitosa_empleado(request, reserva_id):
+    if not (request.user.groups.filter(name='empleado').exists() or 
+            request.user.groups.filter(name='admin').exists()):
+        return redirect('no_autorizado')
+    
+    reserva = get_object_or_404(Reserva, id=reserva_id)
+    return render(request, 'panel_empleado/reserva_exitosa.html', {'reserva': reserva})
     
     

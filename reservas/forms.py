@@ -160,6 +160,7 @@ class ReservaForm(forms.ModelForm):
             if (vehiculo and not self.errors.get('fecha_inicio') and not self.errors.get('fecha_fin')):
                 hay_otro = Reserva.objects.filter(
                     vehiculo=vehiculo,
+                    estado__in=['pendiente', 'confirmada', 'en_curso'],
                     fecha_inicio__lte=fecha_fin,
                     fecha_fin__gte=fecha_inicio
                 ).exclude(pk=self.instance.pk).exists()
@@ -170,6 +171,7 @@ class ReservaForm(forms.ModelForm):
             if (conductor and not self.errors.get('fecha_inicio') and not self.errors.get('fecha_fin')):
                 hay_otro2 = Reserva.objects.filter(
                     conductor=conductor,
+                    estado__in=['pendiente', 'confirmada', 'en_curso'],
                     fecha_inicio__lte=fecha_fin,
                     fecha_fin__gte=fecha_inicio
                 ).exclude(pk=self.instance.pk).exists()
@@ -180,11 +182,12 @@ class ReservaForm(forms.ModelForm):
             if (dni_conductor and not self.errors.get('fecha_inicio') and not self.errors.get('fecha_fin')):
                 hay_otro_dni = Reserva.objects.filter(
                     dni_conductor=dni_conductor,
+                    estado__in=['pendiente', 'confirmada', 'en_curso'],
                     fecha_inicio__lte=fecha_fin,
                     fecha_fin__gte=fecha_inicio
                 ).exclude(pk=self.instance.pk).exists()
                 if hay_otro_dni:
-                    self.add_error('dni_conductor', "Este DNI ya está asociado a otra reserva en las mismas fechas.")
+                    self.add_error('dni_conductor', "El conductor ya tiene una reserva en esas fechas.")
         
         # Validaciones para conductor adicional
         if conductor_adicional:
@@ -201,30 +204,33 @@ class ReservaForm(forms.ModelForm):
             if (nombre_conductor_adicional and fecha_inicio and fecha_fin and not self.errors.get('fecha_inicio') and not self.errors.get('fecha_fin')):
                 hay_otro_conductor_adicional = Reserva.objects.filter(
                     nombre_conductor_adicional=nombre_conductor_adicional,
+                    estado__in=['pendiente', 'confirmada', 'en_curso'],
                     fecha_inicio__lte=fecha_fin,
                     fecha_fin__gte=fecha_inicio
                 ).exclude(pk=self.instance.pk).exists()
                 if hay_otro_conductor_adicional:
-                    self.add_error('nombre_conductor_adicional', "Este conductor adicional ya tiene una reserva en esas fechas.")
+                    self.add_error('nombre_conductor_adicional', "El conductor ya tiene una reserva en esas fechas.")
             
             # Validar disponibilidad del DNI del conductor adicional
             if (dni_conductor_adicional and fecha_inicio and fecha_fin and not self.errors.get('fecha_inicio') and not self.errors.get('fecha_fin')):
                 hay_otro_dni_adicional = Reserva.objects.filter(
                     dni_conductor_adicional=dni_conductor_adicional,
+                    estado__in=['pendiente', 'confirmada', 'en_curso'],
                     fecha_inicio__lte=fecha_fin,
                     fecha_fin__gte=fecha_inicio
                 ).exclude(pk=self.instance.pk).exists()
                 if hay_otro_dni_adicional:
-                    self.add_error('dni_conductor_adicional', "Este DNI ya está asociado a otra reserva como conductor adicional en las mismas fechas.")
+                    self.add_error('dni_conductor_adicional', "El conductor ya tiene una reserva en esas fechas.")
                 
                 # También verificar que no esté como conductor principal
                 hay_como_principal = Reserva.objects.filter(
                     dni_conductor=dni_conductor_adicional,
+                    estado__in=['pendiente', 'confirmada', 'en_curso'],
                     fecha_inicio__lte=fecha_fin,
                     fecha_fin__gte=fecha_inicio
                 ).exclude(pk=self.instance.pk).exists()
                 if hay_como_principal:
-                    self.add_error('dni_conductor_adicional', "Este DNI ya está asociado a otra reserva como conductor principal en las mismas fechas.")
+                    self.add_error('dni_conductor_adicional', "El conductor ya tiene una reserva en esas fechas.")
                 
         return cleaned_data
 
