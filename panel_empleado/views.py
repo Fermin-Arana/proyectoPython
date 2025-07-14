@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, render, redirect
 from usuarios.models import Usuario
@@ -895,7 +895,7 @@ def crear_cliente_empleado(request):
         if not username:
             errors['username'] = "El nombre de usuario es obligatorio."
         elif Usuario.objects.filter(username=username).exists():
-            errors['username'] = "Este nombre de usuario ya existe."
+            errors['username'] = "Ese nombre de usuario ya está en uso. Probá con otro."
             
         if not nombre:
             errors['nombre'] = "El nombre es obligatorio."
@@ -906,18 +906,30 @@ def crear_cliente_empleado(request):
         if not dni:
             errors['dni'] = "El DNI es obligatorio."
         elif Usuario.objects.filter(dni=dni).exists():
-            errors['dni'] = "Este DNI ya está registrado."
+            errors['dni'] = "Ese DNI ya está en uso. Probá con otro."
             
         if not correo:
             errors['correo'] = "El correo es obligatorio."
         elif Usuario.objects.filter(correo=correo).exists():
-            errors['correo'] = "Este correo ya está registrado."
+            errors['correo'] = "Ya existe un usuario con este Correo."
             
         if not telefono:
             errors['telefono'] = "El teléfono es obligatorio."
             
         if not fecha_nacimiento:
             errors['fecha_nacimiento'] = "La fecha de nacimiento es obligatoria."
+        else:
+            # Validar que sea mayor de edad
+            try:
+                from datetime import datetime
+                fecha_nac = datetime.strptime(fecha_nacimiento, '%Y-%m-%d').date()
+                hoy = date.today()
+                edad = hoy.year - fecha_nac.year - ((hoy.month, hoy.day) < (fecha_nac.month, fecha_nac.day))
+                
+                if edad < 18:
+                    errors['fecha_nacimiento'] = "Debes ser mayor de edad para registrarte."
+            except ValueError:
+                errors['fecha_nacimiento'] = "Formato de fecha inválido."
         
         # Si no hay errores, crear el cliente
         if not errors:
@@ -962,7 +974,7 @@ def crear_cliente_empleado(request):
                         f"Cliente creado pero hubo un error enviando el email. "
                         f"Contraseña temporal: {password_temporal}")
                 
-                return redirect('lista_clientes_empleado')
+                return redirect('lista_autos_empleado')
                 
             except Exception as e:
                 messages.error(request, f"Error al crear el cliente: {str(e)}")
