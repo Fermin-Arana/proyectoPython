@@ -26,9 +26,11 @@ def registrarse(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save(commit=False)  # crea instancia, pero no guarda aún
+            user.is_active = True           # activás el usuario
+            user.save()                    # ahora guardás en la BD
             messages.success(request, "Usuario registrado exitosamente")
-            return redirect('usuarios:login')  
+            return redirect('usuarios:login')
     else:
         form = CustomUserCreationForm()
 
