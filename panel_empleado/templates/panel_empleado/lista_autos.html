@@ -2,6 +2,23 @@
 
 {% block title %}Lista de Autos - Panel Empleado{% endblock %}
 
+{% block extra_js %}
+<script>
+function toggleView(viewType) {
+    const tableView = document.getElementById('table-view');
+    const gridView = document.getElementById('grid-view');
+    
+    if (viewType === 'table') {
+        tableView.style.display = 'block';
+        gridView.style.display = 'none';
+    } else if (viewType === 'grid') {
+        tableView.style.display = 'none';
+        gridView.style.display = 'block';
+    }
+}
+</script>
+{% endblock %}
+
 {% block content %}
 <!-- Token CSRF al inicio -->
 {% csrf_token %}
@@ -38,34 +55,44 @@
                         <select class="form-select" id="estado" name="estado">
                             <option value="">Todos los estados</option>
                             <option value="disponible" {% if estado_actual == 'disponible' %}selected{% endif %}>Disponible</option>
-                            <option value="reservado" {% if estado_actual == 'reservado' %}selected{% endif %}>Reservado</option>
+                            <option value="reservado" {% if estado_actual == 'reservado' %}selected{% endif %}>Con reservas activas</option>
                             <option value="mantenimiento" {% if estado_actual == 'mantenimiento' %}selected{% endif %}>Mantenimiento</option>
-                            <option value="inhabilitado" {% if estado_actual == 'inhabilitado' %}selected{% endif %}>Inhabilitado</option>
+                            {% for group in user.groups.all %}
+                                {% if group.name == 'admin' %}
+                                    <option value="inhabilitado" {% if estado_actual == 'inhabilitado' %}selected{% endif %}>Inhabilitado</option>
+                                {% endif %}
+                            {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label for="sucursal" class="form-label">Sucursal</label>
                         <select class="form-select" id="sucursal" name="sucursal">
                             <option value="">Todas las sucursales</option>
                             {% for sucursal in sucursales %}
-                                <option value="{{ sucursal.id }}" {% if sucursal_actual == sucursal.id|stringformat:'s' %}selected{% endif %}>
-                                    {{ sucursal.nombre }}
-                                </option>
+                                <option value="{{ sucursal.id }}" {% if sucursal_actual == sucursal.id|stringformat:"s" %}selected{% endif %}>{{ sucursal.nombre }}</option>
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-3">
-                        <label for="fecha_consulta" class="form-label">Consultar estado hasta fecha</label>
-                        <input type="date" class="form-control" id="fecha_consulta" name="fecha_consulta" 
-                               value="{{ fecha_consulta }}" title="Consultar disponibilidad hasta esta fecha">
+                    <div class="col-md-2">
+                        <label for="fecha_consulta" class="form-label">Fecha de consulta</label>
+                        <input type="date" class="form-control" id="fecha_consulta" name="fecha_consulta" value="{{ fecha_consulta }}" title="Consultar disponibilidad en esta fecha">
+                        <small class="text-muted">Opcional: verificar disponibilidad</small>
                     </div>
-                    <div class="col-md-2 d-flex align-items-end">
-                        <button type="submit" class="btn btn-custom-primary me-2">
-                            <i class="fas fa-search"></i> Filtrar
-                        </button>
-                        <a href="{% url 'lista_autos_empleado' %}" class="btn btn-outline-secondary">
-                            <i class="fas fa-times"></i> Limpiar
-                        </a>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-custom-primary">
+                                <i class="fas fa-search"></i> Aplicar Filtros
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <div class="d-grid">
+                            <a href="{% url 'lista_autos_empleado' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times"></i> Limpiar
+                            </a>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -90,172 +117,108 @@
             </div>
             <div class="card-body">
                 {% if autos %}
-                    <!-- Vista en tabla (por defecto) -->
-                    <div id="table-view">
-                        <div class="table-responsive">
-                            <table class="table table-hover table-custom">
-                                <thead>
-                                    <tr>
-                                        <th>Imagen</th>
-                                        <th>Marca/Modelo</th>
-                                        <th>Año</th>
-                                        <th>Patente</th>
-                                        <th>Estado</th>
-                                        <th>Sucursal</th>
-                                        <th>Precio/Día</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for auto in autos %}
-                                    <tr>
-                                        <td>
-                                            {% if auto.imagen %}
-                                                <img src="{{ auto.imagen.url }}" alt="{{ auto.marca }} {{ auto.modelo }}" 
-                                                     class="img-thumbnail" style="width: 60px; height: 40px; object-fit: cover;">
-                                            {% else %}
-                                                <div class="bg-light d-flex align-items-center justify-content-center" 
-                                                     style="width: 60px; height: 40px; border-radius: 4px;">
-                                                    <i class="fas fa-car text-muted"></i>
-                                                </div>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            <strong>{{ auto.marca }}</strong><br>
-                                            <small class="text-muted">{{ auto.modelo }}</small>
-                                        </td>
-                                        <td>{{ auto.anio }}</td>
-                                        <td><code>{{ auto.patente }}</code></td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div id="estado-{{ auto.id }}">
-                                                    {% if auto.estado == 'disponible' %}
-                                                        <span class="badge bg-success"><i class="fas fa-check"></i> Disponible</span>
-                                                    {% elif auto.estado == 'reservado' %}
-                                                        <span class="badge bg-danger"><i class="fas fa-clock"></i> Reservado</span>
-                                                    {% elif auto.estado == 'mantenimiento' %}
-                                                        <span class="badge bg-warning"><i class="fas fa-tools"></i> Mantenimiento</span>
-                                                    {% elif auto.estado == 'inhabilitado' %}
-                                                        <span class="badge bg-secondary"><i class="fas fa-ban"></i> Inhabilitado</span>
-                                                    {% else %}
-                                                        <span class="badge bg-secondary">{{ auto.estado|title }}</span>
-                                                    {% endif %}
-                                                </div>
-                                                {% if auto.estado == 'disponible' or auto.estado == 'mantenimiento' %}
-                                                <div class="dropdown ms-2" id="dropdown-{{ auto.id }}">
-                                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" 
-                                                            id="estadoDropdown{{ auto.id }}" data-bs-toggle="dropdown" aria-expanded="false"
-                                                            title="Cambiar estado">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu" aria-labelledby="estadoDropdown{{ auto.id }}">
-                                                        {% if auto.estado != 'disponible' %}
-                                                        <li><a class="dropdown-item" href="#" onclick="cambiarEstadoRapido({{ auto.id }}, 'disponible')">Disponible</a></li>
-                                                        {% endif %}
-                                                        {% if auto.estado != 'mantenimiento' %}
-                                                        <li><a class="dropdown-item" href="#" onclick="cambiarEstadoRapido({{ auto.id }}, 'mantenimiento')">En mantenimiento</a></li>
-                                                        {% endif %}
-                                                    </ul>
-                                                </div>
-                                                {% endif %}
+                <!-- Tabla -->
+                <div id="table-view">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-custom">
+                            <thead>
+                                <tr>
+                                    <th>Imagen</th>
+                                    <th>Marca/Modelo</th>
+                                    <th>Año</th>
+                                    <th>Patente</th>
+                                    <th>Estado</th>
+                                    <th>Sucursal</th>
+                                    <th>Precio/Día</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for auto in autos %}
+                                <tr>
+                                    <td>
+                                        {% if auto.imagen %}
+                                            <img src="{{ auto.imagen.url }}" alt="{{ auto.marca }} {{ auto.modelo }}" class="img-thumbnail" style="width: 60px; height: 40px; object-fit: cover;">
+                                        {% else %}
+                                            <div class="bg-light d-flex align-items-center justify-content-center" style="width: 60px; height: 40px; border-radius: 4px;">
+                                                <i class="fas fa-car text-muted"></i>
                                             </div>
-                                        </td>
-                                        <td>{{ auto.sucursal.nombre }}</td>
-                                        <td><strong>${{ auto.precio_por_dia }}</strong></td>
-                                        <td>
-                                            <td>
-                                                <div class="btn-group" role="group">
-                                                    <a href="{% url 'crear_reserva_empleado' auto.id %}" 
-                                                       class="btn btn-danger btn-sm" title="Reservar Ahora">
-                                                           <i class="fas fa-calendar-plus"></i> Reservar
-                                                       </a>
-                                                       <a href="{% url 'detalle_auto' auto.id %}" 
-                                                          class="btn btn-primary btn-sm" title="Ver detalles">
-                                                              <i class="fas fa-eye"></i> Detalles
-                                                          </a>
-                                                          <!-- Botón amarillo de Editar eliminado -->
-                                                      </div>
-                                                  </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Vista en grid (oculta por defecto) -->
-                    <div id="grid-view" style="display: none;">
-                        <div class="row">
-                            {% for auto in autos %}
-                            <div class="col-md-4 col-lg-3 mb-4">
-                                <div class="card card-custom h-100">
-                                    {% if auto.imagen %}
-                                        <img src="{{ auto.imagen.url }}" class="card-img-top" alt="{{ auto.marca }} {{ auto.modelo }}" 
-                                             style="height: 200px; object-fit: cover;">
+                                        {% endif %}
+                                    </td>
+                                    <td><strong>{{ auto.marca }}</strong><br><small class="text-muted">{{ auto.modelo }}</small></td>
+                                    <td>{{ auto.anio }}</td>
+                                    <td><code>{{ auto.patente }}</code></td>
+                                    <td>
+                                        {% if auto.estado == 'disponible' %}
+                                        <span class="badge bg-success"><i class="fas fa-check"></i> Disponible</span>
+                                    {% elif auto.estado == 'mantenimiento' %}
+                                        <span class="badge bg-warning"><i class="fas fa-tools"></i> Mantenimiento</span>
+                                    {% elif auto.estado == 'inhabilitado' %}
+                                        <span class="badge bg-danger"><i class="fas fa-ban"></i> Inhabilitado</span>
                                     {% else %}
-                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
-                                             style="height: 200px;">
-                                            <i class="fas fa-car fa-3x text-muted"></i>
-                                        </div>
+                                        <span class="badge bg-secondary">{{ auto.estado }}</span>
                                     {% endif %}
-                                    <div class="card-body">
-                                        <h6 class="card-title">{{ auto.marca }} {{ auto.modelo }}</h6>
-                                        <p class="card-text">
-                                            <small class="text-muted">Año: {{ auto.anio }}</small><br>
-                                            <small class="text-muted">Patente: {{ auto.patente }}</small><br>
-                                            <small class="text-muted">Sucursal: {{ auto.sucursal.nombre }}</small>
-                                        </p>
-                                        <div class="mb-2">
-                                            <div class="d-flex align-items-center">
-                                                <div id="estado-grid-{{ auto.id }}">
-                                                    {% if auto.estado == 'disponible' %}
-                                                        <span class="badge bg-success">Disponible</span>
-                                                    {% elif auto.estado == 'reservado' %}
-                                                        <span class="badge bg-danger">Reservado</span>
-                                                    {% elif auto.estado == 'mantenimiento' %}
-                                                        <span class="badge bg-warning">Mantenimiento</span>
-                                                    {% elif auto.estado == 'inhabilitado' %}
-                                                        <span class="badge bg-secondary">Inhabilitado</span>
-                                                    {% endif %}
-                                                </div>
-                                                {% if auto.estado == 'disponible' or auto.estado == 'mantenimiento' %}
-                                                <div class="dropdown ms-2" id="dropdown-grid-{{ auto.id }}">
-                                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" 
-                                                            id="estadoDropdownGrid{{ auto.id }}" data-bs-toggle="dropdown" aria-expanded="false"
-                                                            title="Cambiar estado">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                    <ul class="dropdown-menu" aria-labelledby="estadoDropdownGrid{{ auto.id }}">
-                                                        {% if auto.estado != 'disponible' %}
-                                                        <li><a class="dropdown-item" href="#" onclick="cambiarEstadoRapido({ auto.id }, 'disponible')">Disponible</a></li>
-                                                        {% endif %}
-                                                        {% if auto.estado != 'mantenimiento' %}
-                                                        <li><a class="dropdown-item" href="#" onclick="cambiarEstadoRapido({ auto.id }, 'mantenimiento')">En mantenimiento</a></li>
-                                                        {% endif %}
-                                                    </ul>
-                                                </div>
-                                                {% endif %}
-                                            </div>
+                                    </td>
+                                    <td>{{ auto.sucursal.nombre }}</td>
+                                    <td><strong>${{ auto.precio_por_dia }}</strong></td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{% url 'crear_reserva_empleado' auto.id %}" class="btn btn-danger btn-sm"><i class="fas fa-calendar-plus"></i> Reservar</a>
+                                            <a href="{% url 'detalle_auto' auto.id %}" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Detalles</a>
+                                            <a href="{% url 'cambiar_estado_auto_empleado' auto.patente %}" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i> Estado</a>
                                         </div>
-                                        <p class="card-text"><strong>${{ auto.precio_por_dia }}/día</strong></p>
-                                        <div class="d-grid gap-2">
-                                            <a href="{% url 'crear_reserva_empleado' auto.id %}" 
-                                               class="btn btn-danger btn-sm">
-                                                <i class="fas fa-calendar-plus"></i> Reservar Ahora
-                                            </a>
-                                            <a href="{% url 'detalle_auto' auto.id %}" 
-                                               class="btn btn-primary btn-sm">
-                                                <i class="fas fa-eye"></i> Ver detalles
-                                            </a>
-                                           
-                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ... Grid view: agrego en_curso también ... -->
+                <div id="grid-view" style="display:none">
+                    <div class="row">
+                        {% for auto in autos %}
+                        <div class="col-md-4 col-lg-3 mb-4">
+                            <div class="card card-custom h-100">
+                                {% if auto.imagen %}
+                                    <img src="{{ auto.imagen.url }}" class="card-img-top" alt="{{ auto.marca }} {{ auto.modelo }}" style="height: 200px; object-fit: cover;">
+                                {% else %}
+                                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                        <i class="fas fa-car fa-3x text-muted"></i>
+                                    </div>
+                                {% endif %}
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ auto.marca }} {{ auto.modelo }}</h6>
+                                    <p class="card-text">
+                                        <small class="text-muted">Año: {{ auto.anio }}</small><br>
+                                        <small class="text-muted">Patente: {{ auto.patente }}</small><br>
+                                        <small class="text-muted">Sucursal: {{ auto.sucursal.nombre }}</small>
+                                    </p>
+                                    <div class="mb-2">
+                                        {% if auto.estado == 'disponible' %}
+                                            <span class="badge bg-success">Disponible</span>
+                                        {% elif auto.estado == 'mantenimiento' %}
+                                            <span class="badge bg-warning">Mantenimiento</span>
+                                        {% elif auto.estado == 'inhabilitado' %}
+                                            <span class="badge bg-danger">Inhabilitado</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ auto.estado }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <p class="card-text"><strong>${{ auto.precio_por_dia }}/día</strong></p>
+                                    <div class="d-grid gap-2">
+                                        <a href="{% url 'crear_reserva_empleado' auto.id %}" class="btn btn-danger btn-sm"><i class="fas fa-calendar-plus"></i> Reservar</a>
+                                        <a href="{% url 'detalle_auto' auto.id %}" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Ver detalles</a>
+                                        <a href="{% url 'cambiar_estado_auto_empleado' auto.patente %}" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i> Cambiar Estado</a>
                                     </div>
                                 </div>
                             </div>
-                            {% endfor %}
                         </div>
+                        {% endfor %}
                     </div>
-                 {% else %}
+                </div>
+                {% else %}
                     <div class="text-center py-5">
                         <i class="fas fa-car fa-3x text-muted mb-3"></i>
                         <h5 class="text-muted">No se encontraron vehículos</h5>
@@ -267,153 +230,4 @@
     </div>
 </div>
 
-<script>
-function toggleView(viewType) {
-    const tableView = document.getElementById('table-view');
-    const gridView = document.getElementById('grid-view');
-    
-    if (viewType === 'grid') {
-        tableView.style.display = 'none';
-        gridView.style.display = 'block';
-    } else {
-        tableView.style.display = 'block';
-        gridView.style.display = 'none';
-    }
-}
-
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-function updateDropdownOptions(autoId, currentState) {
-    // Actualizar dropdown de tabla
-    const dropdown = document.getElementById('dropdown-' + autoId);
-    const dropdownGrid = document.getElementById('dropdown-grid-' + autoId);
-    
-    const createDropdownHTML = (estado) => {
-        let options = '';
-        if (estado !== 'disponible') {
-            options += '<li><a class="dropdown-item" href="#" onclick="cambiarEstadoRapido(' + autoId + ', \'disponible\')">Disponible</a></li>';
-        }
-        if (estado !== 'mantenimiento') {
-            options += '<li><a class="dropdown-item" href="#" onclick="cambiarEstadoRapido(' + autoId + ', \'mantenimiento\')">En mantenimiento</a></li>';
-        }
-        return options;
-    };
-    
-    // Actualizar opciones del dropdown en tabla
-    if (dropdown) {
-        const dropdownMenu = dropdown.querySelector('.dropdown-menu');
-        if (dropdownMenu) {
-            dropdownMenu.innerHTML = createDropdownHTML(currentState);
-        }
-    }
-    
-    // Actualizar opciones del dropdown en grid
-    if (dropdownGrid) {
-        const dropdownMenuGrid = dropdownGrid.querySelector('.dropdown-menu');
-        if (dropdownMenuGrid) {
-            dropdownMenuGrid.innerHTML = createDropdownHTML(currentState);
-        }
-    }
-    
-    // Mostrar/ocultar dropdowns según el estado
-    const shouldShowDropdown = currentState === 'disponible' || currentState === 'mantenimiento';
-    
-    if (dropdown) {
-        dropdown.style.display = shouldShowDropdown ? 'block' : 'none';
-    }
-    if (dropdownGrid) {
-        dropdownGrid.style.display = shouldShowDropdown ? 'block' : 'none';
-    }
-}
-
-function cambiarEstadoRapido(autoId, nuevoEstado) {
-    const csrftoken = getCookie('csrftoken');
-    
-    // Mostrar indicador de carga
-    const estadoElement = document.getElementById('estado-' + autoId);
-    const estadoGridElement = document.getElementById('estado-grid-' + autoId);
-    
-    if (estadoElement) {
-        estadoElement.innerHTML = '<span class="badge bg-secondary"><i class="fas fa-spinner fa-spin"></i> Cambiando...</span>';
-    }
-    if (estadoGridElement) {
-        estadoGridElement.innerHTML = '<span class="badge bg-secondary"><i class="fas fa-spinner fa-spin"></i> Cambiando...</span>';
-    }
-    
-    fetch(`/panel-empleado/autos/cambiar-estado-rapido/${autoId}/`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRFToken': csrftoken
-        },
-        body: `estado=${nuevoEstado}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Actualizar badges en ambas vistas
-            if (estadoElement) {
-                estadoElement.innerHTML = data.badge_html;
-            }
-            if (estadoGridElement) {
-                // Para grid, remover iconos para mantener diseño limpio
-                const cleanBadge = data.badge_html
-                    .replace('<i class="fas fa-check"></i> ', '')
-                    .replace('<i class="fas fa-tools"></i> ', '');
-                estadoGridElement.innerHTML = cleanBadge;
-            }
-            
-            // Actualizar opciones de dropdown dinámicamente
-            updateDropdownOptions(autoId, nuevoEstado);
-            
-            // Mostrar mensaje de éxito
-            showMessage('success', `Estado cambiado a ${nuevoEstado === 'disponible' ? 'Disponible' : 'En Mantenimiento'} exitosamente`);
-        } else {
-            // Revertir cambios en caso de error
-            location.reload();
-            showMessage('error', data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        // Revertir cambios en caso de error
-        location.reload();
-        showMessage('error', 'Error al cambiar el estado');
-    });
-}
-
-function showMessage(type, message) {
-    // Crear elemento de mensaje
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
-    alertDiv.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-    
-    // Insertar al inicio del contenido
-    const content = document.querySelector('.fade-in-up');
-    content.insertBefore(alertDiv, content.firstChild);
-    
-    // Auto-remover después de 3 segundos
-    setTimeout(() => {
-        if (alertDiv.parentNode) {
-            alertDiv.remove();
-        }
-    }, 3000);
-}
-</script>
 {% endblock %}

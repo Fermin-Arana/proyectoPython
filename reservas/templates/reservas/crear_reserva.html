@@ -195,6 +195,80 @@
                             </div>
                         </div>
 
+                        <!-- Sección de Adicionales -->
+                        <div class="form-section">
+                            <h4 class="section-title">
+                                <i class="fas fa-plus-circle text-info"></i>
+                                Servicios Adicionales
+                            </h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-check mb-3">
+                                        {{ form.gps }}
+                                        <label class="form-check-label" for="{{ form.gps.id_for_label }}">
+                                            <i class="fas fa-map-marked-alt text-primary"></i>
+                                            {{ form.gps.label }}
+                                        </label>
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        {{ form.conductor_adicional }}
+                                        <label class="form-check-label" for="{{ form.conductor_adicional.id_for_label }}">
+                                            <i class="fas fa-user-plus text-success"></i>
+                                            {{ form.conductor_adicional.label }}
+                                        </label>
+                                    </div>
+                                    
+                                    <!-- Campos del conductor adicional -->
+                                    <div id="conductor_adicional_fields" style="display: none;" class="mt-3 p-3 border rounded bg-light">
+                                        <h6 class="mb-3"><i class="fas fa-user-plus text-success"></i> Datos del Conductor Adicional</h6>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group-enhanced mb-3">
+                                                    <label for="{{ form.nombre_conductor_adicional.id_for_label }}" class="form-label-enhanced">
+                                                        <i class="fas fa-user text-primary"></i> 
+                                                        {{ form.nombre_conductor_adicional.label }}
+                                                    </label>
+                                                    {{ form.nombre_conductor_adicional }}
+                                                    {% if form.nombre_conductor_adicional.errors %}
+                                                        <div class="error-message-enhanced">
+                                                            {% for error in form.nombre_conductor_adicional.errors %}
+                                                                <i class="fas fa-exclamation-triangle"></i> {{ error }}
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <div class="form-group-enhanced mb-3">
+                                                    <label for="{{ form.dni_conductor_adicional.id_for_label }}" class="form-label-enhanced">
+                                                        <i class="fas fa-id-card text-warning"></i> 
+                                                        {{ form.dni_conductor_adicional.label }}
+                                                    </label>
+                                                    {{ form.dni_conductor_adicional }}
+                                                    {% if form.dni_conductor_adicional.errors %}
+                                                        <div class="error-message-enhanced">
+                                                            {% for error in form.dni_conductor_adicional.errors %}
+                                                                <i class="fas fa-exclamation-triangle"></i> {{ error }}
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check mb-3">
+                                        {{ form.silla_bebe }}
+                                        <label class="form-check-label" for="{{ form.silla_bebe.id_for_label }}">
+                                            <i class="fas fa-baby text-warning"></i>
+                                            {{ form.silla_bebe.label }}
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         {{ form.vehiculo }}
 
                         <!-- Resumen de costos mejorado -->
@@ -303,6 +377,38 @@
         });
         
         calcularCosto();
+        
+        // Funcionalidad para mostrar/ocultar campos del conductor adicional
+        const conductorAdicionalCheckbox = document.getElementById('id_conductor_adicional');
+        const conductorAdicionalFields = document.getElementById('conductor_adicional_fields');
+        
+        if (conductorAdicionalCheckbox && conductorAdicionalFields) {
+            conductorAdicionalCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    conductorAdicionalFields.style.display = 'block';
+                    // Hacer campos requeridos cuando se selecciona
+                    const nombreField = document.getElementById('id_nombre_conductor_adicional');
+                    const dniField = document.getElementById('id_dni_conductor_adicional');
+                    if (nombreField) nombreField.required = true;
+                    if (dniField) dniField.required = true;
+                } else {
+                    conductorAdicionalFields.style.display = 'none';
+                    // Limpiar campos y quitar requerimiento
+                    const nombreField = document.getElementById('id_nombre_conductor_adicional');
+                    const dniField = document.getElementById('id_dni_conductor_adicional');
+                    if (nombreField) {
+                        nombreField.value = '';
+                        nombreField.required = false;
+                        nombreField.classList.remove('is-invalid');
+                    }
+                    if (dniField) {
+                        dniField.value = '';
+                        dniField.required = false;
+                        dniField.classList.remove('is-invalid');
+                    }
+                }
+            });
+        }
     });
 
     // Validación de fechas

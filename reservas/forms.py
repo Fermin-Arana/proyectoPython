@@ -40,6 +40,20 @@ class ReservaForm(forms.ModelForm):
         }
     )
     
+    # Campos para conductor adicional
+    nombre_conductor_adicional = forms.CharField(
+        max_length=100,
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        label="Nombre del conductor adicional"
+    )
+    dni_conductor_adicional = forms.CharField(
+        max_length=8,
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        label="DNI del conductor adicional"
+    )
+    
     # Nuevos campos para seguros
     SEGURO_CHOICES = [
         ('basico', 'Seguro Básico (Incluido)'),
@@ -53,10 +67,29 @@ class ReservaForm(forms.ModelForm):
         label="Tipo de Seguro",
         initial='basico'
     )
+    
+    # Campos para servicios adicionales
+    gps = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        label="GPS Navegador (+$200/día)"
+    )
+    silla_bebe = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        label="Silla de bebé (+$150/día)"
+    )
+    conductor_adicional = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        label="Conductor adicional (+$300/día)"
+    )
 
     class Meta:
         model = Reserva
-        fields = ['vehiculo', 'fecha_inicio', 'fecha_fin', 'conductor', 'dni_conductor', 'tipo_seguro']
+        fields = ['vehiculo', 'fecha_inicio', 'fecha_fin', 'conductor', 'dni_conductor', 'tipo_seguro',
+                 'gps', 'silla_bebe', 'conductor_adicional', 
+                 'nombre_conductor_adicional', 'dni_conductor_adicional']
         widgets = {
             'fecha_inicio': forms.DateInput(attrs={'type': 'date'}),
             'fecha_fin': forms.DateInput(attrs={'type': 'date'}),
@@ -87,6 +120,13 @@ class ReservaForm(forms.ModelForm):
             reserva.seguro_completo = True
         elif tipo_seguro == 'premium':
             reserva.seguro_premium = True
+        
+        # Asignar servicios adicionales
+        reserva.gps = self.cleaned_data.get('gps', False)
+        reserva.silla_bebe = self.cleaned_data.get('silla_bebe', False)
+        reserva.conductor_adicional = self.cleaned_data.get('conductor_adicional', False)
+        reserva.nombre_conductor_adicional = self.cleaned_data.get('nombre_conductor_adicional', '')
+        reserva.dni_conductor_adicional = self.cleaned_data.get('dni_conductor_adicional', '')
             
         if commit:
             reserva.save()
@@ -99,6 +139,9 @@ class ReservaForm(forms.ModelForm):
         vehiculo = cleaned_data.get('vehiculo')
         conductor = cleaned_data.get('conductor')
         dni_conductor = cleaned_data.get('dni_conductor')
+        conductor_adicional = cleaned_data.get('conductor_adicional')
+        nombre_conductor_adicional = cleaned_data.get('nombre_conductor_adicional')
+        dni_conductor_adicional = cleaned_data.get('dni_conductor_adicional')
         
         if fecha_inicio is None:
             self.add_error('fecha_inicio', "La fecha de inicio es obligatoria.")
@@ -142,6 +185,46 @@ class ReservaForm(forms.ModelForm):
                 ).exclude(pk=self.instance.pk).exists()
                 if hay_otro_dni:
                     self.add_error('dni_conductor', "Este DNI ya está asociado a otra reserva en las mismas fechas.")
+        
+        # Validaciones para conductor adicional
+        if conductor_adicional:
+            if not nombre_conductor_adicional or nombre_conductor_adicional.strip() == '':
+                self.add_error('nombre_conductor_adicional', "Debes ingresar el nombre del conductor adicional.")
+            if not dni_conductor_adicional or dni_conductor_adicional.strip() == '':
+                self.add_error('dni_conductor_adicional', "Debes ingresar el DNI del conductor adicional.")
+            
+            # Validar que el DNI del conductor adicional no sea igual al principal
+            if dni_conductor_adicional and dni_conductor and dni_conductor_adicional == dni_conductor:
+                self.add_error('dni_conductor_adicional', "El DNI del conductor adicional no puede ser igual al del conductor principal.")
+            
+            # Validar disponibilidad del conductor adicional
+            if (nombre_conductor_adicional and fecha_inicio and fecha_fin and not self.errors.get('fecha_inicio') and not self.errors.get('fecha_fin')):
+                hay_otro_conductor_adicional = Reserva.objects.filter(
+                    nombre_conductor_adicional=nombre_conductor_adicional,
+                    fecha_inicio__lte=fecha_fin,
+                    fecha_fin__gte=fecha_inicio
+                ).exclude(pk=self.instance.pk).exists()
+                if hay_otro_conductor_adicional:
+                    self.add_error('nombre_conductor_adicional', "Este conductor adicional ya tiene una reserva en esas fechas.")
+            
+            # Validar disponibilidad del DNI del conductor adicional
+            if (dni_conductor_adicional and fecha_inicio and fecha_fin and not self.errors.get('fecha_inicio') and not self.errors.get('fecha_fin')):
+                hay_otro_dni_adicional = Reserva.objects.filter(
+                    dni_conductor_adicional=dni_conductor_adicional,
+                    fecha_inicio__lte=fecha_fin,
+                    fecha_fin__gte=fecha_inicio
+                ).exclude(pk=self.instance.pk).exists()
+                if hay_otro_dni_adicional:
+                    self.add_error('dni_conductor_adicional', "Este DNI ya está asociado a otra reserva como conductor adicional en las mismas fechas.")
+                
+                # También verificar que no esté como conductor principal
+                hay_como_principal = Reserva.objects.filter(
+                    dni_conductor=dni_conductor_adicional,
+                    fecha_inicio__lte=fecha_fin,
+                    fecha_fin__gte=fecha_inicio
+                ).exclude(pk=self.instance.pk).exists()
+                if hay_como_principal:
+                    self.add_error('dni_conductor_adicional', "Este DNI ya está asociado a otra reserva como conductor principal en las mismas fechas.")
                 
         return cleaned_data
 

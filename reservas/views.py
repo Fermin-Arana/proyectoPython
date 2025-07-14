@@ -166,8 +166,38 @@ def pagar_reserva(request, reserva_id):
 def reserva_exitosa(request, reserva_id):
     reserva = get_object_or_404(Reserva, id=reserva_id)
     
+    # Calcular días
+    dias = (reserva.fecha_fin - reserva.fecha_inicio).days
+    
+    # Calcular precios multiplicados por días
+    precio_vehiculo_total = reserva.vehiculo.precio_por_dia * dias
+    precio_seguro_total = 0
+    precio_gps_total = 0
+    precio_silla_total = 0
+    precio_conductor_total = 0
+    
+    if reserva.seguro_completo:
+        precio_seguro_total = 500 * dias
+    elif reserva.seguro_premium:
+        precio_seguro_total = 1000 * dias
+        
+    if reserva.gps:
+        precio_gps_total = 200 * dias
+        
+    if reserva.silla_bebe:
+        precio_silla_total = 150 * dias
+        
+    if reserva.conductor_adicional:
+        precio_conductor_total = 300 * dias
+    
     return render(request, 'reservas/reserva_exitosa.html', {
-        'reserva': reserva
+        'reserva': reserva,
+        'dias': dias,
+        'precio_vehiculo_total': precio_vehiculo_total,
+        'precio_seguro_total': precio_seguro_total,
+        'precio_gps_total': precio_gps_total,
+        'precio_silla_total': precio_silla_total,
+        'precio_conductor_total': precio_conductor_total,
     })
 
 @login_required

@@ -98,29 +98,113 @@
 
                 <hr>
 
-                <!-- Estado actual -->
+                <!-- Servicios Adicionales -->
+                {% if reserva.gps or reserva.silla_bebe or reserva.conductor_adicional %}
                 <div class="row mb-4">
                     <div class="col-12">
-                        <h6 class="text-muted mb-3">Estado Actual</h6>
-                        <div class="d-flex align-items-center">
-                            {% if reserva.estado == 'pendiente' %}
-                                <span class="badge bg-warning text-dark fs-6 me-2"><i class="fas fa-clock"></i> Pendiente</span>
-                                <small class="text-muted">La reserva está pendiente de confirmación</small>
-                            {% elif reserva.estado == 'confirmada' %}
-                                <span class="badge bg-success fs-6 me-2"><i class="fas fa-check"></i> Confirmada</span>
-                                <small class="text-muted">La reserva ha sido confirmada y el vehículo está reservado</small>
-                            {% elif reserva.estado == 'cancelada' %}
-                                <span class="badge bg-danger fs-6 me-2"><i class="fas fa-times"></i> Cancelada</span>
-                                <small class="text-muted">La reserva ha sido cancelada</small>
-                            {% elif reserva.estado == 'finalizada' %}
-                                <span class="badge bg-secondary fs-6 me-2"><i class="fas fa-flag-checkered"></i> Finalizada</span>
-                                <small class="text-muted">La reserva ha sido completada</small>
+                        <h6 class="text-muted mb-3">Servicios Adicionales Contratados</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% if reserva.gps %}
+                                <span class="badge bg-primary fs-6">
+                                    <i class="fas fa-map-marked-alt"></i> GPS Navegador (+$200/día)
+                                </span>
+                            {% endif %}
+                            {% if reserva.silla_bebe %}
+                                <span class="badge bg-info fs-6">
+                                    <i class="fas fa-baby"></i> Silla para Bebé (+$150/día)
+                                </span>
+                            {% endif %}
+                            {% if reserva.conductor_adicional %}
+                                <span class="badge bg-success fs-6">
+                                    <i class="fas fa-user-plus"></i> Conductor Adicional (+$300/día)
+                                </span>
+                                {% if reserva.nombre_conductor_adicional %}
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <strong>Conductor Adicional:</strong> {{ reserva.nombre_conductor_adicional }}
+                                        {% if reserva.dni_conductor_adicional %}
+                                        (DNI: {{ reserva.dni_conductor_adicional }})
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                {% endif %}
                             {% endif %}
                         </div>
                     </div>
                 </div>
+                <hr>
+                {% else %}
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="text-muted mb-3">Servicios Adicionales</h6>
+                        <p class="text-muted"><i class="fas fa-info-circle"></i> No se contrataron servicios adicionales para esta reserva.</p>
+                    </div>
+                </div>
+                <hr>
+                {% endif %}
+
+                <!-- Información del Seguro -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="text-muted mb-3">Tipo de Seguro Contratado</h6>
+                        {% if reserva.seguro_basico %}
+                            <span class="badge bg-secondary fs-6">
+                                <i class="fas fa-shield"></i> Seguro Básico (Incluido)
+                            </span>
+                            <small class="text-muted d-block mt-1">Cobertura básica incluida en el precio</small>
+                        {% elif reserva.seguro_completo %}
+                            <span class="badge bg-warning text-dark fs-6">
+                                <i class="fas fa-shield-alt"></i> Seguro Completo (+$500/día)
+                            </span>
+                            <small class="text-muted d-block mt-1">Cobertura ampliada contra terceros</small>
+                        {% elif reserva.seguro_premium %}
+                            <span class="badge bg-danger fs-6">
+                                <i class="fas fa-shield-check"></i> Seguro Premium (+$1000/día)
+                            </span>
+                            <small class="text-muted d-block mt-1">Cobertura total + asistencia 24hs</small>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <hr>
+
+               <!-- Estado actual -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h6 class="text-muted mb-3">Estado Actual</h6>
+        <div class="d-flex align-items-center">
+            {% if reserva.estado == 'pendiente' %}
+                <span class="badge bg-warning text-dark fs-6 me-2"><i class="fas fa-clock"></i> Pendiente</span>
+                <small class="text-muted">La reserva está pendiente de confirmación</small>
+            {% elif reserva.estado == 'confirmada' %}
+                <span class="badge bg-success fs-6 me-2"><i class="fas fa-check"></i> Confirmada</span>
+                <small class="text-muted">La reserva ha sido confirmada y el vehículo está reservado</small>
+            {% elif reserva.estado == 'en_curso' %}
+                <span class="badge bg-secondary text-white fs-6 me-2"><i class="fas fa-play"></i> En curso</span>
+                <small class="text-muted">La reserva está en curso</small>
+            {% elif reserva.estado == 'cancelada' %}
+                <span class="badge bg-danger fs-6 me-2"><i class="fas fa-times"></i> Cancelada</span>
+                <small class="text-muted">La reserva ha sido cancelada</small>
+            {% elif reserva.estado == 'finalizada' %}
+                <span class="badge bg-secondary fs-6 me-2"><i class="fas fa-flag-checkered"></i> Finalizada</span>
+                <small class="text-muted">La reserva ha sido completada</small>
+            {% endif %}
+        </div>
+    </div>
+</div>
 
                 <!-- Botones de acción -->
+
+        {% if reserva.estado == 'confirmada' %}
+            <a href="{% url 'registrar_entrega_empleado' reserva.id %}" class="btn btn-warning">
+                <i class="fas fa-key"></i> Registrar Entrega 
+            </a>
+        {% elif reserva.estado == 'en_curso' %}
+            <a href="{% url 'devolver_auto_empleado' reserva.id %}" class="btn btn-danger">
+                <i class="fas fa-undo"></i> Procesar Devolución
+            </a>
+        {% endif %}
+
                 <div class="d-flex gap-2">
                     <a href="{% url 'lista_reservas_empleado' %}" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i> Volver a Lista de Reservas
@@ -129,6 +213,8 @@
                     <a href="{% url 'devolver_auto_empleado' reserva.id %}" class="btn btn-custom-danger">
                         <i class="fas fa-undo"></i> Procesar Devolución
                     </a>
+                    {% elif reserva.estado == 'en_curso' %}
+                    <!-- Badge duplicado eliminado - solo aparece en Estado Actual -->
                     {% endif %}
                 </div>
             </div>

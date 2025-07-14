@@ -36,7 +36,6 @@ class Auto(models.Model):
         max_length=20,
         choices=[
             ('disponible', 'Disponible'),
-            ('reservado', 'Reservado'),
             ('inhabilitado', 'Inhabilitado'),
             ('mantenimiento', 'En Mantenimiento')
         ],
