@@ -45,7 +45,7 @@ def registrar_entrega_empleado(request, reserva_id):
     reserva.estado = 'en_curso'
     reserva.save()
 
-    # El auto mantiene su estado físico (disponible/mantenimiento/inhabilitado)
+    # El auto mantiene su estado físico (disponible/mantenimiento)
     # No se cambia el estado del auto ya que se maneja por reservas
     auto = reserva.vehiculo
     
@@ -210,6 +210,20 @@ def cambiar_estado_auto_empleado(request, patente):
             )
             if reservas_activas.exists():
                 messages.error(request, f'No se puede cambiar a disponible. El auto tiene reservas activas.')
+                return redirect('lista_autos_empleado')
+        
+        # Validar que no se pueda cambiar a 'mantenimiento' si hay reservas en curso
+        if nuevo_estado == 'mantenimiento':
+            from django.utils import timezone
+            fecha_actual = timezone.now().date()
+            reservas_en_curso = Reserva.objects.filter(
+                vehiculo=auto,
+                estado='en_curso',
+                fecha_inicio__lte=fecha_actual,
+                fecha_fin__gte=fecha_actual
+            )
+            if reservas_en_curso.exists():
+                messages.error(request, f'No se puede cambiar a mantenimiento. El auto está siendo utilizado actualmente (reserva en curso).')
                 return redirect('lista_autos_empleado')
         
         # Los empleados pueden cambiar entre disponible y mantenimiento
