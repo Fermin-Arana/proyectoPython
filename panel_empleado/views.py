@@ -550,8 +550,8 @@ def crear_reserva_empleado(request, auto_id):
                 reservas_conductor = Reserva.objects.filter(
                     conductor=conductor,
                     estado__in=['pendiente', 'confirmada', 'en_curso'],
-                    fecha_inicio__lt=fecha_fin,
-                    fecha_fin__gt=fecha_inicio
+                    fecha_inicio__lte=fecha_fin,
+                    fecha_fin__gte=fecha_inicio
                 )
                 
                 if reservas_conductor.exists():
@@ -562,8 +562,8 @@ def crear_reserva_empleado(request, auto_id):
                 reservas_dni = Reserva.objects.filter(
                     dni_conductor=dni_conductor,
                     estado__in=['pendiente', 'confirmada', 'en_curso'],
-                    fecha_inicio__lt=fecha_fin,
-                    fecha_fin__gt=fecha_inicio
+                    fecha_inicio__lte=fecha_fin,
+                    fecha_fin__gte=fecha_inicio
                 )
                 
                 if reservas_dni.exists():
@@ -590,8 +590,8 @@ def crear_reserva_empleado(request, auto_id):
                     reservas_conductor_adicional = Reserva.objects.filter(
                         nombre_conductor_adicional=nombre_conductor_adicional,
                         estado__in=['pendiente', 'confirmada', 'en_curso'],
-                        fecha_inicio__lt=fecha_fin,
-                        fecha_fin__gt=fecha_inicio
+                        fecha_inicio__lte=fecha_fin,
+                        fecha_fin__gte=fecha_inicio
                     )
                     if reservas_conductor_adicional.exists():
                         errors['nombre_conductor_adicional'] = "El conductor ya tiene una reserva en esas fechas."
@@ -602,8 +602,8 @@ def crear_reserva_empleado(request, auto_id):
                     reservas_dni_adicional = Reserva.objects.filter(
                         dni_conductor_adicional=dni_conductor_adicional,
                         estado__in=['pendiente', 'confirmada', 'en_curso'],
-                        fecha_inicio__lt=fecha_fin,
-                        fecha_fin__gt=fecha_inicio
+                        fecha_inicio__lte=fecha_fin,
+                        fecha_fin__gte=fecha_inicio
                     )
                     if reservas_dni_adicional.exists():
                         errors['dni_conductor_adicional'] = "El conductor ya tiene una reserva en esas fechas."
@@ -612,8 +612,8 @@ def crear_reserva_empleado(request, auto_id):
                     reservas_dni_principal = Reserva.objects.filter(
                         dni_conductor=dni_conductor_adicional,
                         estado__in=['pendiente', 'confirmada', 'en_curso'],
-                        fecha_inicio__lt=fecha_fin,
-                        fecha_fin__gt=fecha_inicio
+                        fecha_inicio__lte=fecha_fin,
+                        fecha_fin__gte=fecha_inicio
                     )
                     if reservas_dni_principal.exists():
                         errors['dni_conductor_adicional'] = "El conductor ya tiene una reserva en esas fechas."
