@@ -203,7 +203,7 @@ def cambiar_password_inicial(request):
     
     if not request.user.created_by_employee:
         messages.error(request, "Esta función es solo para cuentas creadas por empleados.")
-        return redirect('inicio')
+        return redirect('index')  # Cambiado de 'inicio' a 'index'
     
     if request.method == 'POST':
         password_actual = request.POST.get('password_actual')
@@ -229,7 +229,7 @@ def cambiar_password_inicial(request):
             update_session_auth_hash(request, request.user)
             
             messages.success(request, "Contraseña cambiada exitosamente.")
-            return redirect('inicio')
+            return redirect('index')  # Cambiado de 'inicio' a 'index'
     
     return render(request, 'usuarios/cambiar_password_inicial.html')
 
