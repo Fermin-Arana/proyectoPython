@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
+{% load static %}
+    <link rel="stylesheet" href="{% static 'vehiculos_graficos/style.css' %}">
 <h2>Gráficos de Vehículos y Reservas</h2>
 <form method="get">
     {{ form.as_p }}
