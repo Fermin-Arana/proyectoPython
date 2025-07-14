@@ -127,7 +127,7 @@ def eliminar_auto(request, patente):
 
     if (reservas_activas.exists()):
         messages.error(request, "No se puede eliminar este auto porque tiene reservas activas")
-        return redirect('lista_autos')
+        return redirect('detalle_auto_admin', auto.patente)
 
     if request.method == 'POST':
         auto.activo = False
@@ -153,7 +153,7 @@ def detalle_auto(request, patente):
     auto = get_object_or_404(Auto, patente=patente)
     # Renderizar el template apropiado según el tipo de usuario
     if request.user.groups.filter(name='admin').exists():
-        return render(request, 'panel_admin/detalle_auto_admin.html', {'auto': auto})
+        return render(request, 'panel_admin/detalle_auto.html', {'auto': auto})
     else:
         return render(request, 'panel_empleado/detalle_auto_empleado.html', {'auto': auto})
 

@@ -19,10 +19,10 @@ class SucursalForm(forms.ModelForm):
         if telefono:
             # Validar que no esté en otra sucursal
             if Sucursal.objects.filter(telefono=telefono).exists():
-                raise forms.ValidationError("Ya existe una sucursal con este teléfono.")
+                raise forms.ValidationError("Este teléfono ya está registrado en el sistema.")
 
             # Validar que no esté en ningún usuario
             if Usuario.objects.filter(telefono=telefono).exists():
-                raise forms.ValidationError("Este teléfono ya está registrado por un usuario del sistema.")
+                raise forms.ValidationError("Este teléfono ya está registrado en el sistema.")
         
         return telefono
