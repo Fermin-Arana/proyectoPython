@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 {% block title %}Ver graficos{% endblock %}
 {% block content %}
-<h2 class="mb-4 text-danger">Gráficos de Vehículos y Reservas</h2>
+{% load static %}
+    <link rel="stylesheet" href="{% static 'vehiculos_graficos/style.css' %}">
+<h2>Gráficos de Vehículos y Reservas</h2>
 <form method="get">
     {{ form.as_p }}
     <button type="submit" class="btn btn-danger">Ver gráficos</button>

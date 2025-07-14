@@ -64,15 +64,7 @@ function toggleView(viewType) {
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <label for="sucursal" class="form-label">Sucursal</label>
-                        <select class="form-select" id="sucursal" name="sucursal">
-                            <option value="">Todas las sucursales</option>
-                            {% for sucursal in sucursales %}
-                                <option value="{{ sucursal.id }}" {% if sucursal_actual == sucursal.id|stringformat:"s" %}selected{% endif %}>{{ sucursal.nombre }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+
                     <div class="col-md-2">
                         <label for="fecha_consulta" class="form-label">Fecha de consulta</label>
                         <input type="date" class="form-control" id="fecha_consulta" name="fecha_consulta" value="{{ fecha_consulta }}" title="Consultar disponibilidad en esta fecha">
@@ -164,7 +156,7 @@ function toggleView(viewType) {
                                     <td>
                                         <div class="btn-group" role="group">
                                             <a href="{% url 'crear_reserva_empleado' auto.id %}" class="btn btn-danger btn-sm"><i class="fas fa-calendar-plus"></i> Reservar</a>
-                                            <a href="{% url 'detalle_auto_admin' auto.id %}" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Detalles</a>
+                                            <a href="{% url 'detalle_auto_empleado' auto.patente %}" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Detalles</a>
                                             <a href="{% url 'cambiar_estado_auto_empleado' auto.patente %}" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i> Estado</a>
                                         </div>
                                     </td>
@@ -209,7 +201,7 @@ function toggleView(viewType) {
                                     <p class="card-text"><strong>${{ auto.precio_por_dia }}/día</strong></p>
                                     <div class="d-grid gap-2">
                                         <a href="{% url 'crear_reserva_empleado' auto.id %}" class="btn btn-danger btn-sm"><i class="fas fa-calendar-plus"></i> Reservar</a>
-                                        <a href="{% url 'detalle_auto' auto.id %}" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Ver detalles</a>
+                                        <a href="{% url 'detalle_auto_empleado' auto.patente %}" class="btn btn-primary btn-sm"><i class="fas fa-eye"></i> Ver detalles</a>
                                         <a href="{% url 'cambiar_estado_auto_empleado' auto.patente %}" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i> Cambiar Estado</a>
                                     </div>
                                 </div>

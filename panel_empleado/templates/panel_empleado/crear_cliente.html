@@ -12,6 +12,16 @@
                     <small>Panel de Empleado</small>
                 </div>
                 <div class="card-body">
+                    <!-- Mostrar mensajes de error generales -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
                     <form method="post">
                         {% csrf_token %}
                         
@@ -19,13 +29,13 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Nombre de Usuario *</label>
-                                    <input type="text" name="username" class="form-control" placeholder="Ej: juan84551" required>
+                                    <input type="text" name="username" class="form-control" placeholder="Ej: juan84551" value="{{ request.POST.username|default:'' }}" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">DNI *</label>
-                                    <input type="text" name="dni" class="form-control" placeholder="Ej: 12345678" required>
+                                    <input type="text" name="dni" class="form-control" placeholder="Ej: 12345678" value="{{ request.POST.dni|default:'' }}" required>
                                 </div>
                             </div>
                         </div>
@@ -34,13 +44,13 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Nombre *</label>
-                                    <input type="text" name="nombre" class="form-control" placeholder="Ej: Juan" required>
+                                    <input type="text" name="nombre" class="form-control" placeholder="Ej: Juan" value="{{ request.POST.nombre|default:'' }}" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Apellido *</label>
-                                    <input type="text" name="apellido" class="form-control" placeholder="Ej: Pérez" required>
+                                    <input type="text" name="apellido" class="form-control" placeholder="Ej: Pérez" value="{{ request.POST.apellido|default:'' }}" required>
                                 </div>
                             </div>
                         </div>
@@ -49,13 +59,13 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Correo Electrónico *</label>
-                                    <input type="email" name="correo" class="form-control" placeholder="Ej: juan@gmail.com" required>
+                                    <input type="email" name="correo" class="form-control" placeholder="Ej: juan@gmail.com" value="{{ request.POST.correo|default:'' }}" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Teléfono *</label>
-                                    <input type="text" name="telefono" class="form-control" placeholder="Ej: 2218974555" required>
+                                    <input type="text" name="telefono" class="form-control" placeholder="Ej: 2218974555" value="{{ request.POST.telefono|default:'' }}" required>
                                 </div>
                             </div>
                         </div>
@@ -64,7 +74,7 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label class="form-label">Fecha de Nacimiento *</label>
-                                    <input type="date" name="fecha_nacimiento" class="form-control" required>
+                                    <input type="date" name="fecha_nacimiento" class="form-control" value="{{ request.POST.fecha_nacimiento|default:'' }}" required>
                                 </div>
                             </div>
                         </div>
