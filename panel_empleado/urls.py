@@ -22,6 +22,7 @@ urlpatterns = [
     
     # Gestión de autos
     path('autos/', views.lista_autos_empleado, name='lista_autos_empleado'),
+    path('autos/detalles/<str:patente>/', views.detalle_auto_empleado, name='detalle_auto_empleado'),
     path('autos/cambiar-estado/<str:patente>/', views.cambiar_estado_auto_empleado, name='cambiar_estado_auto_empleado'),
     path('autos/cambiar-estado-rapido/<int:auto_id>/', views.cambiar_estado_rapido, name='cambiar_estado_rapido'),
 ]

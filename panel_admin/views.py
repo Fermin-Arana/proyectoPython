@@ -138,8 +138,24 @@ def eliminar_auto(request, patente):
     return render(request, 'panel_admin/confirmar_eliminar.html', {'auto': auto})
 
 def detalle_auto(request, patente):
+    # Si el parámetro es numérico (un ID), buscar por ID y redirigir según el tipo de usuario
+    if patente.isdigit():
+        try:
+            auto = Auto.objects.get(id=int(patente))
+            # Verificar si el usuario es admin o empleado
+            if request.user.groups.filter(name='admin').exists():
+                return redirect('detalle_auto_admin', auto.patente)
+            else:
+                return redirect('detalle_auto_empleado', auto.patente)
+        except Auto.DoesNotExist:
+            pass  # Continuar con la búsqueda por patente
+    
     auto = get_object_or_404(Auto, patente=patente)
-    return render(request, 'panel_admin/detalle_auto.html', {'auto': auto})
+    # Renderizar el template apropiado según el tipo de usuario
+    if request.user.groups.filter(name='admin').exists():
+        return render(request, 'panel_admin/detalle_auto_admin.html', {'auto': auto})
+    else:
+        return render(request, 'panel_empleado/detalle_auto_empleado.html', {'auto': auto})
 
 def modificar_auto(request, patente):
     if not request.user.groups.filter(name='admin').exists():

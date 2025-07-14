@@ -241,15 +241,24 @@ def lista_autos_empleado(request):
     from django.db.models import Q
     from datetime import datetime
     
-    # Obtener todos los autos activos, excluyendo inhabilitados para empleados
+    # Obtener todos los autos activos
     autos = Auto.objects.filter(activo=True)
+    
+    # Filtrar por sucursal del empleado (excepto administradores)
     if not request.user.groups.filter(name='admin').exists():
         autos = autos.exclude(estado='inhabilitado')
+        try:
+            empleado_extra = request.user.empleadoextra
+            sucursal_empleado = empleado_extra.sucursal_asignada
+            if sucursal_empleado:
+                autos = autos.filter(sucursal=sucursal_empleado)
+        except:
+            # Si no tiene sucursal asignada, no mostrar autos
+            autos = Auto.objects.none()
     
     # Filtros
     marca_filtro = request.GET.get('marca')
     estado_filtro = request.GET.get('estado')
-    sucursal_filtro = request.GET.get('sucursal')
     fecha_consulta = request.GET.get('fecha_consulta')
     
     # Aplicar filtros
@@ -295,23 +304,15 @@ def lista_autos_empleado(request):
             else:
                 autos = autos.filter(estado=estado_filtro)
     
-    if sucursal_filtro:
-        autos = autos.filter(sucursal_id=sucursal_filtro)
+    # Filtro por sucursal removido - ahora se filtra automáticamente
     
     # Ordenar resultados
     autos = autos.order_by('estado', 'marca', 'modelo')
     
-    # Obtener sucursales para el filtro
-    sucursales = Sucursal.objects.all().order_by('nombre')
-    
-
-    
     context = {
         'autos': autos,
-        'sucursales': sucursales,
         'marca_actual': marca_filtro,
         'estado_actual': estado_filtro,
-        'sucursal_actual': sucursal_filtro,
         'fecha_consulta': fecha_consulta,
         'es_admin': request.user.groups.filter(name='admin').exists(),
     }
@@ -1001,5 +1002,22 @@ def lista_clientes_empleado(request):
     return render(request, 'panel_empleado/lista_clientes.html', {
         'clientes': clientes
     })
+
+@login_required
+def detalle_auto_empleado(request, patente):
+    if not (request.user.groups.filter(name='empleado').exists() or 
+            request.user.groups.filter(name='admin').exists()):
+        return redirect('no_autorizado')
+    
+    # Si el parámetro es numérico, es un ID y necesitamos redirigir a la patente correcta
+    if patente.isdigit():
+        try:
+            auto = Auto.objects.get(id=int(patente))
+            return redirect('detalle_auto_empleado', auto.patente)
+        except Auto.DoesNotExist:
+            pass
+    
+    auto = get_object_or_404(Auto, patente=patente)
+    return render(request, 'panel_empleado/detalle_auto_empleado.html', {'auto': auto})
     
     
