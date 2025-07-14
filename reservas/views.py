@@ -256,8 +256,8 @@ El equipo de Alquileres María
             recipient_list=[request.user.correo],
             fail_silently=False,
         )
-
-        messages.success(request, "Reserva cancelada exitosamente. Se ha aplicado el reembolso.")
+        mensaje = f"Reserva cancelada exitosamente. Se ha aplicado el reembolso del {reserva.vehiculo.politica_reembolso}%"
+        messages.success(request, mensaje)
         return redirect('reservas:reserva_cancelada')  # o la vista que uses tras cancelar
     else:
         # Renderizamos un template de confirmación previo a cancelar

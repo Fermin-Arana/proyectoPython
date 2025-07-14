@@ -79,7 +79,6 @@ def cancelar_con_reembolso_total(reserva):
         pago = None
 
     monto_pagado = pago.monto if pago else Decimal('0.00')
-    porcentaje = Decimal('100.00')  # Reembolso total
     reembolso = monto_pagado  # Reembolso del 100%
 
     reserva.estado = 'cancelada'
@@ -327,32 +326,13 @@ def cambiar_estado_auto_empleado(request, patente):
     auto = get_object_or_404(Auto, patente=patente)
     
     if request.method == 'POST':
-        nuevo_estado = request.POST.get('estado')
-        
-        # Validar que no se pueda cambiar a 'disponible' si hay reservas activas
-        if nuevo_estado == 'disponible':
-            # Verificar que no tenga reservas activas
-            from django.utils import timezone
-            fecha_actual = timezone.now().date()
-            reservas_activas = Reserva.objects.filter(
-                vehiculo=auto,
-                estado__in=['pendiente', 'confirmada', 'en_curso'],
-                fecha_inicio__lte=fecha_actual,
-                fecha_fin__gte=fecha_actual
-            )
-            if reservas_activas.exists():
-                messages.error(request, f'No se puede cambiar a disponible. El auto tiene reservas activas.')
-                return redirect('lista_autos_empleado')
+        nuevo_estado = nuevo_estado = request.POST.get('estado', '').strip().lower()
         
         # Validar que no se pueda cambiar a 'mantenimiento' si hay reservas en curso
         if nuevo_estado == 'mantenimiento':
-            from django.utils import timezone
-            fecha_actual = timezone.now().date()
             reservas_en_curso = Reserva.objects.filter(
                 vehiculo=auto,
                 estado='en_curso',
-                fecha_inicio__lte=fecha_actual,
-                fecha_fin__gte=fecha_actual
             )
             if reservas_en_curso.exists():
                 messages.error(request, f'No se puede cambiar a mantenimiento. El auto está siendo utilizado actualmente (reserva en curso).')
