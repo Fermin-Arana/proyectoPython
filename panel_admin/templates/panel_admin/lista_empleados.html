@@ -24,6 +24,7 @@
     <tr>
       <th>Estado</th>
       <th>Nombre y Apellido</th>
+      <th>DNI</th>
       <th>Correo</th>
       <th>Sucursal</th>
       <th>Acciones</th>
@@ -45,6 +46,7 @@
         {% endif %}
       </td>
       <td>{{ empleado.usuario.nombre }} {{ empleado.usuario.apellido }}</td>
+      <td>{{ empleado.usuario.dni }}</td>
       <td>{{ empleado.correo_original|default:empleado.usuario.correo }}</td>
       <td>{{ empleado.sucursal_asignada.nombre }}</td>
       <td>
