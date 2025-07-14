@@ -732,5 +732,123 @@ def buscar_clientes_ajax(request):
         })
     
     return JsonResponse({'clientes': clientes_data})
+
+
+@login_required
+def crear_cliente_empleado(request):
+    if not (request.user.groups.filter(name='empleado').exists() or 
+            request.user.groups.filter(name='admin').exists()):
+        return redirect('no_autorizado_empleado')
+    
+    if request.method == 'POST':
+        errors = {}
+        
+        # Obtener datos del formulario
+        username = request.POST.get('username', '').strip()
+        nombre = request.POST.get('nombre', '').strip()
+        apellido = request.POST.get('apellido', '').strip()
+        dni = request.POST.get('dni', '').strip()
+        correo = request.POST.get('correo', '').strip()
+        telefono = request.POST.get('telefono', '').strip()
+        fecha_nacimiento = request.POST.get('fecha_nacimiento', '').strip()
+        
+        # Validaciones
+        if not username:
+            errors['username'] = "El nombre de usuario es obligatorio."
+        elif Usuario.objects.filter(username=username).exists():
+            errors['username'] = "Este nombre de usuario ya existe."
+            
+        if not nombre:
+            errors['nombre'] = "El nombre es obligatorio."
+            
+        if not apellido:
+            errors['apellido'] = "El apellido es obligatorio."
+            
+        if not dni:
+            errors['dni'] = "El DNI es obligatorio."
+        elif Usuario.objects.filter(dni=dni).exists():
+            errors['dni'] = "Este DNI ya está registrado."
+            
+        if not correo:
+            errors['correo'] = "El correo es obligatorio."
+        elif Usuario.objects.filter(correo=correo).exists():
+            errors['correo'] = "Este correo ya está registrado."
+            
+        if not telefono:
+            errors['telefono'] = "El teléfono es obligatorio."
+            
+        if not fecha_nacimiento:
+            errors['fecha_nacimiento'] = "La fecha de nacimiento es obligatoria."
+        
+        # Si no hay errores, crear el cliente
+        if not errors:
+            try:
+                from usuarios.utils import generar_password_temporal, enviar_email_activacion
+                import uuid
+                
+                # Generar contraseña temporal
+                password_temporal = generar_password_temporal()
+                
+                # Crear el usuario
+                cliente = Usuario.objects.create_user(
+                    username=username,
+                    password=password_temporal,
+                    nombre=nombre,
+                    apellido=apellido,
+                    dni=dni,
+                    correo=correo,
+                    telefono=telefono,
+                    fecha_nacimiento=fecha_nacimiento,
+                    is_active=True,  # Activar automáticamente
+                    created_by_employee=True,
+                    activation_token=str(uuid.uuid4())
+                )
+                
+                # Guardar contraseña temporal para el middleware
+                cliente.password_temp = password_temporal
+                cliente.save()
+                
+                # Asignar grupo de cliente
+                from django.contrib.auth.models import Group
+                cliente_group, created = Group.objects.get_or_create(name='cliente')
+                cliente.groups.add(cliente_group)
+                
+                # Enviar email de activación
+                if enviar_email_activacion(cliente, password_temporal):
+                    messages.success(request, 
+                        f"Cliente {cliente.nombre} {cliente.apellido} creado exitosamente. "
+                        f"Se ha enviado un email con las credenciales a {cliente.correo}.")
+                else:
+                    messages.warning(request, 
+                        f"Cliente creado pero hubo un error enviando el email. "
+                        f"Contraseña temporal: {password_temporal}")
+                
+                return redirect('lista_clientes_empleado')
+                
+            except Exception as e:
+                messages.error(request, f"Error al crear el cliente: {str(e)}")
+        else:
+            # Mostrar errores
+            for field, error in errors.items():
+                messages.error(request, error)
+    
+    return render(request, 'panel_empleado/crear_cliente.html')
+
+@login_required
+def lista_clientes_empleado(request):
+    if not (request.user.groups.filter(name='empleado').exists() or 
+            request.user.groups.filter(name='admin').exists()):
+        return redirect('no_autorizado_empleado')
+    
+    # Obtener todos los clientes (usuarios que no son empleados ni admins)
+    clientes = Usuario.objects.filter(
+        is_active=True
+    ).exclude(
+        groups__name__in=['empleado', 'admin']
+    ).order_by('nombre', 'apellido')
+    
+    return render(request, 'panel_empleado/lista_clientes.html', {
+        'clientes': clientes
+    })
     
     

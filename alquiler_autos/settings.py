@@ -88,9 +88,11 @@ WSGI_APPLICATION = 'alquiler_autos.wsgi.application'
 
 import dj_database_url
 
+
 DATABASES = {
-    'default': dj_database_url.parse("postgresql://maria_user:SWp6CSfkGZ4YtwEHPnTKTyzUsC4Wva4N@dpg-d16r9sumcj7s73cglhm0-a.oregon-postgres.render.com/alquileres_db")
-    
+    'default': dj_database_url.parse(
+        "postgresql://maria_user3:wca5CjJHDlMOC0FUifvite7kcrvF6i82@dpg-d1pjvbur433s73df32e0-a.oregon-postgres.render.com/alquileres_bd3"
+    )
 }
 
 
@@ -152,3 +154,4 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = 'Maria Alquileres <mariaalquileres.lp@gmail.com>'
 DEFAULT_DOMAIN = 'localhost:8000'
+
