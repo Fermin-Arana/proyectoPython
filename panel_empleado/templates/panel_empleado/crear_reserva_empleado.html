@@ -35,24 +35,8 @@
                     <form method="post" class="formulario-reserva">
                         {% csrf_token %}
                         
-                        <!-- Selección tipo de cliente -->
-                        <div class="mb-4">
-                            <label class="form-label">
-                                <i class="fas fa-user"></i> Tipo de Cliente
-                            </label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="cliente_tipo" id="cliente_existente" value="existente" checked>
-                                <label class="form-check-label" for="cliente_existente">
-                                    Cliente Existente
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="cliente_tipo" id="cliente_nuevo" value="nuevo">
-                                <label class="form-check-label" for="cliente_nuevo">
-                                    Nuevo Cliente
-                                </label>
-                            </div>
-                        </div>
+                        <!-- Selección de cliente -->
+                        <input type="hidden" name="cliente_tipo" value="existente">
 
                        
                         <div id="cliente_existente_section" class="mb-4">
@@ -104,72 +88,7 @@
                         </div>
                     </div>
 
-                    <!-- Formulario para nuevo cliente -->
-                    <div id="nuevo_cliente_section" class="mb-4" style="display: none;">
-                        <div class="card">
-                            <div class="card-header">
-                                <h5><i class="fas fa-user-plus"></i> Datos del Nuevo Cliente</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Nombre de usuario</label>
-                                            <input type="text" name="nuevo_username" class="form-control" placeholder="Ej: juan84551">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Contraseña</label>
-                                            <input type="password" name="nuevo_password" class="form-control" placeholder="Mínimo 8 caracteres">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Nombre</label>
-                                            <input type="text" name="nuevo_nombre" class="form-control" placeholder="Ej: Juan">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Apellido</label>
-                                            <input type="text" name="nuevo_apellido" class="form-control" placeholder="Ej: Pérez">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">DNI</label>
-                                            <input type="text" name="nuevo_dni" class="form-control" placeholder="Ej: 40505968">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Fecha de nacimiento</label>
-                                            <input type="date" name="nuevo_fecha_nacimiento" class="form-control">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Correo electrónico</label>
-                                            <input type="email" name="nuevo_correo" class="form-control" placeholder="Ej: juan@gmail.com">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <label class="form-label">Teléfono</label>
-                                            <input type="text" name="nuevo_telefono" class="form-control" placeholder="Ej: 2218974555">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+
 
                     <!-- Datos de la reserva -->
                     <div class="card mb-4">
@@ -344,35 +263,13 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Lógica existente de cliente existente/nuevo
-    const clienteExistente = document.getElementById('cliente_existente');
-    const clienteNuevo = document.getElementById('cliente_nuevo');
-    const existenteSection = document.getElementById('cliente_existente_section');
-    const nuevoSection = document.getElementById('nuevo_cliente_section');
-    
-    clienteExistente.addEventListener('change', function() {
-        if (this.checked) {
-            existenteSection.style.display = 'block';
-            nuevoSection.style.display = 'none';
-            document.querySelector('input[name="cliente_id"]') && (document.querySelector('input[name="cliente_id"]').required = true);
-            nuevoSection.querySelectorAll('input').forEach(input => input.required = false);
-        }
-    });
-    
-    clienteNuevo.addEventListener('change', function() {
-        if (this.checked) {
-            existenteSection.style.display = 'none';
-            nuevoSection.style.display = 'block';
-            document.querySelector('input[name="cliente_id"]') && (document.querySelector('input[name="cliente_id"]').required = false);
-            nuevoSection.querySelectorAll('input').forEach(input => {
-                if (input.name !== 'nuevo_telefono') {
-                    input.required = true;
-                }
-            });
-        }
-    });
-    
-    // Nueva funcionalidad de búsqueda unificada
+    // Script simplificado para solo cliente existente
+    const clienteSelect = document.getElementById('cliente_id');
+    if (clienteSelect) {
+        clienteSelect.required = true;
+    }
+     
+     // Nueva funcionalidad de búsqueda unificada
     initClientSearch();
     
     // Funcionalidad para mostrar/ocultar campos del conductor adicional
